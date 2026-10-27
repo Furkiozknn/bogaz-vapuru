@@ -1,0 +1,80 @@
+{
+  "schema_version": "1.0.0",
+  "id": "bogaz-vapuru",
+  "owner": "Furkiozknn",
+  "repository": "https://github.com/Furkiozknn/bogaz-vapuru",
+  "homepage": "https://furkiozknn.github.io/bogaz-vapuru/",
+  "releases": null,
+  "status": "active",
+  "category": "game",
+  "platform": [
+    "web"
+  ],
+  "primary_language": "JavaScript",
+  "technologies": [
+    "Three.js r170",
+    "Web Audio API"
+  ],
+  "version": null,
+  "license": "MIT",
+  "topics": [
+    "browser-game",
+    "threejs",
+    "simulation-game",
+    "boat-game",
+    "claude-code",
+    "claude-game-arena"
+  ],
+  "summary": "3D ferry-captain game on a low-poly Bosphorus, built by Claude Fable 5.1 · Alçak poligon İstanbul Boğazı'nda 3D şehir hatları vapuru kaptanlığı, Claude Fable 5.1 yaptı",
+  "key_features": [
+    "Six piers from Eminönü to Kanlıca with a timetable; late arrivals cost points and passengers",
+    "Docking guide for distance, speed and angle; dock slowly, parallel and close to throw the ropes",
+    "A current towards the Marmara and wind drift that grow over the campaign; tankers cannot stop quickly",
+    "Eight shifts (dusk, fog, night, strong current, storm, tanker convoy) and an endless mode",
+    "The ?auto captain finishes the campaign with 3 stars on every shift; 21-27 draw calls, 57 fps (vsync) on Intel UHD at 1280x720"
+  ],
+  "media": {
+    "hero": "docs/03-dusk.png",
+    "screenshots": [
+      "docs/01-title.png",
+      "docs/02-docking.png",
+      "docs/03-dusk.png",
+      "docs/04-night.png",
+      "docs/05-storm.png",
+      "docs/06-phone-portrait.png"
+    ],
+    "gifs": [
+      "docs/gameplay.gif"
+    ],
+    "videos": [
+      "docs/gameplay.mp4"
+    ]
+  },
+  "tests": null,
+  "ci": {
+    "workflows": [],
+    "badge": null
+  },
+  "docs": {
+    "readme": "README.md",
+    "changelog": null,
+    "version_history": null,
+    "roadmap": null,
+    "security": null,
+    "contributing": null,
+    "license_file": "LICENSE"
+  },
+  "social": {
+    "headline": "Captain an Istanbul ferry on the Bosphorus: keep the timetable and dock against the current · Boğaz'da vapur kaptanı ol: tarifeye uy, akıntıya karşı iskeleye yanaş",
+    "hashtags": [
+      "claudecode",
+      "indiegame"
+    ],
+    "primary_link": "https://furkiozknn.github.io/bogaz-vapuru/"
+  },
+  "provenance": {
+    "generated_at": "2026-10-27",
+    "generator": "hand-written",
+    "rule": "mechanical fields read from the repository; editorial fields hand-written from the README, index.html and the video-studio analiz.md; no field is generated from a guess"
+  }
+}
