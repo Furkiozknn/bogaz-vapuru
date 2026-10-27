@@ -157,10 +157,12 @@ the two-tone horn, the pier bell, gulls, sea, wind, rain, thunder and a calm saz
 the Web Audio API. No asset files are shipped.
 
 Boğaz Vapuru is part of the **Claude Game Arena** series, where each game is built by a Claude model from one prompt.
-The other games: [Kervan](https://furkiozknn.github.io/kervan/) · [Dolmuş](https://furkiozknn.github.io/dolmus/) ·
-[Peri Golf](https://furkiozknn.github.io/peri-golf/) · [Mehter](https://furkiozknn.github.io/mehter/) ·
-[Simit Fırını](https://furkiozknn.github.io/simit-firini/) · [Karagöz](https://furkiozknn.github.io/karagoz/) ·
-[Lale Bahçesi](https://furkiozknn.github.io/lale-bahcesi/)
+The other games: [Hisar](https://furkiozknn.github.io/kale-savunmasi/) ·
+[Çay Ocağı](https://furkiozknn.github.io/cay-ocagi/) · [Çini Ustası](https://furkiozknn.github.io/cini-ustasi/) ·
+[Martı](https://furkiozknn.github.io/marti/) · [Kervan](https://furkiozknn.github.io/kervan/) ·
+[Dolmuş](https://furkiozknn.github.io/dolmus/) · [Peri Golf](https://furkiozknn.github.io/peri-golf/) ·
+[Mehter](https://furkiozknn.github.io/mehter/) · [Simit Fırını](https://furkiozknn.github.io/simit-firini/) ·
+[Karagöz](https://furkiozknn.github.io/karagoz/) · [Lale Bahçesi](https://furkiozknn.github.io/lale-bahcesi/)
 
 ## Türkçe
 
