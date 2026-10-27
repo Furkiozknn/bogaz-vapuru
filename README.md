@@ -1,5 +1,7 @@
 # Boğaz Vapuru
+
 **Play online:** https://furkiozknn.github.io/bogaz-vapuru/ (desktop and phone, no install)
+![Boğaz Vapuru gameplay: the ferry leaving the pier on the Bosphorus](docs/gameplay.gif)
 
 A 3D ferry-captain game set on a stylised, low-poly Bosphorus. Take the classic white-and-black city ferry with the
 yellow funnel between six piers (Eminönü, Karaköy, Üsküdar, Beşiktaş, Kadıköy, Kanlıca), keep the timetable, come
