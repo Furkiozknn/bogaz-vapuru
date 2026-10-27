@@ -36,9 +36,9 @@
   "media": {
     "hero": "docs/03-dusk.png",
     "screenshots": [
+      "docs/03-dusk.png",
       "docs/01-title.png",
       "docs/02-docking.png",
-      "docs/03-dusk.png",
       "docs/04-night.png",
       "docs/05-storm.png",
       "docs/06-phone-portrait.png"
