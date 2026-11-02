@@ -1055,7 +1055,7 @@ function buildMonuments() {
     g.add(pg, P.x, 0, P.z, P.ry);
     WORLD.gullSpots.push([P.x, P.z]);
     // quay wall behind each pier
-    const qg = new GB(); qg.box(-W / 2 - 12, -2, 0, 10, 4.5, L + 60, 0x8a8e92, 0, 0xa7aaad); g.add(qg, P.x, 0, P.z, P.ry);
+    const qg = new GB(); qg.box(-W / 2 - 12, -2, 0, 10, 4.5, L + 60, 0xa29d93, 0, 0xc4bfb2); qg.box(-W / 2 - 12, -2, 0, 10.4, 2.4, L + 60.4, 0x5f6a6b); g.add(qg, P.x, 0, P.z, P.ry);
   }
   buildQuays(g); buildLandmarks(g);
   WG.mono = g.build();
@@ -1667,7 +1667,10 @@ class Particles {
     this.life[i] = life; this.age[i] = 0; this.s0[i] = s0; this.s1[i] = s1; this.a0[i] = a0; this.g[i] = g;
     this.col[i * 3] = c[0]; this.col[i * 3 + 1] = c[1]; this.col[i * 3 + 2] = c[2];
     this.size[i] = s0; this.alpha[i] = a0;
+    return i;
   }
+  /** darken the colour of particle i (foam at night) */
+  dim(i, k) { this.col[i * 3] *= k; this.col[i * 3 + 1] *= k; this.col[i * 3 + 2] *= k; }
   update(dt) {
     for (let i = 0; i < this.max; i++) {
       if (this.life[i] <= 0) { this.alpha[i] = 0; continue; }
@@ -2088,11 +2091,11 @@ function updateSky(force) {
   const gold = (1 - sstep(0.12, 0.5, el)) * (1 - night) * sstep(-0.1, 0.08, el);
   SKY.gold = gold;
   // colours: Bosphorus day (#2a6fb5 / warm haze), sunset #F28C28 -> #7B2CBF, indigo night
-  SKY.top.setHex(0x1f62ae).lerp(SKY.tmp.setHex(0x3f5fb0), gold * 0.5).lerp(SKY.tmp.setHex(0x4a2c8a), dusk * 0.85).lerp(SKY.tmp.setHex(0x08122c), night).lerp(SKY.tmp.setHex(0x4a5560), storm).lerp(SKY.tmp.setHex(0xaeb9c2), fogA * 0.6 * (1 - night));
-  SKY.mid.setHex(0x74b2e2).lerp(SKY.tmp.setHex(0xe8b48a), gold * 0.7).lerp(SKY.tmp.setHex(0xc4568c), dusk * 0.9).lerp(SKY.tmp.setHex(0x141f44), night).lerp(SKY.tmp.setHex(0x5e6a76), storm).lerp(SKY.tmp.setHex(0xbfc7ce), fogA * 0.65 * (1 - night));
-  SKY.hor.setHex(0xe6dcc8).lerp(SKY.tmp.setHex(0xf6c892), gold * 0.8).lerp(SKY.tmp.setHex(0xf28c28), dusk).lerp(SKY.tmp.setHex(0x1c2742), night).lerp(SKY.tmp.setHex(0x6c7680), storm).lerp(SKY.tmp.setHex(0xc5ccd2), fogA * 0.7 * (1 - night));
+  SKY.top.setHex(0x1f62ae).lerp(SKY.tmp.setHex(0x2e5aa8), gold * 0.5).lerp(SKY.tmp.setHex(0x4a2c8a), dusk * 0.85).lerp(SKY.tmp.setHex(0x08122c), night).lerp(SKY.tmp.setHex(0x4a5560), storm).lerp(SKY.tmp.setHex(0xaeb9c2), fogA * 0.6 * (1 - night));
+  SKY.mid.setHex(0x74b2e2).lerp(SKY.tmp.setHex(0xf0a868), gold * 0.75).lerp(SKY.tmp.setHex(0xd0609a), dusk * 0.9).lerp(SKY.tmp.setHex(0x141f44), night).lerp(SKY.tmp.setHex(0x5e6a76), storm).lerp(SKY.tmp.setHex(0xbfc7ce), fogA * 0.65 * (1 - night));
+  SKY.hor.setHex(0xe6dcc8).lerp(SKY.tmp.setHex(0xffc26a), gold * 0.85).lerp(SKY.tmp.setHex(0xf28c28), dusk).lerp(SKY.tmp.setHex(0x1c2742), night).lerp(SKY.tmp.setHex(0x6c7680), storm).lerp(SKY.tmp.setHex(0xc5ccd2), fogA * 0.7 * (1 - night));
   skyU.uTop.value.copy(SKY.top); skyU.uMid.value.copy(SKY.mid); skyU.uHor.value.copy(SKY.hor); skyU.uSun.value.copy(SKY.sunDir);
-  skyU.uGlow.value.setHex(0xffd9a0).lerp(SKY.tmp.setHex(0xff7a3a), dusk); skyU.uGlowA.value = (0.3 + 0.5 * gold + 0.9 * dusk) * (1 - night) * (1 - storm);
+  skyU.uGlow.value.setHex(0xffd9a0).lerp(SKY.tmp.setHex(0xffa040), gold).lerp(SKY.tmp.setHex(0xff7a3a), dusk); skyU.uGlowA.value = (0.3 + 0.9 * gold + 0.9 * dusk) * (1 - night) * (1 - storm);
   skyU.uBand.value = dusk * (1 - storm) * (1 - fogA);
   // lights
   sun.color.setHex(0xffe9cc).lerp(SKY.tmp.setHex(0xffc27a), gold).lerp(SKY.tmp.setHex(0xff8a4a), dusk).lerp(SKY.tmp.setHex(0x7f93c8), night);
@@ -2175,19 +2178,21 @@ function syncParticles(dt) {
   // wake: foam at the stern and along the bow when moving
   if (G.state === 'play' && !SIM.docked) {
     P.wakeT += dt * (7 + sp * 6);
+    const fk = 1 - 0.72 * SIM.night - 0.3 * (SIM.storm ? 1 : 0);   // foam is lit by the sky: dim at night
+    const wk = (...a) => OBJ.wake.dim(OBJ.wake.spawn(...a), fk);
     while (P.wakeT > 1) {
       P.wakeT -= 1;
       const side = rr(-1, 1), k = Math.min(1, 0.3 + sp / 6 + Math.abs(P.thr) * 0.4);
       // stern wash: a bright churn close to the propeller and a wide, long-lived foam carpet behind it
-      OBJ.wake.spawn(P.x - s * 17 + c * side * 3, 0.3, P.z - c * 17 - s * side * 3, -P.vx * 0.2 + rr(-1, 1), 0, -P.vz * 0.2 + rr(-1, 1), 2.5 + sp * 0.25, 2.5, 8 + sp, 0xf4fbff, 0.4 * k);
-      OBJ.wake.spawn(P.x - s * 19 + c * side * 4, 0.25, P.z - c * 19 - s * side * 4, -P.vx * 0.1 + rr(-0.6, 0.6), 0, -P.vz * 0.1 + rr(-0.6, 0.6), 6 + sp * 0.6, 4, 16 + sp * 1.5, 0xcfe6ef, 0.16 * k);
+      wk(P.x - s * 17 + c * side * 3, 0.3, P.z - c * 17 - s * side * 3, -P.vx * 0.2 + rr(-1, 1), 0, -P.vz * 0.2 + rr(-1, 1), 2.5 + sp * 0.25, 2.5, 7 + sp * 0.8, 0xf4fbff, 0.34 * k);
+      wk(P.x - s * 19 + c * side * 4, 0.25, P.z - c * 19 - s * side * 4, -P.vx * 0.1 + rr(-0.6, 0.6), 0, -P.vz * 0.1 + rr(-0.6, 0.6), 6 + sp * 0.6, 4, 12 + sp, 0xcfe6ef, 0.1 * k);
       if (sp > 2) {
         // bow wave: a V of foam peeling off both sides, with spray thrown up at speed
         const sd = rr(0, 1) < 0.5 ? -1 : 1;
-        OBJ.wake.spawn(P.x + s * 14 + c * sd * 4.5, 0.3, P.z + c * 14 - s * sd * 4.5, c * sd * (1.5 + sp * 0.2) + P.vx * 0.5, 0, -s * sd * (1.5 + sp * 0.2) + P.vz * 0.5, 2.2, 1.2, 6 + sp * 0.4, 0xffffff, 0.34);
-        if (sp > 5 && rr(0, 1) < 0.5) OBJ.wake.spawn(P.x + s * 16 + c * sd * 3.5, 1.2, P.z + c * 16 - s * sd * 3.5, c * sd * 2.5 + P.vx * 0.6, 3 + sp * 0.25, -s * sd * 2.5 + P.vz * 0.6, 1.1, 0.8, 2.2, 0xffffff, 0.5, 9);
+        wk(P.x + s * 14 + c * sd * 4.5, 0.3, P.z + c * 14 - s * sd * 4.5, c * sd * (1.5 + sp * 0.2) + P.vx * 0.5, 0, -s * sd * (1.5 + sp * 0.2) + P.vz * 0.5, 2.2, 1.2, 4 + sp * 0.3, 0xffffff, 0.26);
+        if (sp > 5 && rr(0, 1) < 0.5) wk(P.x + s * 16 + c * sd * 3.5, 1.2, P.z + c * 16 - s * sd * 3.5, c * sd * 2.5 + P.vx * 0.6, 3 + sp * 0.25, -s * sd * 2.5 + P.vz * 0.6, 1.1, 0.8, 1.8, 0xffffff, 0.45, 9);
       }
-      if (sp > 1) { const sd = rr(0, 1) < 0.5 ? -1 : 1, az = rr(-14, 12); OBJ.wake.spawn(P.x + s * az + c * sd * 4.9, 0.3, P.z + c * az - s * sd * 4.9, P.vx * 0.3, 0, P.vz * 0.3, 1.4, 1.0, 3.5, 0xeaf6fa, 0.22 * k); }   // foam collar along the hull
+      if (sp > 1) { const sd = rr(0, 1) < 0.5 ? -1 : 1, az = rr(-14, 12); wk(P.x + s * az + c * sd * 4.9, 0.3, P.z + c * az - s * sd * 4.9, P.vx * 0.3, 0, P.vz * 0.3, 1.4, 1.0, 3.0, 0xeaf6fa, 0.2 * k); }   // foam collar along the hull
     }
     // funnel smoke
     P.smokeT += dt * (3 + Math.abs(P.thr) * 10);
@@ -2252,7 +2257,7 @@ function updateCamera(dt) {
   if (camMode === 0) {
     // cinematic docking: near the target pier the chase camera drifts out over the water, drops low and frames the
     // ferry against the pier; moored, it keeps a slow orbit. A drag on the scene overrides it for a few seconds.
-    const ns = nextStop(), Pr = ns ? PIERS[ns.id] : null, cine = !!Pr && (DOCK.near || !!SIM.docked) && !CAM.drag && CAM.idle > 2.5;
+    const ns = nextStop(), Pr = ns ? PIERS[ns.id] : null, cine = !!Pr && (DOCK.near || !!SIM.docked) && !CAM.drag && CAM.idle > 2.5 && !CAM.cineOff;
     CAM.cine += ((cine ? 1 : 0) - CAM.cine) * Math.min(1, dt * 0.8);
     if (!CAM.drag && CAM.idle > 3) {
       let yawT = 0, pitchT = 0.42, distT = CAM.distUser;
@@ -2830,7 +2835,7 @@ window.vapurSim = function (seconds) {
   return window.vapur;
 };
 window.vapur = {
-  G, SIM, player, input, AUD, STR, WORLD, PIERS, SHIFTS, ASSETS, DOCK, BOT, scene, renderer, camera,
+  G, SIM, player, input, AUD, STR, WORLD, PIERS, SHIFTS, ASSETS, DOCK, BOT, CAM, scene, renderer, camera,
   get state() { return G.state; }, get shift() { return SIM.shift && SIM.shift.id; }, get time() { return SIM.t; }, get hour() { return SIM.hour; },
   get score() { return shiftScore(); }, get target() { return SIM.target; }, get aboard() { return SIM.aboardN; }, get delivered() { return SIM.delivered; },
   get hull() { return player.hull; }, get comfort() { return SIM.comfort; }, get log() { return G.log; }, get done() { return G.done; }, get errors() { return G.errors; },
