@@ -18,6 +18,10 @@
 
 <p align="center"><b>Play online: <a href="https://furkiozknn.github.io/bogaz-vapuru/">https://furkiozknn.github.io/bogaz-vapuru/</a></b> (desktop and phone, no install)</p>
 
+<!-- portals:start -->
+<p align="center">Also on: <a href="https://furkiozknn.itch.io/bogaz-vapuru">itch.io</a> &middot; <a href="https://playgama.ai/play/rrqp5tfena6yda">Playgama</a></p>
+<!-- portals:end -->
+
 ## Highlights
 
 - **Six piers, one timetable.** Eminönü, Karaköy, Üsküdar, Beşiktaş, Kadıköy and Kanlıca; each shift is a list of piers
@@ -221,3 +225,5 @@ prompt'tan yapıldı.
 ## License
 
 MIT, see [LICENSE](LICENSE).
+
+Like the game? You can support new rounds on [Buy Me a Coffee](https://buymeacoffee.com/furkiozkann). The game stays free.
