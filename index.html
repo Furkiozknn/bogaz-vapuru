@@ -17,7 +17,7 @@
   --serif:"Palatino Linotype","Book Antiqua",Palatino,"Times New Roman",Georgia,serif;
   --sans:"Segoe UI",system-ui,-apple-system,Roboto,sans-serif;
   --rope-img:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='8' viewBox='0 0 24 8'%3E%3Cpath d='M0 6C4 0 8 0 12 6s8 6 12 0' fill='none' stroke='%23B9975B' stroke-width='2.2'/%3E%3Cpath d='M0 2c4 6 8 6 12 0s8-6 12 0' fill='none' stroke='%238E6F33' stroke-width='1.6'/%3E%3C/svg%3E");
-  --rose-img:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Cg fill='none' stroke='%2315304A' stroke-width='1'%3E%3Ccircle cx='100' cy='100' r='86'/%3E%3Ccircle cx='100' cy='100' r='70'/%3E%3Ccircle cx='100' cy='100' r='16'/%3E%3C/g%3E%3Cg fill='%2315304A'%3E%3Cpath d='M100 12l9 78-9 10-9-10z'/%3E%3Cpath d='M100 188l9-78-9-10-9 10z'/%3E%3Cpath d='M12 100l78-9 10 9-10 9z'/%3E%3Cpath d='M188 100l-78-9-10 9 10 9z'/%3E%3Cpath d='M38 38l55 45 7 17-17-7z' opacity='.6'/%3E%3Cpath d='M162 38l-55 45-7 17 17-7z' opacity='.6'/%3E%3Cpath d='M38 162l55-45 7-17-17 7z' opacity='.6'/%3E%3Cpath d='M162 162l-55-45-7-17 17 7z' opacity='.6'/%3E%3C/g%3E%3C/svg%3E");
+  --rose-img:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200' opacity='.22'%3E%3Cg fill='none' stroke='%2315304A' stroke-width='1'%3E%3Ccircle cx='100' cy='100' r='86'/%3E%3Ccircle cx='100' cy='100' r='70'/%3E%3Ccircle cx='100' cy='100' r='16'/%3E%3C/g%3E%3Cg fill='%2315304A'%3E%3Cpath d='M100 12l9 78-9 10-9-10z'/%3E%3Cpath d='M100 188l9-78-9-10-9 10z'/%3E%3Cpath d='M12 100l78-9 10 9-10 9z'/%3E%3Cpath d='M188 100l-78-9-10 9 10 9z'/%3E%3Cpath d='M38 38l55 45 7 17-17-7z' opacity='.6'/%3E%3Cpath d='M162 38l-55 45-7 17 17-7z' opacity='.6'/%3E%3Cpath d='M38 162l55-45 7-17-17 7z' opacity='.6'/%3E%3Cpath d='M162 162l-55-45-7-17 17 7z' opacity='.6'/%3E%3C/g%3E%3C/svg%3E");
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;height:100%;overflow:hidden;background:#0b1d2e;color:var(--ink);
@@ -138,6 +138,7 @@ body.touch #dock{bottom:calc(max(14px,env(safe-area-inset-bottom)) + 124px);min-
 body.touch #dock .g b{font-size:17px}
 body.touch #toasts{top:calc(var(--barh,66px) + max(8px,env(safe-area-inset-top)) + 12px)}
 @media (orientation:portrait){body.touch #toasts{top:calc(var(--barh,66px) + max(8px,env(safe-area-inset-top)) + 70px)}body.touch #dock{bottom:calc(max(14px,env(safe-area-inset-bottom)) + 220px)}}
+@media (orientation:landscape){body.touch #dock{bottom:auto;top:calc(var(--barh,66px) + max(8px,env(safe-area-inset-top)) + 6px)}body.touch #toasts{top:calc(var(--barh,66px) + max(8px,env(safe-area-inset-top)) + 84px)}}
 /* screens: parchment chart cards */
 .screen{position:fixed;inset:0;display:none;align-items:center;justify-content:center;z-index:20;padding:12px;overflow:auto;touch-action:pan-y}
 .screen.show{display:flex}
@@ -155,6 +156,7 @@ body.touch #toasts{top:calc(var(--barh,66px) + max(8px,env(safe-area-inset-top))
 .card .sub{color:var(--navy);font-size:17px;font-family:var(--serif);font-style:italic}
 .card .how{font-size:13.5px;color:var(--chart-dim)}
 .card .btn{color:var(--ink)}
+.card .btn.primary,.card .seg .btn.sel{color:#1a1206}
 .col{display:flex;flex-direction:column;gap:10px;margin-top:12px;align-items:stretch}
 .row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
 #logoBig{width:170px;height:128px;margin:0 auto;display:block;filter:drop-shadow(0 4px 0 rgba(21,48,74,.25))}
@@ -2303,9 +2305,10 @@ function updateCamera(dt) {
     const a = Math.sin(waterU.uTime.value * 0.11) * 0.9, Pr = SIM.docked || (SIM.stops[0] && PIERS[SIM.stops[0].id]);
     const nx = Pr ? Pr.nx : 1, nz = Pr ? Pr.nz : 0, tx = Pr ? Pr.tx : 0, tz = Pr ? Pr.tz : 1;
     const dx = nx * Math.cos(a) + tx * Math.sin(a), dz = nz * Math.cos(a) + tz * Math.sin(a);
-    // the card sits in the middle of the screen, so the ferry is framed to the left of it
-    camera.position.set(P.x + dx * 88 + tx * 26, 22 + Math.cos(a) * 4, P.z + dz * 88 + tz * 26);
-    camera.lookAt(P.x - nx * 14 - tx * 22, 6, P.z - nz * 14 - tz * 22);
+    // the card sits in the middle of the screen, so the ferry is framed to one side of it
+    const px = -nx * Math.sin(a) + tx * Math.cos(a), pz = -nz * Math.sin(a) + tz * Math.cos(a);   // screen-lateral axis
+    camera.position.set(P.x + dx * 84 + px * 12, 22 + Math.cos(a) * 4, P.z + dz * 84 + pz * 12);
+    camera.lookAt(P.x - nx * 10 - px * 44, 6, P.z - nz * 10 - pz * 44);
     return;
   }
   CAM.idle += dt;
@@ -2465,7 +2468,7 @@ function buildMinimapBase() {
   for (let n = 0; n < 40; n++) { const x = lerp(MM.x0, MM.x1, sr()), z = lerp(MM.z0, MM.z1, sr()), dp = depth(x, z); if (dp > 40) g.fillText(String(Math.round(dp / 6)), mmX(x), mmZ(z)); }
   g.strokeStyle = '#15304A'; g.lineWidth = 2.5; const b = WORLD.bridge; g.beginPath(); g.moveTo(mmX(b.xl - 150), mmZ(b.z)); g.lineTo(mmX(b.xr + 150), mmZ(b.z)); g.stroke();
   g.strokeStyle = 'rgba(21,48,74,.35)'; g.lineWidth = 1; g.setLineDash([4, 4]); g.beginPath(); g.moveTo(mmX(b.xl - 150), mmZ(b.z) - 3); g.lineTo(mmX(b.xr + 150), mmZ(b.z) - 3); g.moveTo(mmX(b.xl - 150), mmZ(b.z) + 3); g.lineTo(mmX(b.xr + 150), mmZ(b.z) + 3); g.stroke(); g.setLineDash([]);
-  { const cx = c.width - 34, cy = 40; g.strokeStyle = 'rgba(21,48,74,.6)'; g.lineWidth = 1.2; g.beginPath(); g.arc(cx, cy, 22, 0, TAU); g.stroke(); g.beginPath(); g.arc(cx, cy, 15, 0, TAU); g.stroke();
+  { const cx = 40, cy = 48; g.strokeStyle = 'rgba(21,48,74,.6)'; g.lineWidth = 1.2; g.beginPath(); g.arc(cx, cy, 22, 0, TAU); g.stroke(); g.beginPath(); g.arc(cx, cy, 15, 0, TAU); g.stroke();
     g.fillStyle = '#15304A'; g.beginPath(); g.moveTo(cx, cy - 26); g.lineTo(cx + 5, cy); g.lineTo(cx, cy + 6); g.lineTo(cx - 5, cy); g.closePath(); g.fill();
     g.fillStyle = 'rgba(21,48,74,.5)'; g.beginPath(); g.moveTo(cx, cy + 26); g.lineTo(cx + 5, cy); g.lineTo(cx - 5, cy); g.closePath(); g.fill();
     g.beginPath(); g.moveTo(cx - 26, cy); g.lineTo(cx, cy - 4); g.lineTo(cx, cy + 4); g.closePath(); g.fill(); g.beginPath(); g.moveTo(cx + 26, cy); g.lineTo(cx, cy - 4); g.lineTo(cx, cy + 4); g.closePath(); g.fill();
