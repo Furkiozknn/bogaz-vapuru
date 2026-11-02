@@ -1991,7 +1991,7 @@ function buildSky() {
     fragmentShader: 'uniform vec3 uTop, uMid, uHor, uSun, uGlow; uniform float uGlowA, uBand; varying vec3 vP; void main(){ vec3 d = normalize(vP); float h = clamp(d.y, 0.0, 1.0);\n' +
       ' vec3 c = h < 0.14 ? mix(uHor, uMid, h / 0.14) : mix(uMid, uTop, pow((h - 0.14) / 0.86, 0.6));\n' +
       ' float sd = max(dot(d, uSun), 0.0); float g = pow(sd, 8.0) * uGlowA * (1.0 - h * 0.6) + pow(sd, 2.0) * uGlowA * 0.35 * (1.0 - h);\n' +
-      ' c += uGlow * g; c = mix(c, vec3(0.48, 0.17, 0.75), uBand * smoothstep(0.02, 0.16, h) * smoothstep(0.42, 0.2, h) * 0.35);\n' +
+      ' c += uGlow * g; c = mix(c, vec3(0.48, 0.17, 0.75), uBand * smoothstep(0.02, 0.16, h) * smoothstep(0.42, 0.2, h) * 0.26);\n' +
       ' gl_FragColor = vec4(c, 1.0);\n#include <colorspace_fragment>\n}',
   });
   skyMesh = new THREE.Mesh(new THREE.SphereGeometry(2600, 20, 12), sm); skyMesh.renderOrder = -10; skyMesh.frustumCulled = false; scene.add(skyMesh);
@@ -2148,7 +2148,7 @@ function updateSky(force) {
   SKY.gold = gold;
   // colours: Bosphorus day (#2a6fb5 / warm haze), sunset #F28C28 -> #7B2CBF, indigo night
   SKY.top.setHex(0x1f62ae).lerp(SKY.tmp.setHex(0x2e5aa8), gold * 0.5).lerp(SKY.tmp.setHex(0x4a2c8a), dusk * 0.85).lerp(SKY.tmp.setHex(0x08122c), night).lerp(SKY.tmp.setHex(0x4a5560), storm).lerp(SKY.tmp.setHex(0xaeb9c2), fogA * 0.6 * (1 - night));
-  SKY.mid.setHex(0x74b2e2).lerp(SKY.tmp.setHex(0xf0a868), gold * 0.75).lerp(SKY.tmp.setHex(0xd0609a), dusk * 0.9).lerp(SKY.tmp.setHex(0x141f44), night).lerp(SKY.tmp.setHex(0x5e6a76), storm).lerp(SKY.tmp.setHex(0xbfc7ce), fogA * 0.65 * (1 - night));
+  SKY.mid.setHex(0x74b2e2).lerp(SKY.tmp.setHex(0xf0a868), gold * 0.75).lerp(SKY.tmp.setHex(0xe07a66), dusk * 0.85).lerp(SKY.tmp.setHex(0x141f44), night).lerp(SKY.tmp.setHex(0x5e6a76), storm).lerp(SKY.tmp.setHex(0xbfc7ce), fogA * 0.65 * (1 - night));
   SKY.hor.setHex(0xe6dcc8).lerp(SKY.tmp.setHex(0xffc26a), gold * 0.85).lerp(SKY.tmp.setHex(0xf28c28), dusk).lerp(SKY.tmp.setHex(0x1c2742), night).lerp(SKY.tmp.setHex(0x6c7680), storm).lerp(SKY.tmp.setHex(0xc5ccd2), fogA * 0.7 * (1 - night));
   skyU.uTop.value.copy(SKY.top); skyU.uMid.value.copy(SKY.mid); skyU.uHor.value.copy(SKY.hor); skyU.uSun.value.copy(SKY.sunDir);
   skyU.uGlow.value.setHex(0xffd9a0).lerp(SKY.tmp.setHex(0xffa040), gold).lerp(SKY.tmp.setHex(0xff7a3a), dusk); skyU.uGlowA.value = (0.3 + 0.9 * gold + 0.9 * dusk) * (1 - night) * (1 - storm);
@@ -2167,7 +2167,7 @@ function updateSky(force) {
   stars.material.uniforms.fogNear.value = 1e8; stars.material.uniforms.fogFar.value = 1e9;
   renderer.setClearColor(SKY.tmp2);
   // water: Bosphorus blue #145DA0 by day, violet at dusk, ink at night, slate in a storm
-  waterMat.color.setHex(0x145da0).lerp(SKY.tmp.setHex(0x1f5a8c), gold * 0.4).lerp(SKY.tmp.setHex(0x3b3878), dusk * 0.6).lerp(SKY.tmp.setHex(0x0b2340), night).lerp(SKY.tmp.setHex(0x37515c), storm);
+  waterMat.color.setHex(0x145da0).lerp(SKY.tmp.setHex(0x1f5a8c), gold * 0.4).lerp(SKY.tmp.setHex(0x2f3a78), dusk * 0.45).lerp(SKY.tmp.setHex(0x0b2340), night).lerp(SKY.tmp.setHex(0x37515c), storm);
   waterU.uShallow.value.setHex(0x2f9ea8).lerp(SKY.tmp.setHex(0x4a8c90), gold * 0.4).lerp(SKY.tmp.setHex(0x0f2a36), night).lerp(SKY.tmp.setHex(0x4b6a70), storm);
   waterU.uSkyRef.value.copy(SKY.mid).lerp(SKY.hor, 0.5);
   waterU.uSunC.value.copy(sun.color); waterU.uSpec.value = (0.6 + 0.5 * gold + 0.6 * dusk) * (1 - night * 0.7) * (1 - storm * 0.8);

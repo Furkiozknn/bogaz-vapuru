@@ -98,7 +98,7 @@ continue under `arena.vapur.save`. The language follows the browser (Turkish or 
 | `?debug` | fps, draw calls, triangles, state, bot results and JS errors on screen; `window.vapurSim(seconds)` fast-forwards |
 | `?sim=N` | fast-forward N seconds of the first shift before the first frame (add `&auto` to let the bot sail) |
 | `?low` | shadows off, pixel ratio 1, half the particles |
-| `?noassets` | skip the lookup for optional sound samples (everything is synthesised anyway) |
+| `?noassets` | kept for the arena test suite: no asset files are fetched in any case (every sound is synthesised) |
 | `?lang=en` / `?lang=tr` | language |
 | `?shift=N` | start the campaign at shift N |
 | `?mode=endless` | with `?auto` or `?sim`, start in endless mode |
@@ -118,7 +118,7 @@ rendering.
   <tr>
     <td width="33%"><img src="docs/01-title.png" alt="Title screen"><br><sub>Title screen</sub></td>
     <td width="33%"><img src="docs/02-docking.png" alt="Moored at Karaköy"><br><sub>Moored at Karaköy</sub></td>
-    <td width="33%"><img src="docs/03-dusk.png" alt="Approaching Eminönü at dusk with the docking guide"><br><sub>Dusk run and the docking guide</sub></td>
+    <td width="33%"><img src="docs/03-dusk.png" alt="Leaving Eminönü on the evening run at dusk"><br><sub>Evening run at dusk</sub></td>
   </tr>
   <tr>
     <td><img src="docs/04-night.png" alt="Night with the Maiden's Tower"><br><sub>Night, Maiden's Tower</sub></td>
@@ -133,8 +133,44 @@ Piers, timetables and difficulty are one data table in the code (`PIER_DEF`, `SH
 timetable is derived from the route length and the shift's pace. The `?auto` captain routes through the fairway graph,
 compensates the current, slows for traffic and docks by sliding in at a shallow angle. It finishes the campaign with 3
 stars on every shift and needed one or two retries on shifts 5, 6 and 8 (night, strong current, convoy), which is the
-intended difficulty curve. Measured on an Intel UHD GPU at 1280x720: 21 to 27 draw calls, about 225 000 triangles and
-57 fps (vsync-capped) in busy dusk, night, storm and phone scenes on the High tier.
+intended difficulty curve. Measured on an Intel UHD 620 at 1280x720 after the 2026-11 redesign: 25 to 32 draw calls,
+about 440 000 triangles and 60 fps (vsync-capped) in the title, docking, dusk, night, storm and phone scenes on the
+High tier.
+
+## Redesign (2026-11)
+
+<p align="center"><img src="docs/redesign-before-after.png" width="100%" alt="The same chase-camera moment before and after the redesign"></p>
+
+**Art direction:** stylized low-poly 3D with a cinematic golden-hour default. Palette: Bosphorus blue `#145DA0`, sunset
+`#F28C28` to `#7B2CBF`, the white ferry with its yellow-and-black funnel, pastel yalıs, bridge steel `#6B7280`; the UI is a
+maritime chart (navy instrument panels with brass edges, parchment chart cards, rope dividers).
+
+What changed (gameplay, physics, levels, scoring, saves and the bot are untouched):
+
+- **Light and sky.** A three-stop sky with a sun glow and a violet band at dusk, a golden-hour grade when the sun is low,
+  drifting cloud clusters, warmer fog; the water is Bosphorus blue with a sky reflection at grazing angles, a sparkling
+  glitter path towards the sun and lace foam along the shore. The title scene is now set at 18:30.
+- **Shores.** Town houses carry window bands and either a parapet with a water tank or a terracotta hip roof; the city
+  shores have stone sea walls with bollards and ornate lamp posts; a Dolmabahçe-like palace, a Rumeli Hisarı-like
+  fortress and a Haydarpaşa-like station join the mosques and towers; distant hills close the horizon; trees have
+  layered canopies and the yalıs got shutters, boathouses and chimneys.
+- **Boats and piers.** The ferry has a red boot-top, teak deck, bridge wings, lifeboats on davits, an aft awning with
+  benches, fenders, a name board and a flag emblem; tankers carry pipe runs, derrick cranes and a lifeboat; fishing
+  boats have nets, buoys and a mast lamp; the piers have slate-green hipped halls, clock towers, ticket booths, benches
+  and flagpoles.
+- **Motion.** A layered wake (stern churn, foam carpet, bow wave, spray at speed, a foam collar along the hull) that dims
+  at night; a cinematic docking camera that drifts out over the water and frames the ferry against the pier, with a slow
+  orbit while moored; a slightly wider field of view at speed.
+- **UI.** Every screen restyled: brass-edged navy HUD with serif numerals, a brass-bezel log dial, a nautical minimap
+  with soundings, a graticule and a compass rose, parchment chart cards with rope dividers, a compass-ring logo; phone
+  portrait and landscape layouts adjusted (the docking guide moves to the top in landscape).
+- The lookups for optional `assets/sfx/*.mp3` files were removed (they never shipped and only produced 404s).
+
+Measured on the Intel UHD 620 at 1280x720, High tier: before 21 to 28 draw calls / about 224 000 triangles / 60 fps; after
+25 to 32 draw calls / about 440 000 triangles / 60 fps. The `?auto` captain finished the campaign with 3 stars on every
+shift, with and without `?noassets`, with zero JS errors (retries on shifts 5 and 8 as before).
+
+Redesigned by **Claude Fable 5.1** with Claude Code on the `redesign` branch.
 
 ## Running locally
 
