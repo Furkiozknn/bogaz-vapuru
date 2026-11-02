@@ -13,7 +13,7 @@
 <p align="center"><b>A 3D ferry-captain game on a low-poly Bosphorus: take the white city ferry with the yellow funnel between six piers, keep the timetable, come alongside gently and carry as many passengers as you can.</b></p>
 
 <p align="center">
-  <img src="docs/gameplay.gif" width="640" alt="Boğaz Vapuru gameplay: the ferry leaving the pier on the Bosphorus">
+  <img src="docs/gameplay.gif" width="640" alt="Boğaz Vapuru gameplay after the redesign: the ferry crosses the blue Bosphorus under the bridge and slides in to the Karaköy pier with the docking readout">
 </p>
 
 <p align="center"><b>Play online: <a href="https://furkiozknn.github.io/bogaz-vapuru/">https://furkiozknn.github.io/bogaz-vapuru/</a></b> (desktop and phone, no install)</p>
