@@ -908,15 +908,17 @@ let landGeo = null;
 function buildLand() {
   const cell = 25, nx = Math.round((MAP.xmax - MAP.xmin) / cell), nz = Math.round((MAP.zmax - MAP.zmin) / cell);
   const pos = new Float32Array((nx + 1) * (nz + 1) * 3), col = new Float32Array((nx + 1) * (nz + 1) * 3), idx = [];
-  const cQuay = cc(0x8f949a), cSand = cc(0xc9b98f), cG1 = cc(0x6f9a4a), cG2 = cc(0x8fb05a), cG3 = cc(0x5d7f3e), cRock = cc(0x8a8878);
+  // palette: beach sand, city quay stone, three grasses, scrub, forest, rock on the steep high slopes
+  const cQuay = cc(0xa8a398), cSand = cc(0xd9c8a0), cG1 = cc(0x7fa650), cG2 = cc(0x9cbb5e), cG3 = cc(0x5d8a42), cScrub = cc(0xa8a05a), cForest = cc(0x3f6b3a), cRock = cc(0x9a8f7e);
+  const city = z => sstep(-320, -220, z) * sstep(520, 420, z);   // the central city stretch has stone quays instead of beaches
   for (let j = 0; j <= nz; j++) for (let i = 0; i <= nx; i++) {
     const x = MAP.xmin + i * cell, z = MAP.zmin + j * cell, k = j * (nx + 1) + i;
     const h = terrainH(x, z), land = -depth(x, z);
     pos[k * 3] = x; pos[k * 3 + 1] = h; pos[k * 3 + 2] = z;
     let c;
-    if (land < 14) c = cSand; else if (land < 34) c = cQuay;
-    else { const n = fbm(x * 0.01, z * 0.01); c = n < 0.4 ? cG3 : n < 0.62 ? cG1 : cG2; if (h > 80 && fbm(x * 0.02 + 5, z * 0.02) > 0.6) c = cRock; }
-    const j2 = 0.94 + fbm(x * 0.05, z * 0.05) * 0.12;
+    if (land < 14) c = city(z) > 0.5 ? cQuay : cSand; else if (land < 34) c = city(z) > 0.5 ? cQuay : (fbm(x * 0.03, z * 0.03) > 0.5 ? cScrub : cG1);
+    else { const n = fbm(x * 0.01, z * 0.01), n2 = fbm(x * 0.004 + 9, z * 0.004 + 4); c = n2 > 0.62 ? cForest : n < 0.4 ? cG3 : n < 0.62 ? cG1 : cG2; if (n2 < 0.3 && n > 0.5) c = cScrub; if ((h > 80 && fbm(x * 0.02 + 5, z * 0.02) > 0.6) || slopeAt(x, z) > 0.55) c = cRock; }
+    const j2 = 0.92 + fbm(x * 0.05, z * 0.05) * 0.16;
     col[k * 3] = c[0] * j2; col[k * 3 + 1] = c[1] * j2; col[k * 3 + 2] = c[2] * j2;
   }
   for (let j = 0; j < nz; j++) for (let i = 0; i < nx; i++) {
@@ -1618,7 +1620,7 @@ const matBerth = new THREE.MeshBasicMaterial({ color: 0x22b8d9, transparent: tru
 const matRope = new THREE.LineBasicMaterial({ color: 0x8a6a3c });
 const OBJ = {};
 const _o = new THREE.Object3D(), _c = new THREE.Color(), _m4 = new THREE.Matrix4(), _v3 = new THREE.Vector3(), _q = new THREE.Quaternion(), _e = new THREE.Euler();
-const SKY = { top: new THREE.Color(), hor: new THREE.Color(), tmp: new THREE.Color(), tmp2: new THREE.Color(), sunDir: new THREE.Vector3(0, 1, 0) };
+const SKY = { top: new THREE.Color(), mid: new THREE.Color(), hor: new THREE.Color(), cloudC: new THREE.Color(), tmp: new THREE.Color(), tmp2: new THREE.Color(), sunDir: new THREE.Vector3(0, 1, 0), gold: 0 };
 
 // ---------------- model builders
 function hullRings(stations, yk, yw, yt, kScale = 0.6) {
@@ -1736,14 +1738,25 @@ function buildTreeGeo(cypress) {
 
 // ---------------- water and sky
 let water, waterU, skyMesh, skyU, sunDisc, moonDisc, stars, waterMat;
+const CLOUDS = [];
+function tintClouds() {
+  const c = OBJ.clouds.geometry.attributes.aCol, k = SKY.cloudC;
+  for (let i = 0; i < CLOUDS.length; i++) { const j = 0.92 + (i % 5) * 0.03; c.setXYZ(i, k.r * j, k.g * j, k.b * j); }
+  c.needsUpdate = true;
+}
+function driftClouds(dt) {
+  const p = OBJ.clouds.geometry.attributes.position;
+  for (let i = 0; i < CLOUDS.length; i++) { const q = CLOUDS[i]; q.x += q.drift * dt; if (q.x > 2300) q.x = -2300; p.setX(i, q.x); }
+  p.needsUpdate = true;
+}
 function buildWater() {
   const W = MAP.xmax - MAP.xmin, H = MAP.zmax - MAP.zmin, nx = 112, nz = 128;
   const geo = new THREE.PlaneGeometry(W, H, nx, nz); geo.rotateX(-Math.PI / 2); geo.translate((MAP.xmin + MAP.xmax) / 2, 0, (MAP.zmin + MAP.zmax) / 2);
   const p = geo.attributes.position, n = p.count, dep = new Float32Array(n);
   for (let i = 0; i < n; i++) dep[i] = clamp(depth(p.getX(i), p.getZ(i)) / 60, 0, 1);
   geo.setAttribute('aDepth', new THREE.BufferAttribute(dep, 1));
-  waterU = { uTime: { value: 0 }, uAmp: { value: 0.25 }, uCur: { value: 0.3 }, uShallow: { value: new THREE.Color(0x3a9aa6) }, uSunV: { value: new THREE.Vector3(0, 1, 0) }, uSunC: { value: new THREE.Color(0xffffff) }, uSpec: { value: 0.6 } };
-  waterMat = new THREE.MeshLambertMaterial({ color: 0x1c6f8c, flatShading: false });
+  waterU = { uTime: { value: 0 }, uAmp: { value: 0.25 }, uCur: { value: 0.3 }, uShallow: { value: new THREE.Color(0x2f9ea8) }, uSkyRef: { value: new THREE.Color(0xbfd8e8) }, uSunV: { value: new THREE.Vector3(0, 1, 0) }, uSunC: { value: new THREE.Color(0xffffff) }, uSpec: { value: 0.6 }, uGlit: { value: 0.3 } };
+  waterMat = new THREE.MeshLambertMaterial({ color: 0x145da0, flatShading: false });
   waterMat.onBeforeCompile = sh => {
     Object.assign(sh.uniforms, waterU);
     sh.vertexShader = sh.vertexShader
@@ -1756,26 +1769,47 @@ function buildWater() {
       .replace('#include <beginnormal_vertex>', 'vec3 wn; float wh = wave(position.xz, wn) * clamp(aDepth*4.0, 0.15, 1.0); vec3 objectNormal = wn;')
       .replace('#include <begin_vertex>', 'vec3 transformed = vec3(position.x, position.y + wh, position.z); vDepth = aDepth; vWP = transformed;');
     sh.fragmentShader = sh.fragmentShader
-      .replace('#include <common>', '#include <common>\nuniform float uTime, uCur, uSpec; uniform vec3 uShallow, uSunV, uSunC; varying float vDepth; varying vec3 vWP;')
+      .replace('#include <common>', '#include <common>\nuniform float uTime, uCur, uSpec, uGlit; uniform vec3 uShallow, uSkyRef, uSunV, uSunC; varying float vDepth; varying vec3 vWP;')
       .replace('#include <color_fragment>', '#include <color_fragment>\n{ diffuseColor.rgb = mix(uShallow, diffuseColor.rgb, smoothstep(0.0, 0.5, vDepth));\n' +
         ' float cs = uCur * smoothstep(0.35, 1.0, vDepth);\n' +
         ' float s1 = sin(vWP.z*0.21 - uTime*2.4*uCur + sin(vWP.x*0.05)*3.0), s2 = sin(vWP.z*0.09 - uTime*1.6*uCur + vWP.x*0.03);\n' +
         ' float streak = smoothstep(0.86, 1.0, s1) * (0.5 + 0.5*s2);\n' +
         ' diffuseColor.rgb += cs * streak * 0.22;\n' +
-        ' float foam = smoothstep(0.2, 0.0, vDepth) * (0.5 + 0.5*sin(vWP.x*0.6 + vWP.z*0.4 + uTime*1.5)); diffuseColor.rgb += foam * 0.25; }')
-      .replace('#include <dithering_fragment>', '{ vec3 vd = normalize(vViewPosition); vec3 rf = reflect(-uSunV, normal); float sp = pow(max(dot(rf, vd), 0.0), 48.0); gl_FragColor.rgb += uSunC * sp * uSpec * (1.0 - getFogFactor()); }\n#include <dithering_fragment>');
+        // shoreline foam: two bands that breathe, plus a fine lace pattern
+        ' float lace = 0.5 + 0.5*sin(vWP.x*0.6 + vWP.z*0.4 + uTime*1.5); float lace2 = 0.5 + 0.5*sin(vWP.x*1.7 - vWP.z*1.1 - uTime*2.2);\n' +
+        ' float foam = smoothstep(0.22, 0.0, vDepth) * (0.35 + 0.45*lace) + smoothstep(0.09, 0.0, vDepth) * 0.5 * lace2; diffuseColor.rgb += foam * 0.3; }')
+      // sky reflection at grazing angles, sun highlight and a sparkling glitter path towards the sun
+      .replace('#include <dithering_fragment>', '{ vec3 vd = normalize(vViewPosition); float fr = pow(1.0 - max(dot(normal, vd), 0.0), 3.0); float ff = 1.0 - getFogFactor();\n' +
+        ' gl_FragColor.rgb = mix(gl_FragColor.rgb, uSkyRef, fr * 0.55 * ff);\n' +
+        ' vec3 rf = reflect(-uSunV, normal); float rd = max(dot(rf, vd), 0.0); float sp = pow(rd, 48.0);\n' +
+        ' float sparkle = smoothstep(0.55, 1.0, sin(vWP.x*2.3 + uTime*2.1) * sin(vWP.z*1.9 - uTime*1.7 + vWP.x*0.4));\n' +
+        ' float glit = pow(rd, 6.0) * sparkle * uGlit * 0.9 + pow(rd, 3.0) * uGlit * 0.12;\n' +
+        ' gl_FragColor.rgb += uSunC * (sp * uSpec + glit) * ff; }\n#include <dithering_fragment>');
     sh.fragmentShader = sh.fragmentShader.replace('#include <fog_pars_fragment>', '#include <fog_pars_fragment>\nfloat getFogFactor(){\n#ifdef USE_FOG\n return smoothstep(fogNear, fogFar, vFogDepth);\n#else\n return 0.0;\n#endif\n}');
   };
   water = new THREE.Mesh(geo, waterMat); water.receiveShadow = true; water.renderOrder = 1; scene.add(water);
 }
 function buildSky() {
-  skyU = { uTop: { value: new THREE.Color(0x3f8fc9) }, uHor: { value: new THREE.Color(0xcfe6f2) }, uSun: { value: new THREE.Vector3(0, 1, 0) }, uGlow: { value: new THREE.Color(0xffd9a0) }, uGlowA: { value: 0.3 } };
+  skyU = { uTop: { value: new THREE.Color(0x2a6fb5) }, uMid: { value: new THREE.Color(0x8fc0e6) }, uHor: { value: new THREE.Color(0xe6dcc8) }, uSun: { value: new THREE.Vector3(0, 1, 0) }, uGlow: { value: new THREE.Color(0xffd9a0) }, uGlowA: { value: 0.3 }, uBand: { value: 0 } };
   const sm = new THREE.ShaderMaterial({
     uniforms: skyU, side: THREE.BackSide, depthWrite: false, fog: false,
     vertexShader: 'varying vec3 vP; void main(){ vP = position; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }',
-    fragmentShader: 'uniform vec3 uTop, uHor, uSun, uGlow; uniform float uGlowA; varying vec3 vP; void main(){ vec3 d = normalize(vP); float h = clamp(d.y, 0.0, 1.0); vec3 c = mix(uHor, uTop, pow(h, 0.55)); float g = pow(max(dot(d, uSun), 0.0), 8.0) * uGlowA * (1.0 - h*0.6); c += uGlow * g; gl_FragColor = vec4(c, 1.0);\n#include <colorspace_fragment>\n}',
+    // three-stop gradient (horizon, low band, zenith), a sun glow, and at dusk a violet band above the orange horizon
+    fragmentShader: 'uniform vec3 uTop, uMid, uHor, uSun, uGlow; uniform float uGlowA, uBand; varying vec3 vP; void main(){ vec3 d = normalize(vP); float h = clamp(d.y, 0.0, 1.0);\n' +
+      ' vec3 c = h < 0.14 ? mix(uHor, uMid, h / 0.14) : mix(uMid, uTop, pow((h - 0.14) / 0.86, 0.6));\n' +
+      ' float sd = max(dot(d, uSun), 0.0); float g = pow(sd, 8.0) * uGlowA * (1.0 - h * 0.6) + pow(sd, 2.0) * uGlowA * 0.35 * (1.0 - h);\n' +
+      ' c += uGlow * g; c = mix(c, vec3(0.48, 0.17, 0.75), uBand * smoothstep(0.02, 0.16, h) * smoothstep(0.42, 0.2, h) * 0.35);\n' +
+      ' gl_FragColor = vec4(c, 1.0);\n#include <colorspace_fragment>\n}',
   });
   skyMesh = new THREE.Mesh(new THREE.SphereGeometry(2600, 20, 12), sm); skyMesh.renderOrder = -10; skyMesh.frustumCulled = false; scene.add(skyMesh);
+  // clouds: soft sprite points in slow drift, tinted by the hour (lit peach at golden hour, rose at dusk)
+  { const n = 140, p = new Float32Array(n * 3), c = new Float32Array(n * 3), s = new Float32Array(n), a = new Float32Array(n), r = mulberry(17);
+    CLOUDS.length = 0;
+    for (let i = 0; i < n; i++) { const th = r() * TAU, rad = 500 + r() * 1700, y = 190 + r() * 120 + rad * 0.08; const puff = { x: Math.cos(th) * rad, y, z: Math.sin(th) * rad, s: 60 + r() * 120, a: 0.35 + r() * 0.4, drift: 0.6 + r() * 0.8 }; CLOUDS.push(puff); p[i * 3] = puff.x; p[i * 3 + 1] = puff.y; p[i * 3 + 2] = puff.z; s[i] = puff.s; a[i] = puff.a; c[i * 3] = c[i * 3 + 1] = c[i * 3 + 2] = 1; }
+    const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.BufferAttribute(p, 3)); g.setAttribute('aCol', new THREE.BufferAttribute(c, 3)); g.setAttribute('aSize', new THREE.BufferAttribute(s, 1)); g.setAttribute('aAlpha', new THREE.BufferAttribute(a, 1));
+    g.boundingSphere = new THREE.Sphere(new THREE.Vector3(), 1e5);
+    const m = pointsMaterial(true, false); m.uniforms.fogNear.value = 1e8; m.uniforms.fogFar.value = 1e9;
+    OBJ.clouds = new THREE.Points(g, m); OBJ.clouds.frustumCulled = false; OBJ.clouds.renderOrder = -7; scene.add(OBJ.clouds); }
   sunDisc = new THREE.Mesh(new THREE.CircleGeometry(70, 20), new THREE.MeshBasicMaterial({ color: 0xfff4d6, fog: false, transparent: true })); sunDisc.renderOrder = -9; scene.add(sunDisc);
   moonDisc = new THREE.Mesh(new THREE.CircleGeometry(40, 20), new THREE.MeshBasicMaterial({ color: 0xe9eef5, fog: false, transparent: true })); moonDisc.renderOrder = -9; scene.add(moonDisc);
   const n = 500, sp = new Float32Array(n * 3), sc = new Float32Array(n * 3), ss = new Float32Array(n), sa = new Float32Array(n), r = mulberry(3);
@@ -1904,32 +1938,40 @@ function updateSky(force) {
   // after sunset the key light becomes the moon: it stays well above the horizon so the water keeps some shading
   SKY.sunDir.set(-Math.cos(az), Math.max(el, 0.12 + 0.4 * night), 0.35 * Math.sin(az)).normalize();
   const storm = SIM.storm ? 0.6 : 0, fogA = SIM.fog;
-  // colours
-  SKY.top.setHex(0x3f8fc9).lerp(SKY.tmp.setHex(0x2a3f7a), dusk).lerp(SKY.tmp.setHex(0x0b1a32), night).lerp(SKY.tmp.setHex(0x4a5560), storm).lerp(SKY.tmp.setHex(0xaeb9c2), fogA * 0.6 * (1 - night));
-  SKY.hor.setHex(0xcfe6f2).lerp(SKY.tmp.setHex(0xff9b5c), dusk).lerp(SKY.tmp.setHex(0x1b3044), night).lerp(SKY.tmp.setHex(0x6c7680), storm).lerp(SKY.tmp.setHex(0xc5ccd2), fogA * 0.7 * (1 - night));
-  skyU.uTop.value.copy(SKY.top); skyU.uHor.value.copy(SKY.hor); skyU.uSun.value.copy(SKY.sunDir);
-  skyU.uGlow.value.setHex(0xffd9a0).lerp(SKY.tmp.setHex(0xff7a3a), dusk); skyU.uGlowA.value = (0.25 + 0.9 * dusk) * (1 - night) * (1 - storm);
+  // golden hour: a low sun (el < 0.45) warms everything before the sunset band takes over
+  const gold = (1 - sstep(0.12, 0.5, el)) * (1 - night) * sstep(-0.1, 0.08, el);
+  SKY.gold = gold;
+  // colours: Bosphorus day (#2a6fb5 / warm haze), sunset #F28C28 -> #7B2CBF, indigo night
+  SKY.top.setHex(0x2a6fb5).lerp(SKY.tmp.setHex(0x3f5fb0), gold * 0.5).lerp(SKY.tmp.setHex(0x4a2c8a), dusk * 0.85).lerp(SKY.tmp.setHex(0x08122c), night).lerp(SKY.tmp.setHex(0x4a5560), storm).lerp(SKY.tmp.setHex(0xaeb9c2), fogA * 0.6 * (1 - night));
+  SKY.mid.setHex(0x8fc0e6).lerp(SKY.tmp.setHex(0xe8b48a), gold * 0.7).lerp(SKY.tmp.setHex(0xc4568c), dusk * 0.9).lerp(SKY.tmp.setHex(0x141f44), night).lerp(SKY.tmp.setHex(0x5e6a76), storm).lerp(SKY.tmp.setHex(0xbfc7ce), fogA * 0.65 * (1 - night));
+  SKY.hor.setHex(0xe6dcc8).lerp(SKY.tmp.setHex(0xf6c892), gold * 0.8).lerp(SKY.tmp.setHex(0xf28c28), dusk).lerp(SKY.tmp.setHex(0x1c2742), night).lerp(SKY.tmp.setHex(0x6c7680), storm).lerp(SKY.tmp.setHex(0xc5ccd2), fogA * 0.7 * (1 - night));
+  skyU.uTop.value.copy(SKY.top); skyU.uMid.value.copy(SKY.mid); skyU.uHor.value.copy(SKY.hor); skyU.uSun.value.copy(SKY.sunDir);
+  skyU.uGlow.value.setHex(0xffd9a0).lerp(SKY.tmp.setHex(0xff7a3a), dusk); skyU.uGlowA.value = (0.3 + 0.5 * gold + 0.9 * dusk) * (1 - night) * (1 - storm);
+  skyU.uBand.value = dusk * (1 - storm) * (1 - fogA);
   // lights
-  sun.color.setHex(0xfff1da).lerp(SKY.tmp.setHex(0xff8a4a), dusk).lerp(SKY.tmp.setHex(0x6f86b8), night);
-  sun.intensity = (0.25 + 2.0 * Math.pow(Math.max(el, 0), 0.6)) * (1 - 0.5 * storm) * (1 - 0.35 * fogA) * (1 - 0.8 * night) + 0.7 * night + lightning * 3;
-  hemi.color.copy(SKY.top).lerp(SKY.tmp.setHex(0xffffff), 0.3); hemi.groundColor.setHex(0x3a5a63).lerp(SKY.tmp.setHex(0x16283a), night);
-  hemi.intensity = 0.9 * (1 - 0.35 * night) * (1 - 0.3 * storm) + lightning * 1.5;
+  sun.color.setHex(0xffe9cc).lerp(SKY.tmp.setHex(0xffc27a), gold).lerp(SKY.tmp.setHex(0xff8a4a), dusk).lerp(SKY.tmp.setHex(0x7f93c8), night);
+  sun.intensity = (0.25 + 2.0 * Math.pow(Math.max(el, 0), 0.6)) * (1 + 0.3 * gold) * (1 - 0.5 * storm) * (1 - 0.35 * fogA) * (1 - 0.8 * night) + 0.7 * night + lightning * 3;
+  hemi.color.copy(SKY.mid).lerp(SKY.tmp.setHex(0xffffff), 0.35); hemi.groundColor.setHex(0x5a6a52).lerp(SKY.tmp.setHex(0x7a5a46), gold * 0.5).lerp(SKY.tmp.setHex(0x16283a), night);
+  hemi.intensity = 0.95 * (1 - 0.35 * night) * (1 - 0.3 * storm) + lightning * 1.5;
   // fog
-  SKY.tmp2.copy(SKY.hor);
+  SKY.tmp2.copy(SKY.hor).lerp(SKY.mid, 0.35);
   scene.fog.color.copy(SKY.tmp2);
   const near = fogA > 0 ? lerp(300, 30, fogA) : 300, far = fogA > 0 ? lerp(2400, 330, fogA) : (night ? lerp(2400, 1500, night) : 2400) * (1 - 0.35 * storm);
   scene.fog.near = near; scene.fog.far = far;
   for (const m of FOGMATS) { m.uniforms.fogColor.value.copy(SKY.tmp2); m.uniforms.fogNear.value = near; m.uniforms.fogFar.value = far; }
   stars.material.uniforms.fogNear.value = 1e8; stars.material.uniforms.fogFar.value = 1e9;
   renderer.setClearColor(SKY.tmp2);
-  // water
-  waterMat.color.setHex(0x1c6f8c).lerp(SKY.tmp.setHex(0x2d3f70), dusk * 0.6).lerp(SKY.tmp.setHex(0x10304a), night).lerp(SKY.tmp.setHex(0x37515c), storm);
-  waterU.uShallow.value.setHex(0x3a9aa6).lerp(SKY.tmp.setHex(0x0f2a36), night).lerp(SKY.tmp.setHex(0x4b6a70), storm);
-  waterU.uSunC.value.copy(sun.color); waterU.uSpec.value = (0.6 + 0.6 * dusk) * (1 - night * 0.7) * (1 - storm * 0.8);
+  // water: Bosphorus blue #145DA0 by day, violet at dusk, ink at night, slate in a storm
+  waterMat.color.setHex(0x145da0).lerp(SKY.tmp.setHex(0x1f5a8c), gold * 0.4).lerp(SKY.tmp.setHex(0x3b3878), dusk * 0.6).lerp(SKY.tmp.setHex(0x0b2340), night).lerp(SKY.tmp.setHex(0x37515c), storm);
+  waterU.uShallow.value.setHex(0x2f9ea8).lerp(SKY.tmp.setHex(0x4a8c90), gold * 0.4).lerp(SKY.tmp.setHex(0x0f2a36), night).lerp(SKY.tmp.setHex(0x4b6a70), storm);
+  waterU.uSkyRef.value.copy(SKY.mid).lerp(SKY.hor, 0.5);
+  waterU.uSunC.value.copy(sun.color); waterU.uSpec.value = (0.6 + 0.5 * gold + 0.6 * dusk) * (1 - night * 0.7) * (1 - storm * 0.8);
+  waterU.uGlit.value = (0.25 + 0.75 * gold + 0.6 * dusk) * (1 - night * 0.6) * (1 - storm) * (1 - fogA);
   // discs and stars
-  sunDisc.material.opacity = (1 - night) * (1 - storm) * (1 - fogA * 0.8); sunDisc.material.color.setHex(0xfff4d6).lerp(SKY.tmp.setHex(0xff6a3a), dusk);
+  sunDisc.material.opacity = (1 - night) * (1 - storm) * (1 - fogA * 0.8); sunDisc.material.color.setHex(0xfff4d6).lerp(SKY.tmp.setHex(0xffb060), gold).lerp(SKY.tmp.setHex(0xff6a3a), dusk);
   moonDisc.material.opacity = night * (1 - storm);
   stars.material.uniforms.uOpacity.value = night * (1 - storm) * (1 - fogA);
+  if (OBJ.clouds) { OBJ.clouds.material.uniforms.uOpacity.value = (1 - fogA * 0.8); SKY.cloudC.setHex(0xfff8f0).lerp(SKY.tmp.setHex(0xffc08a), gold * 0.8).lerp(SKY.tmp.setHex(0xf26b7a), dusk * 0.9).lerp(SKY.tmp.setHex(0x1a2340), night).lerp(SKY.tmp.setHex(0x55606a), storm); tintClouds(); }
   OBJ.lights.material.uniforms.uOpacity.value = Math.max(night, dusk * 0.7, storm * 0.5, fogA * 0.4);
   matWin.emissiveIntensity = Math.max(night, dusk * 0.7, storm * 0.5, fogA * 0.4) * 0.9;
   OBJ.beacon.material.emissiveIntensity = 0.6 + night;
@@ -1950,7 +1992,7 @@ function syncRender(dt) {
   sun.target.position.set(player.x, 0, player.z); sun.position.copy(sun.target.position).addScaledVector(SKY.sunDir, 420);
   sunDisc.position.copy(camera.position).addScaledVector(_v3.set(SKY.sunDir.x, SIM.night > 0.5 ? -0.3 : SKY.sunDir.y, SKY.sunDir.z).normalize(), 2500); sunDisc.lookAt(camera.position);
   moonDisc.position.copy(camera.position).addScaledVector(_v3.set(-SKY.sunDir.x, Math.abs(SKY.sunDir.y) * 0.8 + 0.2, -SKY.sunDir.z).normalize(), 2500); moonDisc.lookAt(camera.position);
-  skyMesh.position.copy(camera.position); stars.position.copy(camera.position);
+  skyMesh.position.copy(camera.position); stars.position.copy(camera.position); OBJ.clouds.position.set(camera.position.x * 0.9, 0, camera.position.z * 0.9); driftClouds(dt);
   waterU.uSunV.value.copy(SKY.sunDir).transformDirection(camera.matrixWorldInverse);
   // ferries: the player first
   let n = 0;
@@ -2385,7 +2427,7 @@ function nextAction() {
 }
 /** title showcase: the ferry docked at Eminönü in the late afternoon with some traffic */
 function showcase() {
-  const sh = Object.assign({}, SHIFTS[2], { hour: 17.6, storm: 0, fog: 0 });
+  const sh = Object.assign({}, SHIFTS[2], { hour: 18.55, storm: 0, fog: 0 });   // golden hour over the Golden Horn
   R = mulberry(5); startShiftSim(sh); SIM.docked = null; SIM.ropes = false; SIM.stopIdx = 1;
   lastSkyHour = -99; updateSky(true);
 }
