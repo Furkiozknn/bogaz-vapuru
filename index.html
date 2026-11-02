@@ -951,7 +951,7 @@ function buildTown() {
     const h = terrainH(x, z);
     const w = wr(9, 18), d = wr(9, 18), hh = wr(7, 9) + (WR() < 0.35 ? wr(6, 14) : 0);
     const P0 = centres[0]; const near = Math.min(...centres.map(([id]) => hyp(PIERS[id].x - x, PIERS[id].z - z)));
-    WORLD.buildings.push({ x, y: h - 1.5, z, w, h: hh + (near < 250 ? 3 : 0), d, ry: wr(0, TAU), col: wpick(PAL) });
+    WORLD.buildings.push({ x, y: h - 1.5, z, w, h: hh + (near < 250 ? 3 : 0), d, ry: wr(0, TAU), col: wpick(PAL), pitched: WR() < 0.48 });
   }
   // yalı mansions on the water's edge, mostly north of the city
   for (const side of ['w', 'e']) {
@@ -960,6 +960,7 @@ function buildTown() {
       const x0 = shoreAt(side, z), nx = side === 'w' ? -1 : 1;
       const x = x0 + nx * 14;
       let ok = true; for (const id of Object.keys(PIERS)) { if (hyp(PIERS[id].x - x, PIERS[id].z - z) < 70) ok = false; }
+      for (const o of OBST_LAND) if (hyp(o.x - x, o.z - z) < o.r + 10) ok = false;
       if (!ok || WR() < 0.25) continue;
       const xa = shoreAt(side, z - 10), xb = shoreAt(side, z + 10);
       WORLD.yali.push({ x, y: terrainH(x, z) - 0.6, z, ry: Math.atan2(xb - xa, 20) + (side === 'w' ? Math.PI / 2 : -Math.PI / 2), col: wpick([0xb86a3c, 0xf7efe0, 0xe9c58a, 0xc44e3a, 0xf1d9b8, 0x8c5a3c, 0xe7e2d2]), s: wr(0.85, 1.15) });
@@ -971,6 +972,7 @@ function buildTown() {
     const x = wr(MAP.xmin + 40, MAP.xmax - 40), z = wr(MAP.zmin + 40, MAP.zmax - 40);
     const land = -depth(x, z); if (land < 20 || land > 900) continue;
     let nearB = false; for (const b of WORLD.buildings) { if (Math.abs(b.x - x) < 11 && Math.abs(b.z - z) < 11) { nearB = true; break; } }
+    for (const o of OBST_LAND) if (hyp(o.x - x, o.z - z) < o.r + 4) nearB = true;
     if (nearB) continue;
     const h = terrainH(x, z);
     (WR() < 0.35 ? WORLD.cypress : WORLD.trees).push({ x, y: h - 0.5, z, s: wr(0.8, 1.5), col: wpick([0x3f7a3a, 0x4f8a3c, 0x2f6b34, 0x6a9a3f]) });
@@ -1042,7 +1044,66 @@ function buildMonuments() {
     // quay wall behind each pier
     const qg = new GB(); qg.box(-W / 2 - 12, -2, 0, 10, 4.5, L + 60, 0x8a8e92, 0, 0xa7aaad); g.add(qg, P.x, 0, P.z, P.ry);
   }
+  buildQuays(g); buildLandmarks(g);
   WG.mono = g.build();
+}
+/** stone sea walls with a promenade, bollards and lamp posts along the city shores (visual only: collisions use depth()) */
+function buildQuays(g) {
+  const cStone = cc(0xa29d93), cTop = cc(0xc4bfb2), cWet = cc(0x5f6a6b);
+  for (const side of ['w', 'e']) {
+    const sgn = side === 'w' ? -1 : 1;
+    for (let z = -300; z < 480; z += 12) {
+      const xa = shoreAt(side, z) - sgn * 1.2, xb = shoreAt(side, z + 12) - sgn * 1.2;
+      let nearPier = false; for (const id of Object.keys(PIERS)) if (Math.abs(PIERS[id].z - z) < PIERS[id].len / 2 + 34 && PIERS[id].side === side) nearPier = true;
+      if (nearPier) continue;
+      const ia = xa - sgn * 4, ib = xb - sgn * 4;     // inner edge of the wall
+      // quad whose normal is forced towards (nx, ny): the two shores wind the opposite way
+      const q = (a, b, c, d, col, nx, ny) => { const ux = b[0] - a[0], uy = b[1] - a[1], uz = b[2] - a[2], vx = c[0] - a[0], vy = c[1] - a[1], vz = c[2] - a[2]; const cx = uy * vz - uz * vy, cy = uz * vx - ux * vz; (cx * nx + cy * ny) >= 0 ? g.quad(a, b, c, d, col) : g.quad(a, d, c, b, col); };
+      // wall faces: outer (water side), the dark wet band at the waterline, the top, a kerb
+      q([xa, 0.4, z], [xa, 2.4, z], [xb, 2.4, z + 12], [xb, 0.4, z + 12], cStone, -sgn, 0);
+      q([xa, -2, z], [xa, 0.4, z], [xb, 0.4, z + 12], [xb, -2, z + 12], cWet, -sgn, 0);
+      q([ia, 2.4, z], [ib, 2.4, z + 12], [xb, 2.4, z + 12], [xa, 2.4, z], cTop, 0, 1);
+      q([ia, 2.4, z], [ia, 3.0, z], [ib, 3.0, z + 12], [ib, 2.4, z + 12], cStone, -sgn, 0);
+      q([ia - sgn * 0.6, 3.0, z], [ib - sgn * 0.6, 3.0, z + 12], [ib, 3.0, z + 12], [ia, 3.0, z], cTop, 0, 1);
+      if (((z + 300) / 12) % 2 === 0) g.cyl(xa - sgn * 1.0, 2.4, z + 6, 0.35, 0.9, 0x2e3238, 6);
+      if (((z + 300) / 12) % 4 === 1) { const lx = ia - sgn * 2.2; WORLD.lampPosts.push({ x: lx, y: 2.4, z: z + 6, ry: 0 }); for (const dx of [-1.1, 1.1]) WORLD.lights.push([lx + dx, 9.1, z + 6, 0xffe6b0, 1.1]); }
+    }
+  }
+}
+/** signature silhouettes: a Dolmabahçe-like palace, a Rumeli Hisarı-like fortress and a Haydarpaşa-like station */
+function buildLandmarks(g) {
+  const near = (id, inland, along = 0) => { const P = PIERS[id]; return [P.x - P.nx * inland + P.tx * along, P.z - P.nz * inland + P.tz * along, Math.atan2(P.tx, P.tz)]; };
+  // palace: long two-storey white façade with pilasters and a central gate block, right on the water south of Beşiktaş
+  { const [px, pz, ry] = near('besiktas', 26, 150), py = terrainH(px, pz) - 0.6, m = new GB();
+    m.box(0, 0, 0, 150, 1.4, 34, 0xcfc8ba);
+    m.box(0, 1.4, 0, 142, 13, 26, 0xf4efe4);
+    for (let x = -66; x <= 66; x += 8.8) { m.box(x, 1.4, 13.2, 1.3, 13, 0.6, 0xe6ddcc); m.box(x, 1.4, -13.2, 1.3, 13, 0.6, 0xe6ddcc); }
+    for (let x = -62; x <= 62; x += 8.8) for (const y of [3.2, 8.6]) { m.box(x, y, 13.3, 2.6, 3.4, 0.3, 0x2b3a4a); m.box(x, y, -13.3, 2.6, 3.4, 0.3, 0x2b3a4a); }
+    m.box(0, 14.4, 0, 146, 1.2, 28, 0xd9d2c4); m.box(0, 15.6, 0, 140, 0.8, 24, 0x6d7c86);
+    m.box(0, 1.4, 0, 28, 19, 32, 0xf7f3ea); m.box(0, 20.4, 0, 30, 1.5, 34, 0xd9d2c4); m.box(0, 21.9, 0, 22, 2.5, 26, 0xf7f3ea);
+    for (const dx of [-60, 60]) { m.box(dx, 1.4, 0, 22, 17, 30, 0xf7f3ea); m.box(dx, 18.4, 0, 24, 1.5, 32, 0xd9d2c4); }
+    m.box(0, 1.4, 19, 150, 1.2, 8, 0xb9b3a4);                                                                    // waterside terrace
+    for (let x = -72; x <= 72; x += 6) m.box(x, 2.6, 22.5, 0.5, 1.2, 0.5, 0xe6e0d2);
+    const pr = ry + Math.PI / 2;   // long axis along the shore, terrace (+z) towards the water
+    g.add(m, px, py, pz, pr); OBST_LAND.push({ x: px, z: pz, r: 80 }); WORLD.lights.push([px, py + 23, pz, 0xffe9b0, 1.6]);
+    for (let x = -66; x <= 66; x += 17.6) { const s = Math.sin(pr), c = Math.cos(pr); WORLD.lights.push([px + x * c + 14 * s, py + 11, pz - x * s + 14 * c, 0xffd890, 0.9]); } }
+  // fortress: three round towers joined by crenellated walls on the slope north of the bridge, west shore
+  { const fz = -660, fx = shoreAt('w', fz) - 60, m = new GB(), fy = terrainH(fx, fz) - 1;
+    const tower = (x, z, r, h) => { const y = terrainH(fx + x, fz + z) - fy - 1; m.cyl(x, y, z, r, h, 0x8c8578, 10); m.cyl(x, y + h, z, r * 1.12, 1.6, 0x7a7367, 10); for (let i = 0; i < 10; i++) { const a = i / 10 * TAU; m.box(x + Math.cos(a) * r * 1.02, y + h + 1.6, z + Math.sin(a) * r * 1.02, 1.4, 1.6, 1.4, 0x8c8578); } m.cone(x, y + h + 1.6, z, r * 0.9, r * 0.9, 0x5a5f66, 10); };
+    tower(0, 0, 9, 24); tower(-70, -45, 11, 30); tower(-30, 70, 8, 20);
+    const wall = (x0, z0, x1, z1) => { const n = 6; for (let i = 0; i < n; i++) { const u0 = i / n, u1 = (i + 1) / n, ax = lerp(x0, x1, u0), az = lerp(z0, z1, u0), bx = lerp(x0, x1, u1), bz = lerp(z0, z1, u1); const ya = terrainH(fx + ax, fz + az) - fy - 1, yb = terrainH(fx + bx, fz + bz) - fy - 1, cx = (ax + bx) / 2, cz = (az + bz) / 2, len = hyp(bx - ax, bz - az), ang = Math.atan2(bx - ax, bz - az); m.box(cx, Math.min(ya, yb), cz, 3.5, 9 + Math.abs(ya - yb), len + 1, 0x8c8578, ang); m.box(cx, Math.min(ya, yb) + 9 + Math.abs(ya - yb), cz, 3.5, 1.4, len + 1, 0x7a7367, ang); } };
+    wall(0, 0, -70, -45); wall(0, 0, -30, 70);
+    g.add(m, fx, fy, fz); OBST_LAND.push({ x: fx - 30, z: fz, r: 90 }); WORLD.lights.push([fx, fy + 27, fz, 0xffc070, 1.4], [fx - 70, fy + 36, fz - 45, 0xffc070, 1.4]); }
+  // station: a big stone block with a hipped roof and two square corner towers, on the point south of Kadıköy
+  { const [sx, sz, ry] = near('kadikoy', 70, 110), sy = terrainH(sx, sz) - 0.6, m = new GB();
+    m.box(0, 0, 0, 70, 1.5, 44, 0xb9ad98);
+    m.box(0, 1.5, 0, 64, 22, 38, 0xd6c3a2);
+    for (let x = -27; x <= 27; x += 6) for (const y of [4, 10, 16]) { m.box(x, y, 19.1, 2.4, 3.6, 0.3, 0x2b3a4a); m.box(x, y, -19.1, 2.4, 3.6, 0.3, 0x2b3a4a); }
+    const r = cc(0x5f6c7a);
+    m.quad([-33, 23.5, -20], [-20, 32, -8], [20, 32, -8], [33, 23.5, -20], r); m.quad([-33, 23.5, 20], [33, 23.5, 20], [20, 32, 8], [-20, 32, 8], r);
+    m.quad([-33, 23.5, -20], [-33, 23.5, 20], [-20, 32, 8], [-20, 32, -8], r); m.quad([33, 23.5, -20], [20, 32, -8], [20, 32, 8], [33, 23.5, 20], r); m.quad([-20, 32, -8], [-20, 32, 8], [20, 32, 8], [20, 32, -8], r);
+    for (const dx of [-30, 30]) { m.box(dx, 1.5, 17, 11, 30, 11, 0xd6c3a2); m.cone(dx, 31.5, 17, 7.8, 9, 0x5f6c7a, 4); m.box(dx, 31.5, 17, 1.2, 0.6, 11.4, 0x8a8f94); }
+    g.add(m, sx, sy, sz, ry + Math.PI / 2); OBST_LAND.push({ x: sx, z: sz, r: 48 }); WORLD.lights.push([sx, sy + 34, sz, 0xffe9b0, 1.4]); }
 }
 const OBST_LAND = [];   // keeps buildings off the monuments
 /** suspension bridge across the strait */
@@ -1702,12 +1763,26 @@ function buildGullGeo() {
   g.quad([1.25, 0.55, -0.12], [1.4, 0.55, -0.35], [1.38, 0.56, -0.33], [1.3, 0.56, -0.15], cd);
   return g.build();
 }
-function buildBuildingGeo() {
+/** unit town house (scaled per instance): window bands on every wall, a parapet with a water tank or a terracotta hip roof */
+function buildBuildingGeo(pitched) {
   const g = new GB();
   g.box(0, 0, 0, 1, 1, 1, 0xffffff);
-  g.box(0, 1, 0, 1.08, 0.04, 1.08, 0xb34a3a);            // flat roof edge
-  g.box(0, 1.04, 0, 0.9, 0.08, 0.9, 0xc45b48);
-  g.box(0.3, 1.1, 0.3, 0.12, 0.12, 0.12, 0x9a9a9a);      // chimney / tank
+  for (const y of [0.2, 0.48, 0.76]) { g.box(0, y, 0, 1.012, 0.1, 0.72, 0x2b3a4a); g.box(0, y, 0, 0.72, 0.1, 1.012, 0x2b3a4a); }   // window strips (dark glass)
+  g.box(0, 0, 0, 1.03, 0.06, 1.03, 0xc9c0b0);                                                                                     // plinth
+  if (pitched) {
+    const r = cc(0xb5532f);
+    g.box(0, 1, 0, 1.1, 0.05, 1.1, 0xd8c8b0);                                                                                    // eaves board
+    g.quad([-0.55, 1.05, -0.55], [-0.05, 1.32, -0.05], [-0.05, 1.32, 0.05], [-0.55, 1.05, 0.55], r);
+    g.quad([0.55, 1.05, -0.55], [0.55, 1.05, 0.55], [0.05, 1.32, 0.05], [0.05, 1.32, -0.05], r);
+    g.quad([-0.55, 1.05, -0.55], [0.55, 1.05, -0.55], [0.05, 1.32, -0.05], [-0.05, 1.32, -0.05], r);
+    g.quad([-0.55, 1.05, 0.55], [-0.05, 1.32, 0.05], [0.05, 1.32, 0.05], [0.55, 1.05, 0.55], r);
+    g.quad([-0.05, 1.32, -0.05], [0.05, 1.32, -0.05], [0.05, 1.32, 0.05], [-0.05, 1.32, 0.05], r);
+    g.box(0.22, 1.2, 0.18, 0.1, 0.22, 0.1, 0xd8d2c8);                                                                           // chimney
+  } else {
+    g.box(0, 1, 0, 1.08, 0.05, 1.08, 0xb34a3a);                                                                                  // parapet
+    g.box(0, 1.05, 0, 0.92, 0.06, 0.92, 0xc8a98a);
+    g.box(0.3, 1.1, 0.3, 0.14, 0.16, 0.14, 0x9a9a9a); g.box(-0.3, 1.1, -0.25, 0.16, 0.1, 0.16, 0xb0b0b0);                      // tank, vent
+  }
   return g.build();
 }
 function buildYaliGeo() {
@@ -1731,9 +1806,27 @@ function buildYaliGeo() {
 }
 function buildTreeGeo(cypress) {
   const g = new GB();
-  if (cypress) { g.cyl(0, 0, 0, 0.3, 1.2, 0x6b4a2e, 5); g.cone(0, 1, 0, 1.6, 9, 0xffffff, 6); }
-  else { g.cyl(0, 0, 0, 0.45, 2.2, 0x6b4a2e, 5); g.sphere(0, 4.6, 0, 3.2, 0xffffff, 7); }
+  if (cypress) { g.cyl(0, 0, 0, 0.3, 1.2, 0x6b4a2e, 5); g.cone(0, 1, 0, 1.7, 6, 0xffffff, 6); g.cone(0, 4.5, 0, 1.25, 5.5, 0xf2f2f2, 6); }
+  else { g.cyl(0, 0, 0, 0.45, 2.2, 0x6b4a2e, 5); g.sphere(0, 4.2, 0, 3.2, 0xffffff, 7); g.sphere(1.3, 5.6, 0.6, 2.1, 0xf0f0f0, 6); g.sphere(-1.2, 5.3, -0.8, 1.8, 0xe4e4e4, 6); }
   return g.build();
+}
+/** ornate quay lamp: cast-iron post with a twin-lantern head (lit through WORLD.lights at night) */
+function buildLampGeo() {
+  const g = new GB();
+  g.cyl(0, 0, 0, 0.45, 0.5, 0x2e3238, 6); g.cyl(0, 0.5, 0, 0.18, 6.2, 0x2e3238, 6, 0.12);
+  g.box(0, 6.4, 0, 2.6, 0.14, 0.14, 0x2e3238);
+  for (const dx of [-1.1, 1.1]) { g.box(dx, 6.3, 0, 0.55, 0.75, 0.55, 0xfff1c8); g.cone(dx, 7.05, 0, 0.42, 0.35, 0x2e3238, 4); }
+  return g.build();
+}
+/** ring of distant hills around the map (fades into the haze; gives the horizon a skyline) */
+function buildHills() {
+  const g = new GB(), n = 72, R0 = 2150, col = cc(0x6d7f86), col2 = cc(0x5a6b72);
+  const pt = (i, k) => { const a = i / n * TAU, r = R0 + k * 420; const hgt = k === 0 ? 0 : 90 + 170 * fbm(Math.cos(a) * 3 + 2, Math.sin(a) * 3 + 1) * (k === 1 ? 1 : 0.6); return [Math.cos(a) * r, k === 0 ? -5 : hgt - 20, Math.sin(a) * r]; };
+  for (let i = 0; i < n; i++) {
+    const a0 = pt(i, 0), a1 = pt(i, 1), a2 = pt(i, 2), b0 = pt(i + 1, 0), b1 = pt(i + 1, 1), b2 = pt(i + 1, 2);
+    g.quad(a0, a1, b1, b0, col); g.quad(a1, a2, b2, b1, col2);
+  }
+  WG.hills = g.build();
 }
 
 // ---------------- water and sky
@@ -1780,10 +1873,11 @@ function buildWater() {
         ' float foam = smoothstep(0.22, 0.0, vDepth) * (0.35 + 0.45*lace) + smoothstep(0.09, 0.0, vDepth) * 0.5 * lace2; diffuseColor.rgb += foam * 0.3; }')
       // sky reflection at grazing angles, sun highlight and a sparkling glitter path towards the sun
       .replace('#include <dithering_fragment>', '{ vec3 vd = normalize(vViewPosition); float fr = pow(1.0 - max(dot(normal, vd), 0.0), 3.0); float ff = 1.0 - getFogFactor();\n' +
-        ' gl_FragColor.rgb = mix(gl_FragColor.rgb, uSkyRef, fr * 0.55 * ff);\n' +
+        ' gl_FragColor.rgb = mix(gl_FragColor.rgb, uSkyRef, fr * 0.38 * ff);\n' +
         ' vec3 rf = reflect(-uSunV, normal); float rd = max(dot(rf, vd), 0.0); float sp = pow(rd, 48.0);\n' +
-        ' float sparkle = smoothstep(0.55, 1.0, sin(vWP.x*2.3 + uTime*2.1) * sin(vWP.z*1.9 - uTime*1.7 + vWP.x*0.4));\n' +
-        ' float glit = pow(rd, 6.0) * sparkle * uGlit * 0.9 + pow(rd, 3.0) * uGlit * 0.12;\n' +
+        ' float n1 = sin(vWP.x*1.37 + vWP.z*0.71 + uTime*1.9) * sin(vWP.z*1.93 - vWP.x*0.43 - uTime*1.3) * sin(vWP.x*0.57 - vWP.z*1.11 + uTime*2.7);\n' +
+        ' float sparkle = smoothstep(0.42, 0.95, n1) * smoothstep(40.0, 260.0, -vViewPosition.z);\n' +
+        ' float glit = pow(rd, 8.0) * sparkle * uGlit * 0.7 + pow(rd, 3.0) * uGlit * 0.1;\n' +
         ' gl_FragColor.rgb += uSunC * (sp * uSpec + glit) * ff; }\n#include <dithering_fragment>');
     sh.fragmentShader = sh.fragmentShader.replace('#include <fog_pars_fragment>', '#include <fog_pars_fragment>\nfloat getFogFactor(){\n#ifdef USE_FOG\n return smoothstep(fogNear, fogFar, vFogDepth);\n#else\n return 0.0;\n#endif\n}');
   };
@@ -1803,9 +1897,17 @@ function buildSky() {
   });
   skyMesh = new THREE.Mesh(new THREE.SphereGeometry(2600, 20, 12), sm); skyMesh.renderOrder = -10; skyMesh.frustumCulled = false; scene.add(skyMesh);
   // clouds: soft sprite points in slow drift, tinted by the hour (lit peach at golden hour, rose at dusk)
-  { const n = 140, p = new Float32Array(n * 3), c = new Float32Array(n * 3), s = new Float32Array(n), a = new Float32Array(n), r = mulberry(17);
+  { const nc = 34, per = 7, n = nc * per, p = new Float32Array(n * 3), c = new Float32Array(n * 3), s = new Float32Array(n), a = new Float32Array(n), r = mulberry(17);
     CLOUDS.length = 0;
-    for (let i = 0; i < n; i++) { const th = r() * TAU, rad = 500 + r() * 1700, y = 190 + r() * 120 + rad * 0.08; const puff = { x: Math.cos(th) * rad, y, z: Math.sin(th) * rad, s: 60 + r() * 120, a: 0.35 + r() * 0.4, drift: 0.6 + r() * 0.8 }; CLOUDS.push(puff); p[i * 3] = puff.x; p[i * 3 + 1] = puff.y; p[i * 3 + 2] = puff.z; s[i] = puff.s; a[i] = puff.a; c[i * 3] = c[i * 3 + 1] = c[i * 3 + 2] = 1; }
+    for (let k = 0; k < nc; k++) {
+      // each cloud is a cluster of overlapping soft puffs, flat underneath and lumpy on top
+      const th = r() * TAU, rad = 600 + r() * 1600, cx = Math.cos(th) * rad, cz = Math.sin(th) * rad, cy = 210 + r() * 110 + rad * 0.07, len = 90 + r() * 160, drift = 0.6 + r() * 0.8;
+      for (let j = 0; j < per; j++) {
+        const u = (j / (per - 1) - 0.5), i = k * per + j;
+        const puff = { x: cx + u * len + (r() - 0.5) * 30, y: cy + (0.5 - Math.abs(u)) * 28 + r() * 14, z: cz + (r() - 0.5) * 40, s: 45 + r() * 50 + (0.5 - Math.abs(u)) * 60, a: 0.16 + r() * 0.12, drift };
+        CLOUDS.push(puff); p[i * 3] = puff.x; p[i * 3 + 1] = puff.y; p[i * 3 + 2] = puff.z; s[i] = puff.s; a[i] = puff.a; c[i * 3] = c[i * 3 + 1] = c[i * 3 + 2] = 1;
+      }
+    }
     const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.BufferAttribute(p, 3)); g.setAttribute('aCol', new THREE.BufferAttribute(c, 3)); g.setAttribute('aSize', new THREE.BufferAttribute(s, 1)); g.setAttribute('aAlpha', new THREE.BufferAttribute(a, 1));
     g.boundingSphere = new THREE.Sphere(new THREE.Vector3(), 1e5);
     const m = pointsMaterial(true, false); m.uniforms.fogNear.value = 1e8; m.uniforms.fogFar.value = 1e9;
@@ -1832,7 +1934,11 @@ function buildScene() {
   OBJ.mono = new THREE.Mesh(WG.mono, matLam); OBJ.mono.castShadow = true; OBJ.mono.receiveShadow = true; scene.add(OBJ.mono);
   OBJ.bridge = new THREE.Mesh(WG.bridge, matLam2); OBJ.bridge.castShadow = false; OBJ.bridge.receiveShadow = true; scene.add(OBJ.bridge);
   // town
-  OBJ.bld = mkInst(buildBuildingGeo(), matTint, WORLD.buildings, (b, i, m) => { m.setMatrixAt(i, place(b.x, b.y, b.z, b.ry, b.w, b.h, b.d)); m.setColorAt(i, _c.setHex(b.col)); });
+  const putB = (b, i, m) => { m.setMatrixAt(i, place(b.x, b.y, b.z, b.ry, b.w, b.h, b.d)); m.setColorAt(i, _c.setHex(b.col)); };
+  OBJ.bld = mkInst(buildBuildingGeo(false), matTint, WORLD.buildings.filter(b => !b.pitched), putB);
+  OBJ.bld2 = mkInst(buildBuildingGeo(true), matTint, WORLD.buildings.filter(b => b.pitched), putB);
+  OBJ.hills = new THREE.Mesh(WG.hills, matLam2); OBJ.hills.frustumCulled = false; scene.add(OBJ.hills);
+  OBJ.lamps = mkInst(buildLampGeo(), matLam, WORLD.lampPosts, (l, i, m) => m.setMatrixAt(i, place(l.x, l.y, l.z, l.ry)), false, false);
   OBJ.yali = mkInst(buildYaliGeo(), matTint, WORLD.yali, (b, i, m) => { m.setMatrixAt(i, place(b.x, b.y, b.z, b.ry, b.s, b.s, b.s)); m.setColorAt(i, _c.setHex(b.col)); });
   OBJ.trees = mkInst(buildTreeGeo(false), matTint, WORLD.trees, (b, i, m) => { m.setMatrixAt(i, place(b.x, b.y, b.z, 0, b.s, b.s, b.s)); m.setColorAt(i, _c.setHex(b.col)); }, false);
   OBJ.cyp = mkInst(buildTreeGeo(true), matTint, WORLD.cypress, (b, i, m) => { m.setMatrixAt(i, place(b.x, b.y, b.z, 0, b.s, b.s * 1.1, b.s)); m.setColorAt(i, _c.setHex(b.col)); }, false);
@@ -1942,8 +2048,8 @@ function updateSky(force) {
   const gold = (1 - sstep(0.12, 0.5, el)) * (1 - night) * sstep(-0.1, 0.08, el);
   SKY.gold = gold;
   // colours: Bosphorus day (#2a6fb5 / warm haze), sunset #F28C28 -> #7B2CBF, indigo night
-  SKY.top.setHex(0x2a6fb5).lerp(SKY.tmp.setHex(0x3f5fb0), gold * 0.5).lerp(SKY.tmp.setHex(0x4a2c8a), dusk * 0.85).lerp(SKY.tmp.setHex(0x08122c), night).lerp(SKY.tmp.setHex(0x4a5560), storm).lerp(SKY.tmp.setHex(0xaeb9c2), fogA * 0.6 * (1 - night));
-  SKY.mid.setHex(0x8fc0e6).lerp(SKY.tmp.setHex(0xe8b48a), gold * 0.7).lerp(SKY.tmp.setHex(0xc4568c), dusk * 0.9).lerp(SKY.tmp.setHex(0x141f44), night).lerp(SKY.tmp.setHex(0x5e6a76), storm).lerp(SKY.tmp.setHex(0xbfc7ce), fogA * 0.65 * (1 - night));
+  SKY.top.setHex(0x1f62ae).lerp(SKY.tmp.setHex(0x3f5fb0), gold * 0.5).lerp(SKY.tmp.setHex(0x4a2c8a), dusk * 0.85).lerp(SKY.tmp.setHex(0x08122c), night).lerp(SKY.tmp.setHex(0x4a5560), storm).lerp(SKY.tmp.setHex(0xaeb9c2), fogA * 0.6 * (1 - night));
+  SKY.mid.setHex(0x74b2e2).lerp(SKY.tmp.setHex(0xe8b48a), gold * 0.7).lerp(SKY.tmp.setHex(0xc4568c), dusk * 0.9).lerp(SKY.tmp.setHex(0x141f44), night).lerp(SKY.tmp.setHex(0x5e6a76), storm).lerp(SKY.tmp.setHex(0xbfc7ce), fogA * 0.65 * (1 - night));
   SKY.hor.setHex(0xe6dcc8).lerp(SKY.tmp.setHex(0xf6c892), gold * 0.8).lerp(SKY.tmp.setHex(0xf28c28), dusk).lerp(SKY.tmp.setHex(0x1c2742), night).lerp(SKY.tmp.setHex(0x6c7680), storm).lerp(SKY.tmp.setHex(0xc5ccd2), fogA * 0.7 * (1 - night));
   skyU.uTop.value.copy(SKY.top); skyU.uMid.value.copy(SKY.mid); skyU.uHor.value.copy(SKY.hor); skyU.uSun.value.copy(SKY.sunDir);
   skyU.uGlow.value.setHex(0xffd9a0).lerp(SKY.tmp.setHex(0xff7a3a), dusk); skyU.uGlowA.value = (0.3 + 0.5 * gold + 0.9 * dusk) * (1 - night) * (1 - storm);
@@ -2692,7 +2798,7 @@ async function boot() {
   await step(() => buildBridge());
   await step(() => buildTown());
   await step(() => buildWindowLights());
-  await step(() => buildLand());
+  await step(() => { buildLand(); buildHills(); });
   await step(() => { buildScene(); applyQuality(); });
   await step(() => { buildMinimapBase(); });
   G.state = 'title'; el.bPlay.disabled = false; el.playTxt.setAttribute('data-i', 'play'); el.playTxt.textContent = t('play'); window.__vapurReady = true; if (!lsGet(KEY_SET)) saveSettings();
