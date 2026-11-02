@@ -1691,7 +1691,7 @@ const matLam = new THREE.MeshLambertMaterial({ vertexColors: true, flatShading: 
 const matLam2 = new THREE.MeshLambertMaterial({ vertexColors: true, flatShading: true, side: THREE.DoubleSide });
 const matTint = new THREE.MeshLambertMaterial({ vertexColors: true, flatShading: true });   // instance colour * vertex colour
 const matWin = new THREE.MeshLambertMaterial({ color: 0x163b4a, emissive: 0xffd48a, emissiveIntensity: 0 });
-const matBerth = new THREE.MeshBasicMaterial({ color: 0x22b8d9, transparent: true, opacity: 0.3, depthWrite: false, side: THREE.DoubleSide });
+const matBerth = new THREE.MeshBasicMaterial({ color: 0xf2b84a, transparent: true, opacity: 0.3, depthWrite: false, side: THREE.DoubleSide });
 const matRope = new THREE.LineBasicMaterial({ color: 0x8a6a3c });
 const OBJ = {};
 const _o = new THREE.Object3D(), _c = new THREE.Color(), _m4 = new THREE.Matrix4(), _v3 = new THREE.Vector3(), _q = new THREE.Quaternion(), _e = new THREE.Euler();
@@ -2010,12 +2010,12 @@ function buildScene() {
     const m = pointsMaterial(true, true); FOGMATS.push(m); m.uniforms.uOpacity.value = 0;
     OBJ.lights = new THREE.Points(g, m); OBJ.lights.frustumCulled = false; OBJ.lights.renderOrder = 7; scene.add(OBJ.lights); }
   OBJ.boatLights = new Particles(96, true, true); scene.add(OBJ.boatLights.obj);
-  OBJ.wake = new Particles(lowQ() ? 320 : 640, true, false); scene.add(OBJ.wake.obj);
+  OBJ.wake = new Particles(lowQ() ? 480 : 960, true, false); scene.add(OBJ.wake.obj);
   OBJ.smoke = new Particles(160, true, false); scene.add(OBJ.smoke.obj);
   OBJ.rain = new Particles(1100, true, false, true); scene.add(OBJ.rain.obj); OBJ.rain.max = lowQ() ? 500 : 1100;
   // berth marker and the next-pier beacon
   OBJ.berth = new THREE.Mesh(new THREE.PlaneGeometry(FERRY.beam + 6, FERRY.len + 6).rotateX(-Math.PI / 2), matBerth); OBJ.berth.position.y = 0.4; OBJ.berth.renderOrder = 3; scene.add(OBJ.berth);
-  OBJ.beacon = new THREE.Mesh(new THREE.ConeGeometry(4, 9, 6), new THREE.MeshLambertMaterial({ color: 0x22b8d9, emissive: 0x0E7490 })); OBJ.beacon.rotation.x = Math.PI; scene.add(OBJ.beacon);
+  OBJ.beacon = new THREE.Mesh(new THREE.ConeGeometry(4, 9, 6), new THREE.MeshLambertMaterial({ color: 0xf2b84a, emissive: 0xb0601a })); OBJ.beacon.rotation.x = Math.PI; scene.add(OBJ.beacon);
   // ropes
   const rg = new THREE.BufferGeometry(); rg.setAttribute('position', new THREE.BufferAttribute(new Float32Array(4 * 3), 3));
   OBJ.ropes = new THREE.LineSegments(rg, matRope); OBJ.ropes.frustumCulled = false; OBJ.ropes.visible = false; scene.add(OBJ.ropes);
@@ -2125,7 +2125,7 @@ function updateSky(force) {
 
 // ---------------------------------------------------------------- per-frame render sync
 let camMode = 0;   // 0 chase, 1 bridge, 2 top
-const CAM = { yaw: 0, pitch: 0.42, dist: 72, idle: 0, px: 0, py: 0, pz: 0, drag: false, lx: 0, ly: 0, lookYaw: 0, lookPitch: 0 };
+const CAM = { yaw: 0, pitch: 0.42, dist: 72, distUser: 72, cine: 0, idle: 0, px: 0, py: 0, pz: 0, drag: false, lx: 0, ly: 0, lookYaw: 0, lookPitch: 0 };
 const _mat = new THREE.Matrix4();
 function ferryMatrix(x, z, hd, heel, pitch, out) {
   _o.position.set(x, waveY(x, z) * 0.9, z); _e.set(pitch, hd, heel, 'YXZ'); _o.quaternion.setFromEuler(_e); _o.scale.set(1, 1, 1); _o.updateMatrix(); return out.copy(_o.matrix);
@@ -2174,12 +2174,20 @@ function syncParticles(dt) {
   const sp = Math.abs(P.u);
   // wake: foam at the stern and along the bow when moving
   if (G.state === 'play' && !SIM.docked) {
-    P.wakeT += dt * (6 + sp * 5);
+    P.wakeT += dt * (7 + sp * 6);
     while (P.wakeT > 1) {
       P.wakeT -= 1;
-      const side = rr(-1, 1);
-      OBJ.wake.spawn(P.x - s * 17 + c * side * 3, 0.3, P.z - c * 17 - s * side * 3, -P.vx * 0.2 + rr(-1, 1), 0, -P.vz * 0.2 + rr(-1, 1), 2.5 + sp * 0.25, 2.5, 8 + sp, 0xeef6f8, 0.35 * Math.min(1, 0.3 + sp / 6 + Math.abs(P.thr) * 0.4));
-      if (sp > 2) { const sd = rr(0, 1) < 0.5 ? -1 : 1; OBJ.wake.spawn(P.x + s * 14 + c * sd * 4.5, 0.3, P.z + c * 14 - s * sd * 4.5, c * sd * 2 + P.vx * 0.5, 0, -s * sd * 2 + P.vz * 0.5, 1.6, 1.2, 5, 0xffffff, 0.3); }
+      const side = rr(-1, 1), k = Math.min(1, 0.3 + sp / 6 + Math.abs(P.thr) * 0.4);
+      // stern wash: a bright churn close to the propeller and a wide, long-lived foam carpet behind it
+      OBJ.wake.spawn(P.x - s * 17 + c * side * 3, 0.3, P.z - c * 17 - s * side * 3, -P.vx * 0.2 + rr(-1, 1), 0, -P.vz * 0.2 + rr(-1, 1), 2.5 + sp * 0.25, 2.5, 8 + sp, 0xf4fbff, 0.4 * k);
+      OBJ.wake.spawn(P.x - s * 19 + c * side * 4, 0.25, P.z - c * 19 - s * side * 4, -P.vx * 0.1 + rr(-0.6, 0.6), 0, -P.vz * 0.1 + rr(-0.6, 0.6), 6 + sp * 0.6, 4, 16 + sp * 1.5, 0xcfe6ef, 0.16 * k);
+      if (sp > 2) {
+        // bow wave: a V of foam peeling off both sides, with spray thrown up at speed
+        const sd = rr(0, 1) < 0.5 ? -1 : 1;
+        OBJ.wake.spawn(P.x + s * 14 + c * sd * 4.5, 0.3, P.z + c * 14 - s * sd * 4.5, c * sd * (1.5 + sp * 0.2) + P.vx * 0.5, 0, -s * sd * (1.5 + sp * 0.2) + P.vz * 0.5, 2.2, 1.2, 6 + sp * 0.4, 0xffffff, 0.34);
+        if (sp > 5 && rr(0, 1) < 0.5) OBJ.wake.spawn(P.x + s * 16 + c * sd * 3.5, 1.2, P.z + c * 16 - s * sd * 3.5, c * sd * 2.5 + P.vx * 0.6, 3 + sp * 0.25, -s * sd * 2.5 + P.vz * 0.6, 1.1, 0.8, 2.2, 0xffffff, 0.5, 9);
+      }
+      if (sp > 1) { const sd = rr(0, 1) < 0.5 ? -1 : 1, az = rr(-14, 12); OBJ.wake.spawn(P.x + s * az + c * sd * 4.9, 0.3, P.z + c * az - s * sd * 4.9, P.vx * 0.3, 0, P.vz * 0.3, 1.4, 1.0, 3.5, 0xeaf6fa, 0.22 * k); }   // foam collar along the hull
     }
     // funnel smoke
     P.smokeT += dt * (3 + Math.abs(P.thr) * 10);
@@ -2242,14 +2250,26 @@ function updateCamera(dt) {
   }
   CAM.idle += dt;
   if (camMode === 0) {
-    if (!CAM.drag && CAM.idle > 3) { CAM.yaw += (0 - CAM.yaw) * Math.min(1, dt * 1.2); CAM.pitch += (0.42 - CAM.pitch) * Math.min(1, dt * 1.2); }
+    // cinematic docking: near the target pier the chase camera drifts out over the water, drops low and frames the
+    // ferry against the pier; moored, it keeps a slow orbit. A drag on the scene overrides it for a few seconds.
+    const ns = nextStop(), Pr = ns ? PIERS[ns.id] : null, cine = !!Pr && (DOCK.near || !!SIM.docked) && !CAM.drag && CAM.idle > 2.5;
+    CAM.cine += ((cine ? 1 : 0) - CAM.cine) * Math.min(1, dt * 0.8);
+    if (!CAM.drag && CAM.idle > 3) {
+      let yawT = 0, pitchT = 0.42, distT = CAM.distUser;
+      if (cine) {
+        const dx = Pr.nx * 0.8 - s * 0.55, dz = Pr.nz * 0.8 - c * 0.55;   // out over the water and a little astern
+        yawT = wrapAng(Math.atan2(dx, dz) - (P.hd + Math.PI)) + (SIM.docked ? Math.sin(waterU.uTime.value * 0.12) * 0.5 : 0);
+        pitchT = SIM.docked ? 0.3 : 0.24; distT = SIM.docked ? 62 : 58;
+      }
+      CAM.yaw += wrapAng(yawT - CAM.yaw) * Math.min(1, dt * (cine ? 0.7 : 1.2)); CAM.pitch += (pitchT - CAM.pitch) * Math.min(1, dt * 1.0); CAM.dist += (distT - CAM.dist) * Math.min(1, dt * 0.8);
+    }
     const yaw = P.hd + Math.PI + CAM.yaw, d = CAM.dist, pitch = CAM.pitch;
     const tx = P.x + Math.sin(yaw) * Math.cos(pitch) * d, ty = boatY + 4 + Math.sin(pitch) * d, tz = P.z + Math.cos(yaw) * Math.cos(pitch) * d;
     const k = Math.min(1, dt * 4);
     CAM.px += (tx - CAM.px) * k; CAM.py += (ty - CAM.py) * k; CAM.pz += (tz - CAM.pz) * k;
     camera.position.set(CAM.px, Math.max(CAM.py, 3), CAM.pz);
-    camera.lookAt(P.x + s * 8, boatY + 6, P.z + c * 8);
-    camera.fov = 55;
+    camera.lookAt(P.x + s * 8 * (1 - CAM.cine), boatY + 5, P.z + c * 8 * (1 - CAM.cine));
+    camera.fov = 55 + 5 * Math.min(1, P.speed / 12) * (1 - CAM.cine);   // a touch wider at speed
   } else if (camMode === 1) {
     ferryLocalToWorld([0, 7.9, 8.6], _p3);
     camera.position.set(_p3[0], _p3[1], _p3[2]);
@@ -2450,7 +2470,7 @@ canvas.addEventListener('pointermove', e => {
   else if (camMode === 1) { CAM.lookYaw -= dx * 0.004; CAM.lookPitch = clamp(CAM.lookPitch - dy * 0.003, -0.5, 0.6); }
 });
 canvas.addEventListener('pointerup', e => { CAM.drag = false; });
-canvas.addEventListener('wheel', e => { if (camMode === 0) CAM.dist = clamp(CAM.dist + e.deltaY * 0.05, 30, 160); }, { passive: true });
+canvas.addEventListener('wheel', e => { if (camMode === 0) { CAM.dist = CAM.distUser = clamp(CAM.dist + e.deltaY * 0.05, 30, 160); CAM.idle = 0; } }, { passive: true });
 // touch controls: throttle lever (sticky) and rudder wheel (returns to centre when released)
 const TOUCH = { thrId: null, wheelId: null, horn: false, wheelA0: 0, rud0: 0 };
 function setupTouch() {
