@@ -7,3 +7,4 @@ Thumbs.db
 .idea/
 *.tmp
 .heavy.lock
+graphify-out/
