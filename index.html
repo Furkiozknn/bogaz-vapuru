@@ -118,7 +118,8 @@ button:focus-visible,input:focus-visible,a:focus-visible,[tabindex]:focus-visibl
 #dock .g b.ok{color:var(--good)}#dock .g b.no{color:var(--bad)}
 #dock .hint{font-size:12.5px;color:var(--warn);margin-top:3px;min-height:15px;font-weight:700}
 #dock .hint.ok{color:var(--good)}
-#camLbl{position:absolute;right:max(10px,env(safe-area-inset-right));top:calc(var(--barh,56px) + max(8px,env(safe-area-inset-top)) + 8px);padding:4px 10px;font-size:11px;color:var(--dim);border-radius:6px}
+/* a11y: use --ink instead of --dim on glass for >=4.5:1 contrast */
+#camLbl{position:absolute;right:max(10px,env(safe-area-inset-right));top:calc(var(--barh,56px) + max(8px,env(safe-area-inset-top)) + 8px);padding:4px 10px;font-size:11px;color:var(--ink);border-radius:6px}
 #floaters{position:absolute;inset:0;overflow:hidden}
 .floater{position:absolute;font:700 22px var(--serif);color:var(--brass-l);text-shadow:0 2px 0 rgba(0,0,0,.55);animation:fup 1.4s ease-out forwards;transform:translate(-50%,-50%);white-space:nowrap}
 .floater.neg{color:var(--bad)}
@@ -236,7 +237,8 @@ ul.feat li::before{content:"";display:inline-block;width:8px;height:8px;border-r
   .card{padding:12px 16px}.card h1{font-size:26px}#logoBig{width:120px;height:90px}
   #minimap{width:100px;height:150px}
 }
-@media (prefers-reduced-motion:reduce){*{animation-duration:.01s!important}}
+/* a11y: disable transitions as well as animations under reduced motion */
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01s!important;transition-duration:0s!important}}
 </style>
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"}}</script>
 <script data-goatcounter="https://furkiozknn.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
@@ -385,9 +387,10 @@ ul.feat li::before{content:"";display:inline-block;width:8px;height:8px;border-r
       <h2 data-i="settings"></h2>
       <div class="rope" aria-hidden="true" style="margin:4px auto 8px"></div>
       <div class="set">
-        <label for="rMaster" data-i="master"></label><input type="range" id="rMaster" min="0" max="100"><output id="oMaster"></output>
-        <label for="rMusic" data-i="music"></label><input type="range" id="rMusic" min="0" max="100"><output id="oMusic"></output>
-        <label for="rSfx" data-i="effects"></label><input type="range" id="rSfx" min="0" max="100"><output id="oSfx"></output>
+        <!-- a11y: explicit aria-label synced with TR/EN via data-t in applyLang() -->
+        <label for="rMaster" data-i="master"></label><input type="range" id="rMaster" min="0" max="100" data-t="master" aria-label="Genel ses"><output id="oMaster"></output>
+        <label for="rMusic" data-i="music"></label><input type="range" id="rMusic" min="0" max="100" data-t="music" aria-label="Müzik"><output id="oMusic"></output>
+        <label for="rSfx" data-i="effects"></label><input type="range" id="rSfx" min="0" max="100" data-t="effects" aria-label="Efektler"><output id="oSfx"></output>
         <label data-i="language"></label><div class="seg"><button class="btn" id="bTR">Türkçe</button><button class="btn" id="bEN">English</button></div>
         <label data-i="quality"></label><div class="seg"><button class="btn" id="bQLow" data-i="low"></button><button class="btn" id="bQHigh" data-i="high"></button></div>
         <label data-i="fullscreen"></label><div class="seg"><button class="btn" id="bFull"><svg class="ic"><use href="#i-full"/></svg><span data-i="toggle"></span></button></div>
@@ -2533,6 +2536,18 @@ function readInput(dt) {
   input.horn = !!keys.Space || TOUCH.horn;
 }
 function onKey(e, down) {
+  // a11y: trap Tab / Shift+Tab focus inside the active .screen.show modal (#sPause, #sSettings, etc.)
+  if (down && e.code === 'Tab') {
+    const sc = $('.screen.show');
+    if (sc) {
+      const f = $$('button:not([disabled]):not(.hidden),input:not([disabled]):not(.hidden),[href]:not(.hidden),[tabindex]:not([tabindex="-1"]):not(.hidden)', sc);
+      if (f.length) {
+        const first = f[0], last = f[f.length - 1];
+        if (e.shiftKey && (document.activeElement === first || !sc.contains(document.activeElement))) { e.preventDefault(); last.focus(); return; }
+        if (!e.shiftKey && (document.activeElement === last || !sc.contains(document.activeElement))) { e.preventDefault(); first.focus(); return; }
+      }
+    }
+  }
   if (e.repeat && down) return;
   keys[e.code] = down;
   if (!down) return;
@@ -2583,7 +2598,7 @@ function toggleLang() { LANG = LANG === 'tr' ? 'en' : 'tr'; settings.lang = LANG
 function show(id) { for (const s of ['sTitle', 'sIntro', 'sPause', 'sSettings', 'sEnd']) el[s].classList.toggle('show', s === id); el.hud.classList.toggle('hidden', !(G.state === 'play' || G.state === 'paused')); updateBarH(); }
 let settingsFrom = 'title';
 function openSettings(from) { settingsFrom = from; G.prevState = G.state; G.state = 'settings'; syncSettingsUI(); show('sSettings'); el.bSetBack.focus(); }
-function closeSettings() { G.state = settingsFrom === 'pause' ? 'paused' : settingsFrom === 'intro' ? 'intro' : 'title'; show(settingsFrom === 'pause' ? 'sPause' : settingsFrom === 'intro' ? 'sIntro' : 'sTitle'); }
+function closeSettings() { G.state = settingsFrom === 'pause' ? 'paused' : settingsFrom === 'intro' ? 'intro' : 'title'; show(settingsFrom === 'pause' ? 'sPause' : settingsFrom === 'intro' ? 'sIntro' : 'sTitle'); (settingsFrom === 'pause' ? el.bSettingsP : settingsFrom === 'intro' ? el.bStart : el.bSettingsT).focus(); }
 function currentShiftDef() { return G.mode === 'endless' ? G.curEndless : SHIFTS[G.shiftIdx]; }
 function startCampaign(resume) {
   G.mode = 'campaign';
