@@ -579,13 +579,14 @@ function endlessShift(n) {     // endless shift n (1-based): random route, growi
 // ---------------------------------------------------------------- settings / save (all in try/catch)
 const KEY_SET = 'arena.vapur.settings', KEY_SAVE = 'arena.vapur.save';
 const isPhone = /Android|iPhone|iPad|iPod|Mobi/i.test(navigator.userAgent) || (matchMedia && matchMedia('(pointer:coarse)').matches && Math.min(screen.width, screen.height) < 800);
-const settings = { master: 0.8, music: 0.6, sfx: 0.8, lang: (navigator.language || 'tr').toLowerCase().startsWith('tr') ? 'tr' : 'en', quality: isPhone ? 'low' : 'high' };
+const settings = { master: 0.8, music: 0.6, sfx: 0.8, mute: false, lang: (navigator.language || 'tr').toLowerCase().startsWith('tr') ? 'tr' : 'en', quality: isPhone ? 'low' : 'high' };
 function lsGet(k) { try { return JSON.parse(localStorage.getItem(k)); } catch (e) { return null; } }
 function lsSet(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) { /* ignore */ } }
 (function loadSettings() {
   const s = lsGet(KEY_SET);
   if (s && typeof s === 'object') for (const k of Object.keys(settings)) if (s[k] !== undefined) settings[k] = s[k];
   if (s && s.musicOn !== undefined) settings.musicOn = s.musicOn; if (s && s.sfxOn !== undefined) settings.sfxOn = s.sfxOn;
+  if (s && s.mute !== undefined) settings.mute = s.mute; // restore saved mute state
   LANG = (Q.get('lang') === 'en' || Q.get('lang') === 'tr') ? Q.get('lang') : settings.lang;   // URL override is not saved
 })();
 const saveSettings = () => lsSet(KEY_SET, settings);
@@ -654,7 +655,7 @@ const AUD = (() => {
     timer = setInterval(sched, 90);
     document.addEventListener('visibilitychange', () => { if (!ctx) return; if (document.hidden) ctx.suspend(); else ctx.resume(); });
   }
-  function resume() { if (ctx && ctx.state === 'suspended' && !document.hidden) ctx.resume(); }
+  function resume() { if (ctx && ctx.state !== 'running' && ctx.state !== 'closed' && !document.hidden) ctx.resume(); }
   function env(g, t0, a, d, peak, end = 0.0001) {
     g.gain.cancelScheduledValues(t0); g.gain.setValueAtTime(0.0001, t0);
     g.gain.exponentialRampToValueAtTime(peak, t0 + a); g.gain.exponentialRampToValueAtTime(end, t0 + a + d);
@@ -673,6 +674,7 @@ const AUD = (() => {
   }
   function sched() {
     if (!ctx || ctx.state !== 'running') return;
+    if (nextT < ctx.currentTime) nextT = ctx.currentTime + 0.05; // prevent catchup burst after hitch
     while (nextT < ctx.currentTime + 0.25) { playStep(step % 64, nextT); step++; nextT += STEPDUR; }
   }
   let melHold = null;
@@ -1058,10 +1060,11 @@ function buildMonuments() {
     for (const [dx, dz] of [[11, 11], [-11, 11], [11, -11], [-11, -11]]) m.box(dx * s, 0, dz * s, 9 * s, 18 * s, 9 * s, 0xd9d2c0);
     m.box(0, 0, 0, 44 * s, 1.2, 44 * s, 0xb9b3a4);
     const mPos = minarets === 4 ? [[20, 20], [-20, 20], [20, -20], [-20, -20]] : minarets === 2 ? [[20, 20], [-20, 20]] : [[20, 20]];
+    const co = Math.cos(ry), si = Math.sin(ry);
     for (const [dx, dz] of mPos) {
       m.cyl(dx * s, 0, dz * s, 1.8 * s, 42 * s, 0xe6e0d2, 8); m.cyl(dx * s, 24 * s, dz * s, 2.8 * s, 1.2 * s, 0xcfc8b8, 8);
       m.cyl(dx * s, 36 * s, dz * s, 2.8 * s, 1.2 * s, 0xcfc8b8, 8); m.cone(dx * s, 42 * s, dz * s, 2.2 * s, 7 * s, 0x6f8e9c, 8);
-      WORLD.lights.push([x + dx * s * Math.cos(ry), y + 43 * s, z + dz * s * Math.sin(ry), 0xffe9b0, 1.1]);
+      WORLD.lights.push([x + (dx * co + dz * si) * s, y + 43 * s, z + (-dx * si + dz * co) * s, 0xffe9b0, 1.1]); // rotated minaret light offset
     }
     g.add(m, x, y, z, ry);
     WORLD.mosques.push({ x, z, r: 30 * s });
@@ -1437,7 +1440,7 @@ function stepFerry(dt) {
     collideShore(_c1);
     for (const o of OBST) {
       const dx = _c1.x - o.x, dz = _c1.z - o.z, d = hyp(dx, dz), pen = o.r + _c1.r - d;
-      if (pen > 0) impact(dx / d, dz / d, pen, 'crash');
+      if (pen > 0) impact(dx / (d || 1), dz / (d || 1), pen, 'crash');
     }
   }
 }
@@ -1595,7 +1598,7 @@ function stepTraffic(dt) {
     if (b.kind === 'fish') {
       const pdx = b.x - player.x, pdz = b.z - player.z, pd = hyp(pdx, pdz);
       b.blockT = (b.v < 0.4 && pd < 45) ? (b.blockT || 0) + dt : 0;
-      if (b.blockT > 4) { b.blockT = 0; const ux = pdx / pd, uz = pdz / pd; const tx = b.x + ux * 70 + (-uz) * 30, tz = b.z + uz * 70 + ux * 30; if (depth(tx, tz) > 20) { b.path = [[tx, tz]]; b.pi = 0; b.wait = 0; } else fishTarget(b); }
+      if (b.blockT > 4) { b.blockT = 0; const d0 = pd || 1, ux = pdx / d0, uz = pdz / d0; const tx = b.x + ux * 70 + (-uz) * 30, tz = b.z + uz * 70 + ux * 30; if (depth(tx, tz) > 20) { b.path = [[tx, tz]]; b.pi = 0; b.wait = 0; } else fishTarget(b); }
     }
     const acc = b.kind === 'tanker' ? 0.12 : b.kind === 'ferry' ? 0.5 : 1.2;
     b.v += clamp(vT - b.v, -acc * 2 * dt, acc * dt);
@@ -2100,11 +2103,16 @@ function buildScene() {
 const GULLS = [];
 // ---------------- people: queues on the piers, passengers on the decks, walkers in between
 const PEOPLE_COL = [0xd94c4c, 0x3c7bd9, 0xe8b33c, 0x3fae6a, 0x8e5bd1, 0xf2f2f2, 0x2f3a4a, 0xf08c3a, 0x5fc8d9, 0xd96bb0];
-function pierSlot(P, i) {   // queue slot i on the pier platform (world coords), in rows in front of the hall
-  const row = Math.floor(i / 9), k = i % 9;
-  const along = (k - 4) * 3.2 + (row % 2) * 1.2, across = -P.w / 2 + 10.5 + row * 1.7;
-  const w = pierLocal(P, across, along);
-  return [w[0], 2.7, w[1]];
+function pierSlot(P, i) {   // queue slot i on the pier platform (world coords), cached to avoid per-frame allocations
+  if (!P.slots) P.slots = [];
+  let s = P.slots[i];
+  if (!s) {
+    const row = Math.floor(i / 9), k = i % 9;
+    const along = (k - 4) * 3.2 + (row % 2) * 1.2, across = -P.w / 2 + 10.5 + row * 1.7;
+    const w = pierLocal(P, across, along);
+    s = P.slots[i] = [w[0], 2.7, w[1]];
+  }
+  return s;
 }
 function spawnWalker(P, dir) {
   const gi = Math.floor(R() * 2), g = P.gang[gi], gw0 = pierLocal(P, g[0], g[1]);
@@ -2490,13 +2498,15 @@ function buildMinimapBase() {
   MM.base = c;
 }
 const mmX = x => (x - MM.x0) / (MM.x1 - MM.x0) * el.minimap.width, mmZ = z => (z - MM.z0) / (MM.z1 - MM.z0) * el.minimap.height;
+let mmWp = null, mmWpFor = null, mmWpT = -99;
 function drawMinimap() {
   const g = el.minimap.getContext('2d'), W = el.minimap.width, H = el.minimap.height;
   g.drawImage(MM.base, 0, 0);
   const ns = nextStop();
-  // route: from the ferry through the fairway to the next pier
+  // route: from the ferry through the fairway to the next pier (throttled to avoid per-frame fairway graph searches)
   if (ns && !SIM.docked) {
-    const wp = routeTo(player.x, player.z, ns.id); const P = PIERS[ns.id];
+    if (!mmWp || mmWpFor !== ns.id || (SIM.t - mmWpT) > 1.2) { mmWp = routeTo(player.x, player.z, ns.id); mmWpFor = ns.id; mmWpT = SIM.t; }
+    const wp = mmWp, P = PIERS[ns.id];
     g.strokeStyle = '#b3232a'; g.lineWidth = 3; g.setLineDash([8, 6]); g.beginPath(); g.moveTo(mmX(player.x), mmZ(player.z));
     for (const w of wp) g.lineTo(mmX(w[0]), mmZ(w[1])); g.lineTo(mmX(P.bx), mmZ(P.bz)); g.stroke(); g.setLineDash([]);
   }
