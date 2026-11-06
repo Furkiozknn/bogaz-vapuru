@@ -831,13 +831,6 @@ input[type=range] { width: 100%; height: 44px; accent-color: var(--c-teal); back
     </div>
   </section>
 </main>
-        <button class="btn primary" id="bNext"><span id="nextTxt"></span></button>
-        <button class="btn" id="bRetry"><svg class="ic"><use href="#i-restart"/></svg><span data-i="retry"></span></button>
-        <button class="btn" id="bMenuE"><svg class="ic"><use href="#i-home"/></svg><span data-i="menu"></span></button>
-      </div>
-    </div>
-  </section>
-</main>
 <div id="dbg"></div>
 <script>setTimeout(function(){if(!window.__vapurReady){var e=document.getElementById("playTxt");if(e)e.textContent="Three.js could not load (check the connection)";}},25000);</script>
 <script type="module">
@@ -2964,13 +2957,6 @@ function drawMinimap() {
   // the player ferry
   g.save(); g.translate(mmX(player.x), mmZ(player.z)); g.rotate(-player.hd);
   g.fillStyle = '#E8A13A'; g.strokeStyle = '#0F2E33'; g.lineWidth = 2; g.beginPath(); g.moveTo(0, -14); g.lineTo(8, 10); g.lineTo(0, 5); g.lineTo(-8, 10); g.closePath(); g.fill(); g.stroke();
-  g.restore();
-}
-    g.restore();
-  }
-  // the player ferry
-  g.save(); g.translate(mmX(player.x), mmZ(player.z)); g.rotate(-player.hd);
-  g.fillStyle = '#C9A961'; g.strokeStyle = '#15304A'; g.lineWidth = 2; g.beginPath(); g.moveTo(0, -14); g.lineTo(8, 10); g.lineTo(0, 5); g.lineTo(-8, 10); g.closePath(); g.fill(); g.stroke();
   g.restore();
 }
 // ---------------------------------------------------------------- input: keyboard, mouse, touch
