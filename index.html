@@ -433,6 +433,23 @@ body.touch #camLbl { display: none; }
 body.touch #nextCard { min-width: 0; padding: 6px 12px; } body.touch #nextCard b { font-size: 19px; }
 body.touch #dock { bottom: calc(max(14px, env(safe-area-inset-bottom)) + 124px); min-width: 200px; padding: 6px 10px; }
 body.touch #dock .g b { font-size: 17px; }
+/* compact panel (V key / panel button): the ferry and the water get the screen */
+body.compact #minimap { display: none; }
+body.compact #nextCard { padding: 4px 10px; min-width: 0; } body.compact #nextCard small, body.compact #nextCard::before { display: none; }
+body.compact #nextCard b { font-size: 15px; } body.compact #nextCard .l2 { font-size: 11px; }
+body.compact #gauges { transform: scale(.72); transform-origin: 100% 100%; }
+body.compact.touch #gauges { transform: scale(.85); transform-origin: 100% 0; }
+body.compact #tWheel { width: 112px; height: 112px; } body.compact #tWheel svg { width: 94px; height: 94px; }
+body.compact #tThr { width: 62px; height: 160px; } body.compact #tThr i { left: 8px; width: 46px; height: 46px; margin-top: -23px; }
+body.compact .tb { width: 48px; height: 42px; }
+body.compact #tHorn, body.compact #tCam { right: calc(max(16px, env(safe-area-inset-right)) + 70px); }
+body.compact #tCam { bottom: calc(max(16px, env(safe-area-inset-bottom)) + 50px); }
+body.compact.touch #dock { bottom: calc(max(14px, env(safe-area-inset-bottom)) + 100px); }
+#bPanel.on { background: var(--c-gold); }
+body.compact #topbar { padding: 3px 8px; gap: 4px; top: max(6px, env(safe-area-inset-top)); }
+body.compact #topbar .brand, body.compact .stat small { display: none; }
+body.compact .stat { min-width: 0; padding: 0 7px; } body.compact .stat b { font-size: 14px; }
+body.compact #topbar .btn.icon { width: 36px; height: 36px; } body.compact #topbar .btn.icon svg.ic { width: 18px; height: 18px; }
 
 /* Screens & Modal Cards */
 .screen {
@@ -635,6 +652,7 @@ input[type=range] { width: 100%; height: 44px; accent-color: var(--c-teal); back
     <symbol id="i-home" viewBox="0 0 24 24"><path d="M3.5 11L12 4l8.5 7M6 9.5V20h12V9.5M10 20v-6h4v6"/></symbol>
     <symbol id="i-restart" viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.6-5.9M20 4v5h-5"/></symbol>
     <symbol id="i-horn" viewBox="0 0 24 24"><path d="M3 10v4h3l7 4V6L6 10z" fill="currentColor"/><path d="M16 8l3-2M16 12h4M16 16l3 2"/></symbol>
+    <symbol id="i-panel" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 15h18M9 15v5"/></symbol>
     <symbol id="i-cam" viewBox="0 0 24 24"><rect x="3" y="7" width="13" height="11" rx="2"/><path d="M16 11l5-3v9l-5-3z"/></symbol>
     <symbol id="i-person" viewBox="0 0 24 24"><circle cx="12" cy="7.5" r="3" fill="currentColor"/><path d="M5 20c0-3.5 3-5.5 7-5.5s7 2 7 5.5z" fill="currentColor"/></symbol>
     <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></symbol>
@@ -703,6 +721,7 @@ input[type=range] { width: 100%; height: 44px; accent-color: var(--c-teal); back
     <div class="stat wide"><small><svg class="ic"><use href="#i-hull"/></svg><span data-i="hull"></span></small><div class="bar hull" id="hullBar"><i></i></div></div>
     <div class="stat"><small><svg class="ic"><use href="#i-star"/></svg><span data-i="score"></span></small><div class="stars-sm" id="stStars"><svg viewBox="0 0 24 24"><use href="#i-star"/></svg><svg viewBox="0 0 24 24"><use href="#i-star"/></svg><svg viewBox="0 0 24 24"><use href="#i-star"/></svg></div></div>
     <div class="btns">
+      <button class="btn icon" id="bPanel" data-t="panel" aria-label="Panel"><svg class="ic"><use href="#i-panel"/></svg></button>
       <button class="btn icon" id="bCamH" data-t="camera" aria-label="Camera"><svg class="ic"><use href="#i-cam"/></svg></button>
       <button class="btn icon" id="bPause" data-t="pause" aria-label="Pause"><svg class="ic"><use href="#i-pause"/></svg></button>
       <button class="btn icon" id="bSound" data-t="sound" aria-label="Sound"><svg class="ic"><use href="#i-sfx"/></svg></button>
@@ -715,7 +734,8 @@ input[type=range] { width: 100%; height: 44px; accent-color: var(--c-teal); back
   <canvas id="minimap" width="300" height="460"></canvas>
   <div id="gauges">
     <div id="levers">
-      <div class="lever thr" title="throttle"><i id="lvThr"></i><small>W/S</small></div>
+      <div class="lever thr" title="iskele makine / port engine"><i id="lvThr"></i><small>İ T/G</small></div>
+      <div class="lever thr" title="sancak makine / starboard engine"><i id="lvThrS"></i><small>S Y/H</small></div>
       <div class="lever rud" title="rudder"><i id="lvRud"></i><small>A/D</small></div>
     </div>
     <div id="speedo"><svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="42" stroke="rgba(15,46,51,.15)" stroke-dasharray="198 264"/><circle class="ticks" cx="50" cy="50" r="35" stroke-dasharray="1.5 9.5"/><circle id="spArc" cx="50" cy="50" r="42" stroke-dasharray="0 264"/></svg><div><b id="spVal">0</b><small id="spUnit">kn</small></div></div>
@@ -876,15 +896,15 @@ const fmtMS = s => { s = Math.max(0, Math.round(s)); return Math.floor(s / 60) +
 const STR = {
   tr: {
     subtitle: 'Boğaz\'da şehir hatları vapurunu sür, iskelelere yanaş, yolcu taşı.',
-    howto: 'W/S gaz (ileri / tornistan), A/D dümen, Boşluk düdük, C kamera. İskeleye yavaş ve paralel yanaş: halatlar atılınca yolcular iner biner. Tankerlerden ve diğer vapurlardan uzak dur, tarifeye uy.',
+    howto: 'W/S iki makine (ileri / tornistan), T/G iskele makinesi, Y/H sancak makinesi, A/D dümen (A iskele, D sancak), Boşluk düdük, C kamera. İskeleye yavaş ve paralel yanaş: halatlar atılınca yolcular iner biner. Tankerlerden ve diğer vapurlardan uzak dur, tarifeye uy.',
     howtoTouch: 'Sağdaki kolla gaz ver (yukarı ileri, aşağı tornistan), soldaki dümen simidini çevir. İskeleye yavaş ve paralel yanaş: halatlar atılınca yolcular iner biner. Tarifeye uy, tankerlerden uzak dur.',
     loading: 'Yükleniyor… {0}/{1}', play: 'Oyna', continue: 'Devam', endless: 'Sonsuz sefer', settings: 'Ayarlar',
     language: 'Dil', paused: 'Duraklatıldı', resume: 'Devam et', restart: 'Yeniden başla', menu: 'Ana menü',
     startShift: 'Sefere çık', master: 'Genel ses', music: 'Müzik', effects: 'Efektler', quality: 'Kalite',
     low: 'Düşük', high: 'Yüksek', fullscreen: 'Tam ekran', toggle: 'Aç / kapat', back: 'Geri',
-    keysHelp: 'P / Esc duraklat · M müzik · X efekt · L dil · C kamera · Boşluk düdük · W/S gaz · A/D dümen',
+    keysHelp: 'P / Esc duraklat · M müzik · X efekt · L dil · C kamera · Boşluk düdük · W/S makineler · T/G iskele · Y/H sancak · A/D dümen',
     retry: 'Tekrar dene', next: 'Sonraki sefer', playAgain: 'Tekrar oyna', nextShift: 'Sonraki sefer',
-    shift: 'Sefer', clock: 'Saat', passengers: 'Yolcu', comfort: 'Konfor', hull: 'Gövde', score: 'Puan', pause: 'Duraklat', sound: 'Ses', camera: 'Kamera',
+    shift: 'Sefer', clock: 'Saat', passengers: 'Yolcu', comfort: 'Konfor', hull: 'Gövde', score: 'Puan', panel: 'Paneli küçült / büyüt (V)', pause: 'Duraklat', sound: 'Ses', camera: 'Kamera',
     nextStop: 'Sonraki iskele', distance: 'Mesafe', speed: 'Hız', angle: 'Açı', ahead: 'İLERİ', astern: 'TORN.',
     waiting: '{0} bekliyor', planned: 'plan {0}', lateBy: '{0} geç', earlyBy: '{0} erken', depart: 'kalkış {0}', waitDep: 'kalkışa {0}', boarding: 'yolcu alınıyor…', canLeave: 'kalkabilirsin!',
     campaign: 'Sefer planı', endlessShort: 'Sonsuz',
@@ -902,7 +922,7 @@ const STR = {
     c_dusk: 'Alacakaranlık', c_night: 'Gece', c_fog: 'Sis', c_current: 'Akıntı', c_storm: 'Fırtına', c_convoy: 'Tanker konvoyu', c_traffic: 'Yoğun trafik', c_day: 'Gündüz',
     tgt: 'Hedef', star1: '1 yıldız', star2: '2 yıldız', star3: '3 yıldız', ttHead: 'Tarife',
     toastStart: 'Sefer başladı. İlk iskele: {0}', toastDocked: '{0} iskelesine yanaşıldı', toastRopes: 'Halatlar atıldı!', toastBump: 'Sert yanaşma! Yolcular rahatsız', toastCrash: 'Çarpışma! Gövde hasar aldı', toastGround: 'Karaya oturdun!',
-    toastLate: 'Geç kaldın, yolcular sabırsız', toastLost: '{0} yolcu beklemekten vazgeçti', toastEarly: 'Erken geldin, tarifeyi bekle', toastLeave: 'Kalkış saati. Yola çık!', toastWrongPier: 'Burası sıradaki iskele değil: {0}', toastTanker: 'Tanker yaklaşıyor, yol ver!',
+    toastLate: 'Geç kaldın, yolcular sabırsız', toastLost: '{0} yolcu beklemekten vazgeçti', toastEarly: 'Erken geldin: saat hızlandı, kalkışa az kaldı', toastLeave: 'Kalkış saati. Yola çık!', toastWrongPier: 'Burası sıradaki iskele değil: {0}', toastTanker: 'Tanker yaklaşıyor, yol ver!',
     toastHeel: 'Sert dümen, yolcular sallanıyor', toastFog: 'Sis bastırdı', toastStorm: 'Fırtına şiddetleniyor', toastNight: 'Işıklar yakıldı',
     offOn: '{0} indi · {1} bindi',
     endClear: 'Sefer tamamlandı', endFail: 'Sefer başarısız', endWreck: 'Vapur yara aldı', endWin: 'Tebrikler, kaptan!', endEndless: 'Sonsuz sefer bitti',
@@ -915,15 +935,15 @@ const STR = {
   },
   en: {
     subtitle: 'Captain a city ferry on the Bosphorus: dock at the piers, carry passengers, keep the timetable.',
-    howto: 'W/S throttle (ahead / astern), A/D rudder, Space horn, C camera. Come alongside slowly and parallel: when the ropes are thrown the passengers get off and on. Stay clear of tankers and other ferries, keep the timetable.',
+    howto: 'W/S both engines (ahead / astern), T/G port engine, Y/H starboard engine, A/D rudder (A port, D starboard), Space horn, C camera. Come alongside slowly and parallel: when the ropes are thrown the passengers get off and on. Stay clear of tankers and other ferries, keep the timetable.',
     howtoTouch: 'Right lever is the throttle (up ahead, down astern), turn the wheel on the left. Come alongside slowly and parallel: when the ropes are thrown the passengers get off and on. Keep the timetable, stay clear of tankers.',
     loading: 'Loading… {0}/{1}', play: 'Play', continue: 'Continue', endless: 'Endless shift', settings: 'Settings',
     language: 'Language', paused: 'Paused', resume: 'Resume', restart: 'Restart', menu: 'Main menu',
     startShift: 'Start the shift', master: 'Master', music: 'Music', effects: 'Effects', quality: 'Quality',
     low: 'Low', high: 'High', fullscreen: 'Fullscreen', toggle: 'Toggle', back: 'Back',
-    keysHelp: 'P / Esc pause · M music · X effects · L language · C camera · Space horn · W/S throttle · A/D rudder',
+    keysHelp: 'P / Esc pause · M music · X effects · L language · C camera · Space horn · W/S engines · T/G port · Y/H starboard · A/D rudder',
     retry: 'Retry', next: 'Next shift', playAgain: 'Play again', nextShift: 'Next shift',
-    shift: 'Shift', clock: 'Clock', passengers: 'Pax', comfort: 'Comfort', hull: 'Hull', score: 'Score', pause: 'Pause', sound: 'Sound', camera: 'Camera',
+    shift: 'Shift', clock: 'Clock', passengers: 'Pax', comfort: 'Comfort', hull: 'Hull', score: 'Score', panel: 'Compact / full panel (V)', pause: 'Pause', sound: 'Sound', camera: 'Camera',
     nextStop: 'Next pier', distance: 'Distance', speed: 'Speed', angle: 'Angle', ahead: 'AHEAD', astern: 'ASTERN',
     waiting: '{0} waiting', planned: 'due {0}', lateBy: '{0} late', earlyBy: '{0} early', depart: 'depart {0}', waitDep: 'departs in {0}', boarding: 'boarding…', canLeave: 'you may leave!',
     campaign: 'Shift plan', endlessShort: 'Endless',
@@ -941,7 +961,7 @@ const STR = {
     c_dusk: 'Dusk', c_night: 'Night', c_fog: 'Fog', c_current: 'Current', c_storm: 'Storm', c_convoy: 'Tanker convoy', c_traffic: 'Heavy traffic', c_day: 'Day',
     tgt: 'Target', star1: '1 star', star2: '2 stars', star3: '3 stars', ttHead: 'Timetable',
     toastStart: 'Shift started. First pier: {0}', toastDocked: 'Docked at {0}', toastRopes: 'Ropes thrown!', toastBump: 'Hard docking! Passengers upset', toastCrash: 'Collision! Hull damaged', toastGround: 'Run aground!',
-    toastLate: 'You are late, passengers are impatient', toastLost: '{0} passengers gave up waiting', toastEarly: 'Early: wait for the timetable', toastLeave: 'Departure time. Cast off!', toastWrongPier: 'This is not the next pier: {0}', toastTanker: 'Tanker approaching, give way!',
+    toastLate: 'You are late, passengers are impatient', toastLost: '{0} passengers gave up waiting', toastEarly: 'Early: the clock runs fast until departure', toastLeave: 'Departure time. Cast off!', toastWrongPier: 'This is not the next pier: {0}', toastTanker: 'Tanker approaching, give way!',
     toastHeel: 'Hard rudder, passengers are swaying', toastFog: 'Fog rolls in', toastStorm: 'The storm picks up', toastNight: 'Lights on',
     offOn: '{0} off · {1} on',
     endClear: 'Shift complete', endFail: 'Shift failed', endWreck: 'Ferry damaged', endWin: 'Congratulations, captain!', endEndless: 'Endless shift over',
@@ -995,6 +1015,12 @@ function endlessShift(n) {     // endless shift n (1-based): random route, growi
 const KEY_SET = 'arena.vapur.settings', KEY_SAVE = 'arena.vapur.save';
 const isPhone = /Android|iPhone|iPad|iPod|Mobi/i.test(navigator.userAgent) || (matchMedia && matchMedia('(pointer:coarse)').matches && Math.min(screen.width, screen.height) < 800);
 const settings = { master: 0.8, music: 0.6, sfx: 0.8, mute: false, lang: (navigator.language || 'tr').toLowerCase().startsWith('tr') ? 'tr' : 'en', quality: isPhone ? 'low' : 'high' };
+function setCompact(on) {
+  document.body.classList.toggle('compact', on);
+  const b = document.getElementById('bPanel'); if (b) b.classList.toggle('on', on);
+  lsSet('bogaz-vapuru.compact', on);
+  requestAnimationFrame(updateBarH);   // the next-stop card sits under the bar
+}
 function lsGet(k) { try { return JSON.parse(localStorage.getItem(k)); } catch (e) { return null; } }
 function lsSet(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) { /* ignore */ } }
 (function loadSettings() {
@@ -1672,7 +1698,11 @@ const SIM = {
   walkers: [], heelT: 0, lastThrSign: 0, bumpCd: 0, toasted: {}, thunderT: 0, hornT: 0, ended: false, lostT: 0, gullT: 4,
 };
 const player = { x: 0, z: 0, hd: 0, u: 0, v: 0, r: 0, thr: 0, rud: 0, hull: 0, vx: 0, vz: 0, speed: 0, heel: 0, pitch: 0, wakeT: 0, smokeT: 0, horn: false };
-const input = { throttle: 0, rudder: 0, horn: false };
+const input = {
+  thrP: 0, thrS: 0, rudder: 0, horn: false,   // port / starboard engine telegraphs -1..1; rudder > 0 turns to port
+  get throttle() { return (this.thrP + this.thrS) / 2; },
+  set throttle(v) { this.thrP = this.thrS = v; },
+};
 const _v = { x: 0, z: 0 };
 /** current vector at a point: along the channel, towards Marmara (+z), strongest in the middle */
 function currentAt(x, z, out) {
@@ -1723,7 +1753,7 @@ function startShiftSim(sh) {
   const P0 = PIERS[SIM.stops[0].id], P1 = PIERS[(SIM.stops[1] || SIM.stops[0]).id];
   player.x = P0.bx; player.z = P0.bz;
   player.hd = ((P1.bx - P0.bx) * P0.tx + (P1.bz - P0.bz) * P0.tz) >= 0 ? P0.hd : wrapAng(P0.hd + Math.PI);   // moored facing the next pier
-  player.u = player.v = player.r = player.thr = player.rud = 0; player.hull = 0; player.vx = player.vz = 0; player.heel = 0;
+  player.u = player.v = player.r = player.thr = player.thrP = player.thrS = player.rud = 0; player.hull = 0; player.vx = player.vz = 0; player.heel = 0;
   input.throttle = 0; input.rudder = 0;
   P0.wait = Math.round(14 + sh.pax * 22);
   SIM.stopIdx = 0; dockAt(P0, 0, true);
@@ -1739,7 +1769,7 @@ function destFor(fromIdx) {   // destination stop index for a passenger boarding
 function dockAt(P, idx, initial = false) {
   const s = SIM.stops[idx];
   SIM.docked = P; SIM.dockT = 0; SIM.ropes = true; SIM.boardDone = false; SIM.depAllowed = false; SIM.leaveToast = false; SIM.boardQ = []; SIM.boardT = 0; SIM.offN = 0; SIM.onN = 0;
-  player.u = player.v = player.r = 0; player.thr = 0; input.throttle = 0;
+  player.u = player.v = player.r = 0; player.thr = player.thrP = player.thrS = 0; input.throttle = 0;
   // snap alongside
   player.x = P.bx; player.z = P.bz;
   const a = wrapAng(player.hd - P.hd); player.hd = Math.abs(a) < Math.PI / 2 ? P.hd : P.hd + Math.PI;
@@ -1813,7 +1843,9 @@ const _c1 = { x: 0, z: 0, r: 0 }, _g = { x: 0, z: 0 };
 function stepFerry(dt) {
   const P = player;
   // telegraph and rudder respond with lag
-  P.thr += clamp(input.throttle - P.thr, -0.7 * dt, 0.7 * dt);
+  P.thrP = (P.thrP || 0) + clamp(input.thrP - (P.thrP || 0), -0.7 * dt, 0.7 * dt);
+  P.thrS = (P.thrS || 0) + clamp(input.thrS - (P.thrS || 0), -0.7 * dt, 0.7 * dt);
+  P.thr = (P.thrP + P.thrS) / 2;
   P.rud += clamp(input.rudder - P.rud, -1.6 * dt, 1.6 * dt);
   if (SIM.docked) { P.u = P.v = P.r = 0; P.vx = P.vz = 0; P.speed = 0; P.heel *= 0.95; return; }
   const maxV = FERRY.maxV, k = 0.62 / (maxV * maxV);
@@ -1823,7 +1855,7 @@ function stepFerry(dt) {
   P.u += du;
   // yaw: rudder works with the water flow over it (speed or prop wash); astern reverses it
   const flow = Math.max(Math.abs(P.u), Math.abs(P.thr) * 6) * Math.sign(P.u || P.thr || 1);
-  const rT = P.rud * 0.14 * clamp(flow / 6, -1, 1) * (SIM.storm ? 0.9 : 1);
+  const rT = P.rud * 0.14 * clamp(flow / 6, -1, 1) * (SIM.storm ? 0.9 : 1) + (P.thrS - P.thrP) * 0.045;
   P.r += (rT - P.r) * Math.min(1, 0.9 * dt);
   // sway: drifts outwards in a turn, damped
   P.v += (-P.r * P.u * 0.35 - 1.1 * P.v) * dt;
@@ -2065,8 +2097,9 @@ function stepDocking(dt) {
 // ---------------------------------------------------------------- shift step and end
 function stepSim(dt) {
   if (SIM.ended) return;
-  SIM.t += dt; SIM.hour = SIM.shift.hour + SIM.t * TS / 3600;
-  stepFerry(dt); stepTraffic(dt); stepDocking(dt); stepBoarding(dt); stepPiers(dt); stepWalkers(dt);
+  SIM.ff = SIM.docked && SIM.boardDone && !SIM.depAllowed && SIM.stopIdx < SIM.stops.length - 1 ? 8 : 1;
+  SIM.t += dt * SIM.ff; SIM.hour = SIM.shift.hour + SIM.t * TS / 3600;
+  stepFerry(dt); stepTraffic(dt); stepDocking(dt); stepBoarding(dt); stepPiers(dt * SIM.ff); stepWalkers(dt);
   // weather drift: storm rain, thunder; fog that thickens a little over the shift
   if (SIM.storm) { SIM.rain += (1 - SIM.rain) * 0.1 * dt; SIM.thunderT -= dt; if (SIM.thunderT <= 0) { SIM.thunderT = rr(14, 40); AUD.thunder(); lightning = 1; } }
   SIM.swell += ((SIM.storm ? 1 : 0.15 + 0.25 * SIM.wind.a) - SIM.swell) * 0.05 * dt;
@@ -2797,7 +2830,7 @@ function setCamMode(m) {
 
 // ---------------------------------------------------------------- UI: elements, toasts, HUD
 const el = {};
-for (const id of ['hud', 'topbar', 'stShift', 'stClock', 'stPlan', 'stPax', 'comfBar', 'hullBar', 'stStars', 'bCamH', 'bPause', 'bSound', 'bLang', 'toasts', 'nextCard', 'ncName', 'ncL2', 'ncL3', 'camLbl', 'minimap', 'lvThr', 'lvRud', 'speedo', 'spArc', 'spVal', 'spUnit', 'dock', 'dkDist', 'dkSpd', 'dkAng', 'dkHint', 'floaters', 'touch', 'tWheel', 'tWheelSvg', 'tThr', 'tHorn', 'tCam',
+for (const id of ['hud', 'topbar', 'stShift', 'stClock', 'stPlan', 'stPax', 'comfBar', 'hullBar', 'stStars', 'bPanel', 'bCamH', 'bPause', 'bSound', 'bLang', 'toasts', 'nextCard', 'ncName', 'ncL2', 'ncL3', 'camLbl', 'minimap', 'lvThr', 'lvThrS', 'lvRud', 'speedo', 'spArc', 'spVal', 'spUnit', 'dock', 'dkDist', 'dkSpd', 'dkAng', 'dkHint', 'floaters', 'touch', 'tWheel', 'tWheelSvg', 'tThr', 'tHorn', 'tCam',
   'sTitle', 'sIntro', 'sPause', 'sSettings', 'sEnd', 'bPlay', 'playTxt', 'bCont', 'bEndless', 'bSettingsT', 'bLangT', 'langTxt', 'bestLine', 'cmap', 'inTitle', 'inDesc', 'inCond', 'inTT', 'inTarget', 'bStart', 'bIntroBack',
   'bResume', 'bRestart', 'bSettingsP', 'bMenuP', 'rMaster', 'rMusic', 'rSfx', 'oMaster', 'oMusic', 'oSfx', 'bTR', 'bEN', 'bQLow', 'bQHigh', 'bFull', 'bSetBack', 'enTitle', 'enSub', 'enStars', 'enStats', 'enRec', 'bNext', 'nextTxt', 'bRetry', 'bMenuE', 'dbg', 'hurt']) el[id] = document.getElementById(id);
 function toast(msg, kind = 'info', ms = 2600) {
@@ -2870,8 +2903,9 @@ function updateHUD(dt) {
   // speed and levers
   const kn = player.speed * 1.944, frac = clamp(player.speed / 14, 0, 1);
   el.spVal.textContent = kn.toFixed(0); el.spArc.setAttribute('stroke-dasharray', (frac * 198).toFixed(1) + ' 264'); el.spArc.classList.toggle('astern', player.u < -0.3);
-  el.lvThr.style.top = (44 - player.thr * 40) + '%'; el.lvThr.style.height = '12%';
-  el.lvRud.style.left = (50 + player.rud * 36) + '%'; el.lvRud.style.marginLeft = '-4px';
+  el.lvThr.style.top = (44 - (player.thrP || 0) * 40) + '%'; el.lvThr.style.height = '12%';
+  el.lvThrS.style.top = (44 - (player.thrS || 0) * 40) + '%'; el.lvThrS.style.height = '12%';
+  el.lvRud.style.left = (50 - player.rud * 36) + '%'; el.lvRud.style.marginLeft = '-4px';
   // docking guide
   if (DOCK.near && !SIM.docked) {
     el.dock.classList.add('show');
@@ -2881,7 +2915,7 @@ function updateHUD(dt) {
     el.dkHint.textContent = DOCK.ok ? t('hintOk') : t(DOCK.hint); el.dkHint.className = 'hint' + (DOCK.ok ? ' ok' : '');
   } else el.dock.classList.remove('show');
   if (hurtA > 0) { hurtA = Math.max(0, hurtA - dt * 2); el.hurt.style.opacity = hurtA.toFixed(2); }
-  if (touchOn) el.tWheelSvg.style.transform = 'rotate(' + (player.rud * 120) + 'deg)';
+  if (touchOn) el.tWheelSvg.style.transform = 'rotate(' + (-player.rud * 120) + 'deg)';
 }
 // ---------------------------------------------------------------- minimap
 const MM = { x0: -600, x1: 600, z0: -1060, z1: 780, base: null };
@@ -2964,10 +2998,13 @@ const keys = {};
 let touchOn = FLAG.touch || (isPhone && matchMedia('(pointer:coarse)').matches);
 function readInput(dt) {
   // throttle lever: W/S nudge it; A/D hold the rudder, released it returns to midships
-  let th = input.throttle;
-  if (keys.KeyW || keys.ArrowUp) th += 0.9 * dt; if (keys.KeyS || keys.ArrowDown) th -= 0.9 * dt;
-  if (!touchOn || TOUCH.thrId === null) input.throttle = clamp(th, -1, 1);
-  let rd = 0; if (keys.KeyA || keys.ArrowLeft) rd -= 1; if (keys.KeyD || keys.ArrowRight) rd += 1;
+  const dA = (keys.KeyW || keys.ArrowUp ? 1 : 0) - (keys.KeyS || keys.ArrowDown ? 1 : 0);
+  const dP = (keys.KeyT ? 1 : 0) - (keys.KeyG ? 1 : 0), dS = (keys.KeyY ? 1 : 0) - (keys.KeyH ? 1 : 0);
+  if (!touchOn || TOUCH.thrId === null) {
+    input.thrP = clamp(input.thrP + (dA + dP) * 0.9 * dt, -1, 1);
+    input.thrS = clamp(input.thrS + (dA + dS) * 0.9 * dt, -1, 1);
+  }
+  let rd = 0; if (keys.KeyA || keys.ArrowLeft) rd += 1; if (keys.KeyD || keys.ArrowRight) rd -= 1;   // + = port
   if (!touchOn || TOUCH.wheelId === null) { if (rd !== 0) input.rudder = clamp(input.rudder + rd * 2.2 * dt, -1, 1); else if (!touchOn) input.rudder += (0 - input.rudder) * Math.min(1, dt * 3); }
   input.horn = !!keys.Space || TOUCH.horn;
 }
@@ -2993,6 +3030,7 @@ function onKey(e, down) {
   else if (e.code === 'KeyX') { settings.sfxOn = !settings.sfxOn; AUD.applyGains(); saveSettings(); syncSettingsUI(); toast(t('effects') + (settings.sfxOn ? ' ✓' : ' ✕'), 'info', 1200); }
   else if (e.code === 'KeyL') toggleLang();
   else if (e.code === 'KeyC' && (G.state === 'play')) setCamMode(camMode + 1);
+  else if (e.code === 'KeyV') setCompact(!document.body.classList.contains('compact'));
   else if (e.code === 'KeyF' && G.state === 'play') toggleFull();
 }
 window.addEventListener('keydown', e => { AUD.init(); AUD.resume(); onKey(e, true); });
@@ -3011,6 +3049,7 @@ canvas.addEventListener('wheel', e => { if (camMode === 0) { CAM.dist = CAM.dist
 const TOUCH = { thrId: null, wheelId: null, horn: false, wheelA0: 0, rud0: 0 };
 function setupTouch() {
   document.body.classList.toggle('touch', touchOn);
+  { const c = lsGet('bogaz-vapuru.compact'); setCompact(c === null ? touchOn : !!c); }
   if (!touchOn) return;
   const thr = el.tThr;
   const thrFrom = y => { const r = thr.getBoundingClientRect(); const u = clamp((r.top + r.height / 2 - y) / (r.height * 0.42), -1, 1); input.throttle = Math.abs(u) < 0.08 ? 0 : u; thr.querySelector('i').style.top = (50 - input.throttle * 42) + '%'; };
@@ -3021,7 +3060,7 @@ function setupTouch() {
   const wh = el.tWheel;
   const angAt = (x, y) => { const r = wh.getBoundingClientRect(); return Math.atan2(y - (r.top + r.height / 2), x - (r.left + r.width / 2)); };
   wh.addEventListener('pointerdown', e => { TOUCH.wheelId = e.pointerId; wh.setPointerCapture(e.pointerId); TOUCH.wheelA0 = angAt(e.clientX, e.clientY); TOUCH.rud0 = input.rudder; e.preventDefault(); AUD.init(); });
-  wh.addEventListener('pointermove', e => { if (TOUCH.wheelId !== e.pointerId) return; const a = wrapAng(angAt(e.clientX, e.clientY) - TOUCH.wheelA0); input.rudder = clamp(TOUCH.rud0 + a / 2.1, -1, 1); });
+  wh.addEventListener('pointermove', e => { if (TOUCH.wheelId !== e.pointerId) return; const a = wrapAng(angAt(e.clientX, e.clientY) - TOUCH.wheelA0); input.rudder = clamp(TOUCH.rud0 - a / 2.1, -1, 1); });
   const whUp = e => { if (TOUCH.wheelId === e.pointerId) { TOUCH.wheelId = null; input.rudder = 0; } };
   wh.addEventListener('pointerup', whUp); wh.addEventListener('pointercancel', whUp);
   const hold = (btn, on, off) => { btn.addEventListener('pointerdown', e => { e.preventDefault(); btn.classList.add('on'); on(); AUD.init(); }); const up = () => { btn.classList.remove('on'); off && off(); }; btn.addEventListener('pointerup', up); btn.addEventListener('pointercancel', up); btn.addEventListener('pointerleave', up); };
@@ -3154,6 +3193,7 @@ const click = (b, fn) => { b.addEventListener('click', e => { AUD.init(); AUD.re
 click(el.bPlay, () => startCampaign(false)); click(el.bCont, () => startCampaign(true)); click(el.bEndless, () => startEndless());
 click(el.bSettingsT, () => openSettings('title')); click(el.bLangT, toggleLang); click(el.bLang, toggleLang);
 click(el.bStart, beginShift); click(el.bIntroBack, goMenu);
+click(el.bPanel, () => setCompact(!document.body.classList.contains('compact')));
 click(el.bPause, () => { if (G.state === 'play') pauseGame(); }); click(el.bCamH, () => { if (G.state === 'play') setCamMode(camMode + 1); });
 click(el.bSound, () => { settings.mute = !settings.mute; AUD.applyGains(); saveSettings(); syncSettingsUI(); });
 click(el.bResume, resumeGame); click(el.bRestart, () => { G.retries++; beginShift(); }); click(el.bSettingsP, () => openSettings('pause')); click(el.bMenuP, goMenu);
