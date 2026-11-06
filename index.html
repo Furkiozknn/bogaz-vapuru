@@ -395,6 +395,10 @@ body.touch #touch { display: block; }
   box-shadow: var(--shadow-press-sm); display: flex; align-items: center; justify-content: center;
   color: var(--c-deep);
 }
+#tThr i.p, #tThr i.s { width: 30px; left: 5px; }
+#tThr i.s { left: auto; right: 5px; }
+#tThr i.p { background: #e2685f; } #tThr i.s { background: #5fb38a; }   /* port red, starboard green */
+#tThr i svg.ic { width: 16px !important; height: 16px !important; }
 #tThr small {
   position: absolute; left: 0; right: 0; text-align: center;
   font-size: 10px; color: var(--c-deep); letter-spacing: 1px; font-weight: 800;
@@ -440,7 +444,7 @@ body.compact #nextCard b { font-size: 15px; } body.compact #nextCard .l2 { font-
 body.compact #gauges { transform: scale(.72); transform-origin: 100% 100%; }
 body.compact.touch #gauges { transform: scale(.85); transform-origin: 100% 0; }
 body.compact #tWheel { width: 112px; height: 112px; } body.compact #tWheel svg { width: 94px; height: 94px; }
-body.compact #tThr { width: 62px; height: 160px; } body.compact #tThr i { left: 8px; width: 46px; height: 46px; margin-top: -23px; }
+body.compact #tThr { width: 62px; height: 160px; } body.compact #tThr i { width: 25px; height: 42px; margin-top: -21px; }
 body.compact .tb { width: 48px; height: 42px; }
 body.compact #tHorn, body.compact #tCam { right: calc(max(16px, env(safe-area-inset-right)) + 70px); }
 body.compact #tCam { bottom: calc(max(16px, env(safe-area-inset-bottom)) + 50px); }
@@ -448,7 +452,7 @@ body.compact.touch #dock { bottom: calc(max(14px, env(safe-area-inset-bottom)) +
 #bPanel.on { background: var(--c-gold); }
 body.compact #topbar { padding: 3px 8px; gap: 4px; top: max(6px, env(safe-area-inset-top)); }
 body.compact #topbar .brand, body.compact .stat small { display: none; }
-body.compact .stat { min-width: 0; padding: 0 7px; } body.compact .stat b { font-size: 14px; }
+body.compact .stat { min-width: 0; padding: 0 7px; } body.compact .stat.wide { min-width: 54px; } body.compact .stat b { font-size: 14px; }
 body.compact #topbar .btn.icon { width: 36px; height: 36px; } body.compact #topbar .btn.icon svg.ic { width: 18px; height: 18px; }
 
 /* Screens & Modal Cards */
@@ -751,7 +755,7 @@ input[type=range] { width: 100%; height: 44px; accent-color: var(--c-teal); back
   <div id="floaters"></div>
   <div id="touch">
     <div id="tWheel" class="glass" role="slider" aria-label="Rudder"><svg viewBox="0 0 100 100" id="tWheelSvg"><use href="#i-wheel"/></svg></div>
-    <div id="tThr" class="glass" role="slider" aria-label="Throttle"><small style="top:4px" data-i="ahead"></small><u></u><i><svg class="ic" style="width:22px;height:22px;transform:rotate(-90deg)"><use href="#i-play"/></svg></i><small style="bottom:4px" data-i="astern"></small></div>
+    <div id="tThr" class="glass" role="slider" aria-label="Throttle"><small style="top:4px" data-i="ahead"></small><u></u><i class="p"><svg class="ic" style="width:22px;height:22px;transform:rotate(-90deg)"><use href="#i-play"/></svg></i><i class="s"><svg class="ic" style="width:22px;height:22px;transform:rotate(-90deg)"><use href="#i-play"/></svg></i><small style="bottom:4px" data-i="astern"></small></div>
     <div id="tHorn" class="tb glass" aria-label="Horn"><svg class="ic" style="width:26px;height:26px"><use href="#i-horn"/></svg></div>
     <div id="tCam" class="tb glass" aria-label="Camera"><svg class="ic" style="width:26px;height:26px"><use href="#i-cam"/></svg></div>
   </div>
@@ -922,7 +926,7 @@ const STR = {
     c_dusk: 'Alacakaranlık', c_night: 'Gece', c_fog: 'Sis', c_current: 'Akıntı', c_storm: 'Fırtına', c_convoy: 'Tanker konvoyu', c_traffic: 'Yoğun trafik', c_day: 'Gündüz',
     tgt: 'Hedef', star1: '1 yıldız', star2: '2 yıldız', star3: '3 yıldız', ttHead: 'Tarife',
     toastStart: 'Sefer başladı. İlk iskele: {0}', toastDocked: '{0} iskelesine yanaşıldı', toastRopes: 'Halatlar atıldı!', toastBump: 'Sert yanaşma! Yolcular rahatsız', toastCrash: 'Çarpışma! Gövde hasar aldı', toastGround: 'Karaya oturdun!',
-    toastLate: 'Geç kaldın, yolcular sabırsız', toastLost: '{0} yolcu beklemekten vazgeçti', toastEarly: 'Erken geldin: saat hızlandı, kalkışa az kaldı', toastLeave: 'Kalkış saati. Yola çık!', toastWrongPier: 'Burası sıradaki iskele değil: {0}', toastTanker: 'Tanker yaklaşıyor, yol ver!',
+    toastLate: 'Geç kaldın, yolcular sabırsız', toastLost: '{0} yolcu beklemekten vazgeçti', toastEarly: 'Erken geldin: saat hızlandı, kalkışa az kaldı', toastDockPro: 'Usta yanaşma! +{0}', toastDockOk: 'Yanaşma puanı +{0}', toastLeave: 'Kalkış saati. Yola çık!', toastWrongPier: 'Burası sıradaki iskele değil: {0}', toastTanker: 'Tanker yaklaşıyor, yol ver!',
     toastHeel: 'Sert dümen, yolcular sallanıyor', toastFog: 'Sis bastırdı', toastStorm: 'Fırtına şiddetleniyor', toastNight: 'Işıklar yakıldı',
     offOn: '{0} indi · {1} bindi',
     endClear: 'Sefer tamamlandı', endFail: 'Sefer başarısız', endWreck: 'Vapur yara aldı', endWin: 'Tebrikler, kaptan!', endEndless: 'Sonsuz sefer bitti',
@@ -961,7 +965,7 @@ const STR = {
     c_dusk: 'Dusk', c_night: 'Night', c_fog: 'Fog', c_current: 'Current', c_storm: 'Storm', c_convoy: 'Tanker convoy', c_traffic: 'Heavy traffic', c_day: 'Day',
     tgt: 'Target', star1: '1 star', star2: '2 stars', star3: '3 stars', ttHead: 'Timetable',
     toastStart: 'Shift started. First pier: {0}', toastDocked: 'Docked at {0}', toastRopes: 'Ropes thrown!', toastBump: 'Hard docking! Passengers upset', toastCrash: 'Collision! Hull damaged', toastGround: 'Run aground!',
-    toastLate: 'You are late, passengers are impatient', toastLost: '{0} passengers gave up waiting', toastEarly: 'Early: the clock runs fast until departure', toastLeave: 'Departure time. Cast off!', toastWrongPier: 'This is not the next pier: {0}', toastTanker: 'Tanker approaching, give way!',
+    toastLate: 'You are late, passengers are impatient', toastLost: '{0} passengers gave up waiting', toastEarly: 'Early: the clock runs fast until departure', toastDockPro: 'Masterful docking! +{0}', toastDockOk: 'Docking score +{0}', toastLeave: 'Departure time. Cast off!', toastWrongPier: 'This is not the next pier: {0}', toastTanker: 'Tanker approaching, give way!',
     toastHeel: 'Hard rudder, passengers are swaying', toastFog: 'Fog rolls in', toastStorm: 'The storm picks up', toastNight: 'Lights on',
     offOn: '{0} off · {1} on',
     endClear: 'Shift complete', endFail: 'Shift failed', endWreck: 'Ferry damaged', endWin: 'Congratulations, captain!', endEndless: 'Endless shift over',
@@ -1742,7 +1746,7 @@ function startShiftSim(sh) {
   SIM.shift = sh; SIM.t = 0; SIM.hour = sh.hour; SIM.cur = sh.current; SIM.fog = sh.fog; SIM.storm = sh.storm; SIM.rain = 0; SIM.swell = sh.storm ? 1 : 0.2;
   SIM.wind.a = sh.wind; SIM.wind.dir = rr(0, TAU); SIM.wind.gust = 0;
   SIM.aboard = {}; SIM.aboardN = 0; SIM.delivered = 0; SIM.lost = 0; SIM.comfort = 100; SIM.punct = []; SIM.score = 0; SIM.stopIdx = 1;
-  SIM.docked = null; SIM.dockT = 0; SIM.dockOk = 0; SIM.boardQ = []; SIM.boardDone = false; SIM.ropes = false; SIM.depAllowed = false; SIM.walkers = []; SIM.toasted = {}; SIM.ended = false;
+  SIM.docked = null; SIM.dockT = 0; SIM.dockOk = 0; SIM.boardQ = []; SIM.boardDone = false; SIM.ropes = false; SIM.depAllowed = false; SIM.walkers = []; SIM.toasted = {}; SIM.ended = false; SIM.dockBonus = 0;
   SIM.lastThrSign = 0; SIM.bumpCd = 0; SIM.heelT = 0; SIM.hornT = 0; SIM.lostT = 0; SIM.wrongT = 0; SIM.thunderT = 20;
   for (const id of Object.keys(PIERS)) { const P = PIERS[id]; P.wait = 0; P.wait0 = 0; P.cap = 90; P.lostToast = false; }
   planShift(sh);
@@ -1774,6 +1778,8 @@ function dockAt(P, idx, initial = false) {
   player.x = P.bx; player.z = P.bz;
   const a = wrapAng(player.hd - P.hd); player.hd = Math.abs(a) < Math.PI / 2 ? P.hd : P.hd + Math.PI;
   if (!initial) {
+    const dq = clamp(1 - DOCK.spd / 1.2, 0, 1) * 0.6 + clamp(1 - Math.abs(DOCK.ang) / 0.36, 0, 1) * 0.4, db = Math.round(dq * 30);
+    SIM.dockBonus = (SIM.dockBonus || 0) + db; if (db > 0) { floater('+' + db, false); toast(t(dq > 0.8 ? 'toastDockPro' : 'toastDockOk', db), dq > 0.8 ? 'good' : 'info'); }
     s.late = Math.max(0, SIM.t - s.arr); s.punct = s.late <= 20 ? SCORE_K.punct : Math.max(0, SCORE_K.punct - (s.late - 20) * 1.0); s.done = true;
     SIM.punct.push(s.punct);
     AUD.bell(); AUD.rope();
@@ -2109,7 +2115,7 @@ function stepSim(dt) {
   if (!SIM.toasted.night && SIM.night > 0.5) { SIM.toasted.night = true; toast(t('toastNight'), 'info'); }
 }
 let lightning = 0;
-function shiftScore() { return Math.round(SIM.delivered * SCORE_K.pax + SIM.punct.reduce((a, b) => a + b, 0) + SIM.comfort * SCORE_K.comfort + SIM.lost * SCORE_K.lost); }
+function shiftScore() { return Math.round((SIM.dockBonus || 0) + SIM.delivered * SCORE_K.pax + SIM.punct.reduce((a, b) => a + b, 0) + SIM.comfort * SCORE_K.comfort + SIM.lost * SCORE_K.lost); }
 function starsFor(score, target) { const r = score / Math.max(1, target); return r >= SCORE_K.stars[2] ? 3 : r >= SCORE_K.stars[1] ? 2 : r >= SCORE_K.stars[0] ? 1 : 0; }
 function endShift(kind) {
   if (SIM.ended) return; SIM.ended = true;
@@ -2265,7 +2271,10 @@ function buildFerryGeo() {
   for (const s of [-1, 1]) for (const z of [-10, -3, 4, 11]) g.box(s * 4.55, 1.7, z, 0.5, 0.9, 0.9, 0x242424);                            // tyre fenders
   g.box(0, 2.9, 16.4, 1.2, 0.6, 1.2, 0x333); g.box(0, 1.2, 17.4, 0.6, 0.8, 0.3, 0x333);   // winch, anchor
   g.box(0, 6.7, 9.65, 3.2, 0.7, 0.1, 0xf7f7f2); g.box(0, 6.7, 9.72, 2.8, 0.3, 0.05, 0x1f3a4e);   // name board
-  return { body: g.build(), win: w.build() };
+  const nv = new GB();   // local +z is the bow, starboard is -x
+  nv.sphere(4.75, 6.3, 7.5, 0.28, 0xff2a2a, 6); nv.sphere(-4.75, 6.3, 7.5, 0.28, 0x2aff6a, 6);
+  nv.sphere(0, 10.6, 15.2, 0.3, 0xffffff, 6); nv.sphere(0, 3.6, -18.1, 0.26, 0xffffff, 6);
+  return { body: g.build(), win: w.build(), nav: nv.build() };
 }
 /** tanker: long low hull with the superstructure aft. Returns {hull (tinted), top} */
 function buildTankerGeo() {
@@ -2510,6 +2519,7 @@ function buildScene() {
   const nF = 1 + 6;
   OBJ.ferryB = new THREE.InstancedMesh(fg.body, matLam, nF); OBJ.ferryW = new THREE.InstancedMesh(fg.win, matWin, nF);
   for (const m of [OBJ.ferryB, OBJ.ferryW]) { m.castShadow = true; m.receiveShadow = true; m.frustumCulled = false; m.count = 1; scene.add(m); }
+  OBJ.ferryN = new THREE.InstancedMesh(fg.nav, new THREE.MeshBasicMaterial({ vertexColors: true }), nF); OBJ.ferryN.frustumCulled = false; OBJ.ferryN.count = 1; OBJ.ferryN.visible = false; scene.add(OBJ.ferryN);
   const tg = buildTankerGeo();
   OBJ.tankH = new THREE.InstancedMesh(tg.hull, matTint, 8); OBJ.tankT = new THREE.InstancedMesh(tg.top, matLam, 8);
   for (const m of [OBJ.tankH, OBJ.tankT]) { m.castShadow = true; m.receiveShadow = true; m.frustumCulled = false; m.count = 0; scene.add(m); }
@@ -2649,6 +2659,7 @@ function updateSky(force) {
   if (OBJ.clouds) { OBJ.clouds.material.uniforms.uOpacity.value = (1 - fogA * 0.8); SKY.cloudC.setHex(0xfff8f0).lerp(SKY.tmp.setHex(0xffc08a), gold * 0.8).lerp(SKY.tmp.setHex(0xf26b7a), dusk * 0.9).lerp(SKY.tmp.setHex(0x1a2340), night).lerp(SKY.tmp.setHex(0x55606a), storm); tintClouds(); }
   OBJ.lights.material.uniforms.uOpacity.value = Math.max(night, dusk * 0.7, storm * 0.5, fogA * 0.4);
   matWin.emissiveIntensity = Math.max(night, dusk * 0.7, storm * 0.5, fogA * 0.4) * 0.9;
+  if (OBJ.ferryN) OBJ.ferryN.visible = Math.max(night, dusk, fogA, storm) > 0.35;   // navigation lights
   OBJ.beacon.material.emissiveIntensity = 0.6 + night;
 }
 
@@ -2671,15 +2682,15 @@ function syncRender(dt) {
   waterU.uSunV.value.copy(SKY.sunDir).transformDirection(camera.matrixWorldInverse);
   // ferries: the player first
   let n = 0;
-  ferryMatrix(player.x, player.z, player.hd, player.heel, player.pitch, _mat); OBJ.ferryB.setMatrixAt(n, _mat); OBJ.ferryW.setMatrixAt(n, _mat); n++;
+  ferryMatrix(player.x, player.z, player.hd, player.heel, player.pitch, _mat); OBJ.ferryB.setMatrixAt(n, _mat); OBJ.ferryW.setMatrixAt(n, _mat); OBJ.ferryN.setMatrixAt(n, _mat); n++;
   let nt = 0, nf = 0;
   for (const b of SIM.traffic) {
     if (b.delay > 0) continue;
-    if (b.kind === 'ferry' && n < 7) { ferryMatrix(b.x, b.z, b.hd, 0, 0, _mat); OBJ.ferryB.setMatrixAt(n, _mat); OBJ.ferryW.setMatrixAt(n, _mat); n++; }
+    if (b.kind === 'ferry' && n < 7) { ferryMatrix(b.x, b.z, b.hd, 0, 0, _mat); OBJ.ferryB.setMatrixAt(n, _mat); OBJ.ferryW.setMatrixAt(n, _mat); OBJ.ferryN.setMatrixAt(n, _mat); n++; }
     else if (b.kind === 'tanker' && nt < 8) { ferryMatrix(b.x, b.z, b.hd, 0, 0, _mat); OBJ.tankH.setMatrixAt(nt, _mat); OBJ.tankT.setMatrixAt(nt, _mat); OBJ.tankH.setColorAt(nt, _c.setHex(b.col)); nt++; }
     else if (b.kind === 'fish' && nf < 12) { ferryMatrix(b.x, b.z, b.hd, 0.08 * Math.sin(b.bob * 2.1), 0.05 * Math.sin(b.bob * 1.7), _mat); OBJ.fishH.setMatrixAt(nf, _mat); OBJ.fishT.setMatrixAt(nf, _mat); OBJ.fishH.setColorAt(nf, _c.setHex(b.col)); nf++; }
   }
-  OBJ.ferryB.count = OBJ.ferryW.count = n; OBJ.ferryB.instanceMatrix.needsUpdate = OBJ.ferryW.instanceMatrix.needsUpdate = true;
+  OBJ.ferryB.count = OBJ.ferryW.count = OBJ.ferryN.count = n; OBJ.ferryB.instanceMatrix.needsUpdate = OBJ.ferryW.instanceMatrix.needsUpdate = OBJ.ferryN.instanceMatrix.needsUpdate = true;
   OBJ.tankH.count = OBJ.tankT.count = nt; OBJ.tankH.instanceMatrix.needsUpdate = OBJ.tankT.instanceMatrix.needsUpdate = true; if (OBJ.tankH.instanceColor) OBJ.tankH.instanceColor.needsUpdate = true;
   OBJ.fishH.count = OBJ.fishT.count = nf; OBJ.fishH.instanceMatrix.needsUpdate = OBJ.fishT.instanceMatrix.needsUpdate = true; if (OBJ.fishH.instanceColor) OBJ.fishH.instanceColor.needsUpdate = true;
   syncPeople(); syncGulls(dt); syncParticles(dt); syncMarkers(dt);
@@ -3052,8 +3063,16 @@ function setupTouch() {
   { const c = lsGet('bogaz-vapuru.compact'); setCompact(c === null ? touchOn : !!c); }
   if (!touchOn) return;
   const thr = el.tThr;
-  const thrFrom = y => { const r = thr.getBoundingClientRect(); const u = clamp((r.top + r.height / 2 - y) / (r.height * 0.42), -1, 1); input.throttle = Math.abs(u) < 0.08 ? 0 : u; thr.querySelector('i').style.top = (50 - input.throttle * 42) + '%'; };
-  thr.addEventListener('pointerdown', e => { TOUCH.thrId = e.pointerId; thr.setPointerCapture(e.pointerId); thrFrom(e.clientY); e.preventDefault(); AUD.init(); });
+  const thrFrom = y => {
+    const r = thr.getBoundingClientRect(); let u = clamp((r.top + r.height / 2 - y) / (r.height * 0.42), -1, 1); u = Math.abs(u) < 0.08 ? 0 : u;
+    if (TOUCH.thrSide !== 's') input.thrP = u; if (TOUCH.thrSide !== 'p') input.thrS = u;
+    thr.querySelector('i.p').style.top = (50 - input.thrP * 42) + '%'; thr.querySelector('i.s').style.top = (50 - input.thrS * 42) + '%';
+  };
+  thr.addEventListener('pointerdown', e => {
+    const r = thr.getBoundingClientRect(), fx = (e.clientX - r.left) / r.width;   // left third: port, right third: starboard, middle: both
+    TOUCH.thrSide = fx < 0.36 ? 'p' : fx > 0.64 ? 's' : 'b';
+    TOUCH.thrId = e.pointerId; thr.setPointerCapture(e.pointerId); thrFrom(e.clientY); e.preventDefault(); AUD.init();
+  });
   thr.addEventListener('pointermove', e => { if (TOUCH.thrId === e.pointerId) thrFrom(e.clientY); });
   const thrUp = e => { if (TOUCH.thrId === e.pointerId) TOUCH.thrId = null; };
   thr.addEventListener('pointerup', thrUp); thr.addEventListener('pointercancel', thrUp);
