@@ -644,7 +644,7 @@ input[type=range] { width: 100%; height: 44px; accent-color: var(--c-teal); back
   *, *::before, *::after { animation-duration: .01s !important; transition-duration: 0s !important; }
 }
 </style>
-<script>/*ARENA-KIT:BEGIN v1.0.0 sha256:a9b9a8b52b3e*/
+<script>/*ARENA-KIT:BEGIN v1.0.1 sha256:bc575c398c95*/
 /* ARENA-KIT v1 — shared layer for the 21 Claude Game Arena games.
  *
  * Injected inline into each game's index.html (between begin/end marker comments) by
@@ -654,7 +654,8 @@ input[type=range] { width: 100%; height: 44px; accent-color: var(--c-teal); back
  *   Arena.perf.attach(renderer)        dynamic pixel ratio for weak GPUs (Intel UHD)
  *   Arena.hint(id, text)               one-time hint toast (first 30 s guidance)
  *   Arena.endCard({...})               end-of-session card: reason, score, "again", another game
- *   Arena.daily(game)                  UTC-day seed + mulberry32 rng + streak
+ *   Arena.daily(game, {dayKey})        UTC-day seed (or the game's own day key) + mulberry32 rng + streak
+ *   Arena.quiet                        true on ?auto / ?nosave / ?demo: nothing is written to localStorage
  *   Arena.share({...})                 Web Share / clipboard text + optional PNG card
  *   Arena.profile(), Arena.award(id)   cross-game passport (shared origin localStorage)
  *   Arena.settings / openSettings()    accessibility panel (text size, contrast, motion, vibration, auto-pause)
@@ -665,7 +666,7 @@ input[type=range] { width: 100%; height: 44px; accent-color: var(--c-teal); back
 (function (root) {
   'use strict';
   if (root.Arena && root.Arena.version) return; // injected twice (e.g. iframe) -> keep the first
-  var VERSION = '1.0.0';
+  var VERSION = '1.0.1';
   var hasDOM = typeof document !== 'undefined';
 
   /* ---------- core (pure, Node-testable) ---------- */
@@ -675,6 +676,12 @@ input[type=range] { width: 100%; height: 44px; accent-color: var(--c-teal); back
     var d = date || new Date();
     return d.getUTCFullYear() * 10000 + (d.getUTCMonth() + 1) * 100 + d.getUTCDate();
   };
+  core.localDayKey = function (date) { // local-time YYYYMMDD (for games whose own daily turns at local midnight)
+    var d = date || new Date();
+    return d.getFullYear() * 10000 + (d.getMonth() + 1) * 100 + d.getDate();
+  };
+  // Bot / demo / no-save runs must not touch the player's storage: ?auto, ?nosave, ?demo (any value).
+  core.isQuiet = function (search) { return /[?&](auto|nosave|demo)(=|&|$)/.test(search || ''); };
   core.prevDayKey = function (key) {
     var y = Math.floor(key / 10000), m = Math.floor(key / 100) % 100, d = key % 100;
     return core.dayKey(new Date(Date.UTC(y, m - 1, d) - 86400000));
@@ -729,7 +736,9 @@ input[type=range] { width: 100%; height: 44px; accent-color: var(--c-teal); back
 
   /* ---------- storage ---------- */
   var mem = {};
-  function store() { try { return root.localStorage; } catch (e) { return null; } }
+  var quiet = false;
+  try { quiet = hasDOM && core.isQuiet(location.search); } catch (e) {}
+  function store() { if (quiet) return null; try { return root.localStorage; } catch (e) { return null; } }
   function get(key, fallback) {
     var s = store(), raw = null;
     try { raw = s ? s.getItem('arena.' + key) : (key in mem ? mem[key] : null); } catch (e) { raw = null; }
@@ -890,11 +899,12 @@ input[type=range] { width: 100%; height: 44px; accent-color: var(--c-teal); back
     return close;
   }
 
-  function daily(game) {
+  function daily(game, opts) {
     game = game || gameId;
+    var own = opts && /^\d{8}$/.test(String(opts.dayKey || '')) ? +opts.dayKey : 0;
     var q = null;
     try { q = hasDOM && new URLSearchParams(location.search).get('d'); } catch (e) {}
-    var day = /^\d{8}$/.test(q || '') ? +q : core.dayKey();
+    var day = /^\d{8}$/.test(q || '') ? +q : (own || core.dayKey());
     var seed = core.hash(game + ':' + day);
     var recs = get('daily.v1', {});
     var rec = recs[game] || { last: 0, streak: 0, best: 0 };
@@ -990,7 +1000,7 @@ input[type=range] { width: 100%; height: 44px; accent-color: var(--c-teal); back
   }
 
   root.Arena = {
-    version: VERSION, game: gameId, games: GAMES.slice(), lang: function (l) { if (l) lang = l === 'tr' ? 'tr' : 'en'; return lang; },
+    version: VERSION, quiet: quiet, game: gameId, games: GAMES.slice(), lang: function (l) { if (l) lang = l === 'tr' ? 'tr' : 'en'; return lang; },
     perf: perf, hint: hint, toast: toast, endCard: endCard, daily: daily, share: share, shareCard: shareCard,
     profile: profile, award: award, settings: settings, openSettings: openSettings, mountSettingsButton: mountSettingsButton,
     on: function (name, fn) { (listeners[name] = listeners[name] || []).push(fn); },
