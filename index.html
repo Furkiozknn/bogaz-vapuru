@@ -1094,11 +1094,11 @@ input[type=range] { width: 100%; height: 44px; accent-color: var(--c-teal); back
   <canvas id="minimap" width="300" height="460"></canvas>
   <div id="gauges">
     <div id="levers">
-      <div class="lever thr" title="iskele makine / port engine"><i id="lvThr"></i><small>İ T/G</small></div>
-      <div class="lever thr" title="sancak makine / starboard engine"><i id="lvThrS"></i><small>S Y/H</small></div>
+      <div class="lever thr" title="iskele makine / port engine"><i id="lvThr"></i><small id="rpmPortLbl">İ A/T</small></div>
+      <div class="lever thr" title="sancak makine / starboard engine"><i id="lvThrS"></i><small id="rpmStbLbl">S A/T</small></div>
       <div class="lever rud" title="rudder"><i id="lvRud"></i><small>A/D</small></div>
     </div>
-    <div id="speedo"><svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="42" stroke="rgba(15,46,51,.15)" stroke-dasharray="198 264"/><circle class="ticks" cx="50" cy="50" r="35" stroke-dasharray="1.5 9.5"/><circle id="spArc" cx="50" cy="50" r="42" stroke-dasharray="0 264"/></svg><div><b id="spVal">0</b><small id="spUnit">kn</small></div></div>
+    <div id="speedo"><svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="42" stroke="rgba(15,46,51,.15)" stroke-dasharray="198 264"/><circle class="ticks" cx="50" cy="50" r="35" stroke-dasharray="1.5 9.5"/><circle id="spArc" cx="50" cy="50" r="42" stroke-dasharray="0 264"/></svg><div><b id="spVal">0</b><small id="spUnit">kn</small><div id="rpmReadout" style="font-size:8px;font-weight:700;letter-spacing:.5px;margin-top:1px;color:var(--c-teal)">P:0 S:0</div></div></div>
   </div>
   <div id="dock" class="glass">
     <div class="row3">
@@ -1111,7 +1111,7 @@ input[type=range] { width: 100%; height: 44px; accent-color: var(--c-teal); back
   <div id="floaters"></div>
   <div id="touch">
     <div id="tWheel" class="glass" role="slider" aria-label="Rudder"><svg viewBox="0 0 100 100" id="tWheelSvg"><use href="#i-wheel"/></svg></div>
-    <div id="tThr" class="glass" role="slider" aria-label="Throttle"><small style="top:4px" data-i="ahead"></small><u></u><i class="p"><svg class="ic" style="width:22px;height:22px;transform:rotate(-90deg)"><use href="#i-play"/></svg></i><i class="s"><svg class="ic" style="width:22px;height:22px;transform:rotate(-90deg)"><use href="#i-play"/></svg></i><small style="bottom:4px" data-i="astern"></small></div>
+    <div id="tThr" class="glass" role="slider" aria-label="Throttle"><small style="top:4px" data-i="ahead"></small><u></u><i class="p"><svg class="ic" style="width:22px;height:22px;transform:rotate(-90deg)"><use href="#i-play"/></svg><span id="tPVal" style="position:absolute;font-size:7px;bottom:-10px;left:0;right:0;text-align:center">0</span></i><i class="s"><svg class="ic" style="width:22px;height:22px;transform:rotate(-90deg)"><use href="#i-play"/></svg><span id="tSVal" style="position:absolute;font-size:7px;bottom:-10px;left:0;right:0;text-align:center">0</span></i><small style="bottom:4px" data-i="astern"></small></div>
     <div id="tHorn" class="tb glass" aria-label="Horn"><svg class="ic" style="width:26px;height:26px"><use href="#i-horn"/></svg></div>
     <div id="tCam" class="tb glass" aria-label="Camera"><svg class="ic" style="width:26px;height:26px"><use href="#i-cam"/></svg></div>
   </div>
@@ -1270,7 +1270,7 @@ const STR = {
     waiting: '{0} bekliyor', planned: 'plan {0}', lateBy: '{0} geç', earlyBy: '{0} erken', depart: 'kalkış {0}', waitDep: 'kalkışa {0}', boarding: 'yolcu alınıyor…', canLeave: 'kalkabilirsin!',
     campaign: 'Sefer planı', endlessShort: 'Sonsuz',
     bestLine: 'En iyi: {0} puan · {1}/24 yıldız · Sonsuz: {2} sefer', bestNone: 'Henüz rekor yok.',
-    s1: 'İlk sefer', s2: 'Beşiktaş hattı', s3: 'Akşam seferi', s4: 'Sisli sabah', s5: 'Gece seferi', s6: 'Güçlü akıntı', s7: 'Fırtına', s8: 'Tanker konvoyu', sE: 'Sonsuz sefer {0}',
+    s1: 'İlk sefer', s2: 'Beşiktaş hattı', s3: 'Akşam seferi', s4: 'Sisli sabah', s5: 'Gece seferi', s6: 'Güçlü akıntı', s7: 'Fırtına', s8: 'Tanker konvoyu', sE: 'Sonsuz sefer {0}', sDockScore: 'Yanaşma puanı', ropeTension: 'Halat Gerginliği: {0} kN', throwLines: 'Halatları At (Boşluk/Buton)',
     d1: 'Eminönü, Karaköy ve Üsküdar arasında kısa bir hat. Yanaşmayı öğren: yavaş, paralel, nazik.',
     d2: 'Beşiktaş\'a uzanan hat. Daha fazla trafik, daha uzun yol; tarifeye dikkat.',
     d3: 'Güneş batarken beş iskele. Akşam kalabalığı, hava kararınca ışıklar yanıyor.',
@@ -1367,6 +1367,7 @@ const SHIFTS = [
 ];
 const SCORE_K = { pax: 10, punct: 100, comfort: 3, lost: -5, stars: [0.4, 0.65, 0.85] };
 const FERRY = { len: 36, beam: 9, cap: 150, maxV: 12.5 };
+let gearPauseP = 0, gearPauseS = 0;
 const TS = 12;                 // game seconds per real second (12: a 5-minute shift is one game hour)
 const DWELL = 22;              // scheduled dwell per stop (real seconds)
 function endlessShift(n) {     // endless shift n (1-based): random route, growing difficulty
@@ -2148,7 +2149,7 @@ function destFor(fromIdx) {   // destination stop index for a passenger boarding
 }
 function dockAt(P, idx, initial = false) {
   const s = SIM.stops[idx];
-  SIM.docked = P; SIM.dockT = 0; SIM.ropes = true; SIM.boardDone = false; SIM.depAllowed = false; SIM.leaveToast = false; SIM.boardQ = []; SIM.boardT = 0; SIM.offN = 0; SIM.onN = 0;
+  SIM.docked = P; SIM.dockT = 0; SIM.ropes = false; SIM.boardDone = false; SIM.depAllowed = false; SIM.leaveToast = false; SIM.boardQ = []; SIM.boardT = 0; SIM.offN = 0; SIM.onN = 0;
   player.u = player.v = player.r = 0; player.thr = player.thrP = player.thrS = 0; input.throttle = 0;
   // snap alongside
   player.x = P.bx; player.z = P.bz;
@@ -2225,9 +2226,16 @@ function circleAt(k, out) { const [a, r] = HULL_C[k]; out.x = player.x + Math.si
 const _c1 = { x: 0, z: 0, r: 0 }, _g = { x: 0, z: 0 };
 function stepFerry(dt) {
   const P = player;
-  // telegraph and rudder respond with lag
-  P.thrP = (P.thrP || 0) + clamp(input.thrP - (P.thrP || 0), -0.7 * dt, 0.7 * dt);
-  P.thrS = (P.thrS || 0) + clamp(input.thrS - (P.thrS || 0), -0.7 * dt, 0.7 * dt);
+  if (gearPauseP > 0) gearPauseP -= dt;
+  else {
+    if (Math.sign(input.thrP) !== Math.sign(P.thrP || 0) && Math.abs(input.thrP) > 0.1 && Math.abs(P.thrP || 0) > 0.1) gearPauseP = 0.5;
+    else P.thrP = (P.thrP || 0) + clamp(input.thrP - (P.thrP || 0), -0.7 * dt, 0.7 * dt);
+  }
+  if (gearPauseS > 0) gearPauseS -= dt;
+  else {
+    if (Math.sign(input.thrS) !== Math.sign(P.thrS || 0) && Math.abs(input.thrS) > 0.1 && Math.abs(P.thrS || 0) > 0.1) gearPauseS = 0.5;
+    else P.thrS = (P.thrS || 0) + clamp(input.thrS - (P.thrS || 0), -0.7 * dt, 0.7 * dt);
+  }
   P.thr = (P.thrP + P.thrS) / 2;
   P.rud += clamp(input.rudder - P.rud, -1.6 * dt, 1.6 * dt);
   if (SIM.docked) { P.u = P.v = P.r = 0; P.vx = P.vz = 0; P.speed = 0; P.heel *= 0.95; return; }
@@ -2473,7 +2481,12 @@ function stepDocking(dt) {
   DOCK.near = dist < 110;
   const okGap = gap > -0.6 && gap < 4.5, okAlong = Math.abs(along) < 12, okAng = Math.abs(ang) < 0.36, okSpd = player.speed < 0.9;
   DOCK.ok = okGap && okAlong && okAng && okSpd;
-  if (DOCK.ok) { SIM.dockOk += dt; if (SIM.dockOk > 0.5) { dockAt(P, SIM.stopIdx); toast(t('toastDocked', pierName(P.id)), 'good'); return; } } else SIM.dockOk = 0;
+  if (DOCK.ok && (keys.Space || input.horn || FLAG.auto)) {
+    SIM.dockOk += dt;
+    if (SIM.dockOk > 0.3) { dockAt(P, SIM.stopIdx); toast(t('toastDocked', pierName(P.id)), 'good'); return; }
+  } else if (DOCK.ok) {
+    if (!SIM.throwPrompt) { SIM.throwPrompt = true; toast(t('throwLines'), 'info'); }
+  } else { SIM.dockOk = 0; SIM.throwPrompt = false; }
   DOCK.hint = !okSpd && dist < 40 ? (player.speed > 2.5 ? 'hintFast' : 'hintSlow') : !okAng && dist < 50 ? 'hintAlign' : !(okGap && okAlong) ? 'hintCloser' : 'hintStop';
   // wrong pier reminder: slow and close to another pier
   if (player.speed < 1.5) for (const id of Object.keys(PIERS)) { if (id === ns.id) continue; const Q2 = PIERS[id]; if (hyp(player.x - Q2.bx, player.z - Q2.bz) < 25) { SIM.wrongT += dt; if (SIM.wrongT > 2.5) { SIM.wrongT = -20; toast(t('toastWrongPier', pierName(ns.id)), 'info'); } } }
@@ -3216,8 +3229,8 @@ function syncMarkers(dt) {
     matBerth.opacity = DOCK.ok ? 0.55 : 0.2 + 0.1 * Math.sin(waterU.uTime.value * 3);
     OBJ.beacon.visible = !SIM.docked; OBJ.beacon.position.set(P.x, 22 + Math.sin(waterU.uTime.value * 2) * 1.5, P.z); OBJ.beacon.rotation.y += dt;
   } else { OBJ.berth.visible = false; OBJ.beacon.visible = false; }
-  OBJ.ropes.visible = !!SIM.docked;
-  if (SIM.docked) {
+  OBJ.ropes.visible = !!SIM.docked && SIM.ropes;
+  if (SIM.docked && SIM.ropes) {
     const P = SIM.docked, a = OBJ.ropes.geometry.attributes.position, s = Math.sin(player.hd), c = Math.cos(player.hd);
     // cleats near the bow and the stern on the pier side
     const sideSign = ((P.ex - player.x) * c - (P.ez - player.z) * s) > 0 ? 1 : -1;
@@ -3345,6 +3358,18 @@ function updateHUD(dt) {
     el.stClock.className = diff > 15 ? 'late' : '';
   } else { el.stPlan.textContent = ''; el.stClock.className = ''; }
   el.stPax.textContent = SIM.aboardN + '/' + FERRY.cap;
+  const rpmP = Math.round((player.thrP || 0) * 350);
+  const rpmS = Math.round((player.thrS || 0) * 350);
+  const modeP = rpmP >= 0 ? (LANG === 'tr' ? 'İLERİ' : 'AHEAD') : (LANG === 'tr' ? 'TORN' : 'ASTERN');
+  const modeS = rpmS >= 0 ? (LANG === 'tr' ? 'İLERİ' : 'AHEAD') : (LANG === 'tr' ? 'TORN' : 'ASTERN');
+  const rpmEl = document.getElementById('rpmReadout');
+  if (rpmEl) rpmEl.textContent = 'P:' + Math.abs(rpmP) + ' ' + modeP + ' S:' + Math.abs(rpmS) + ' ' + modeS;
+  const tPVal = document.getElementById('tPVal'); if (tPVal) tPVal.textContent = Math.abs(rpmP);
+  const tSVal = document.getElementById('tSVal'); if (tSVal) tSVal.textContent = Math.abs(rpmS);
+  if (SIM.docked && SIM.ropes) {
+    const tension = Math.round(Math.abs(player.thr) * 45 + Math.abs(player.u) * 12);
+    el.ncL3.textContent = t('ropeTension', tension);
+  }
   el.comfBar.firstChild.style.width = SIM.comfort.toFixed(0) + '%';
   el.hullBar.firstChild.style.width = player.hull.toFixed(0) + '%';
   const proj = starsFor(shiftScore() + (SIM.stops.length - 1 - SIM.punct.length) * 0 + 0, SIM.target);   // stars so far (score grows with the stops)
@@ -3653,7 +3678,7 @@ function renderEnd(res) {
   el.enTitle.textContent = res.kind === 'wreck' ? t('endWreck') : !won ? t('endFail') : campaignDone ? t('endWin') : G.mode === 'endless' ? t('endClear') : t('endClear');
   el.enSub.textContent = res.kind === 'wreck' ? t('subWreck') : !won ? t('subFail') : campaignDone ? t('subWin') : G.mode === 'endless' ? t('subEndless', G.endlessN, G.totals.pax) : t('subClear');
   el.enStars.innerHTML = [0, 1, 2].map(i => '<svg class="' + (i < res.stars ? 'on' : '') + '" style="animation-delay:' + (i * 0.2) + 's" viewBox="0 0 24 24"><use href="#i-star"/></svg>').join('');
-  const kv = [[t('sPax'), res.pax + ' / ' + SIM.potential], [t('sPunct'), res.punct + '%'], [t('sComfort'), res.comfort + '%'], [t('sLost'), res.lost, res.lost > 0 ? 'neg' : ''], [t('sHull'), res.hull + '%', res.hull > 30 ? 'neg' : ''], [t('sScore'), res.score + ' / ' + res.target], [t('sTotal'), G.totals.score]];
+  const kv = [[t('sPax'), res.pax + ' / ' + SIM.potential], [t('sPunct'), res.punct + '%'], [t('sComfort'), res.comfort + '%'], [t('sLost'), res.lost, res.lost > 0 ? 'neg' : ''], [t('sHull'), res.hull + '%', res.hull > 30 ? 'neg' : ''], [t('sDockScore'), (SIM.dockBonus || 0) + ' p'], [t('sScore'), res.score + ' / ' + res.target], [t('sTotal'), G.totals.score]];
   if (res.fog !== null && res.fog !== undefined) kv.splice(5, 0, [t('sFogBonus'), '+' + res.fog]);
   el.enStats.innerHTML = kv.map(([k, v, c]) => '<span>' + k + '</span><span class="' + (c || '') + '">' + v + '</span>').join('');
   el.enRec.classList.toggle('hidden', !res.rec); el.enRec.textContent = t('newRecord');
@@ -3737,7 +3762,10 @@ function botTick(dt) {
   if (G.state !== 'play') return;
   const P = player;
   input.horn = false;
-  if (SIM.docked) { BOT.wp = []; BOT.wpFor = null; BOT.dockDir = 0; BOT.back = false; BOT.backOut = false; BOT.escape = false; BOT.near = false; BOT.finalT = 0; input.rudder = 0; input.throttle = (SIM.depAllowed && SIM.stopIdx < SIM.stops.length - 1) ? 0.5 : 0; BOT.stuck = 0; return; }
+  if (SIM.docked) {
+    if (!SIM.ropes && DOCK.ok) SIM.ropes = true;
+    BOT.wp = []; BOT.wpFor = null; BOT.dockDir = 0; BOT.back = false; BOT.backOut = false; BOT.escape = false; BOT.near = false; BOT.finalT = 0; input.rudder = 0; input.throttle = (SIM.depAllowed && SIM.stopIdx < SIM.stops.length - 1) ? 0.5 : 0; BOT.stuck = 0; return;
+  }
   // fog run: the bot steers on its internal state, but blows the fog horn now and then like a captain would
   if (SIM.fogRun) { BOT.fogHornT = (BOT.fogHornT ?? 2) - dt; if (BOT.fogHornT <= 0) { BOT.fogHornT = 15; input.horn = true; } }
   const ns = nextStop(); if (!ns) { input.throttle = 0; return; }
