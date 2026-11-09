@@ -1,0 +1,30 @@
+# Ayda bir, ekosistem basina TEK PR (groups). Her paket icin ayri PR,
+# 25 Eylul 2026'da hesapta 36 acik Dependabot PR'i demekti; upload/download-
+# artifact gibi birlikte yukselmesi gereken ciftler de ayni PR'da kalir.
+# Kural: github.com/Furkiozknn/Furkiozknn schema/politika.py
+version: 2
+updates:
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+    # A newly published version waits 7 days before it is proposed (zizmor dependabot-cooldown).
+    cooldown:
+      default-days: 7
+    commit-message:
+      prefix: "ci"
+    groups:
+      actions:
+        patterns: ["*"]
+  # Dev-only test tooling (tools/package.json: playwright for tools/smoke.mjs).
+  - package-ecosystem: "npm"
+    directory: "/tools"
+    schedule:
+      interval: "monthly"
+    cooldown:
+      default-days: 7
+    commit-message:
+      prefix: "test"
+    groups:
+      tools:
+        patterns: ["*"]

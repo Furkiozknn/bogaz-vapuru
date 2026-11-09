@@ -1,0 +1,61 @@
+name: smoke
+
+# Opens the game in three real browsers and fails on page errors or a stale SRI hash.
+# Also reports whether each browser enforces the import-map "integrity" hashes.
+# Details: tools/smoke.mjs. Pilot for the other games; read-only, no secrets, no deploy.
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+permissions: {}
+
+concurrency:
+  group: smoke-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  smoke:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        browser: [chromium, firefox, webkit]
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+        with:
+          node-version: "22"
+
+      # tools/package-lock.json pins playwright 1.63.0 with its sha512; npm ci refuses anything else.
+      - name: Playwright (lockfile) and ${{ matrix.browser }}
+        run: |
+          set -euo pipefail
+          npm ci --prefix tools --ignore-scripts --no-audit --no-fund
+          tools/node_modules/.bin/playwright install --with-deps "${{ matrix.browser }}"
+
+      # The runner has no GPU and no GL driver; Firefox needs Mesa's software renderer for WebGL.
+      - name: Mesa software GL (firefox)
+        if: matrix.browser == 'firefox'
+        run: |
+          set -euo pipefail
+          sudo apt-get update -q
+          sudo apt-get install -y -q libgl1-mesa-dri libegl1 libgl1
+          echo "LIBGL_ALWAYS_SOFTWARE=1" >> "$GITHUB_ENV"
+
+      - name: Smoke test
+        if: matrix.browser != 'firefox'
+        run: node tools/smoke.mjs "${{ matrix.browser }}"
+
+      # Headless Firefox finds no GL driver on the runner; a headed window under xvfb uses Mesa.
+      - name: Smoke test (firefox, headed under xvfb)
+        if: matrix.browser == 'firefox'
+        env:
+          SMOKE_HEADED: "1"
+        run: xvfb-run -a node tools/smoke.mjs firefox
