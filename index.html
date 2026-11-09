@@ -1242,6 +1242,14 @@ function mulberry(seed) {
 }
 const Q = new URLSearchParams(location.search);
 const FLAG = { fog: Q.has('fog'), auto: Q.has('auto'), debug: Q.has('debug'), low: Q.has('low'), noaudio: Q.has('noaudio'), touch: Q.has('touch'), noassets: Q.has('noassets'), cal: Q.has('cal') };
+let lowPowerMode = FLAG.low || (navigator.deviceMemory !== undefined && navigator.deviceMemory <= 2);
+if (navigator.getBattery) {
+  navigator.getBattery().then(bat => {
+    if (!bat.charging && bat.level < 0.2) lowPowerMode = true;
+    bat.addEventListener('levelchange', () => { if (!bat.charging && bat.level < 0.2) lowPowerMode = true; });
+    bat.addEventListener('chargingchange', () => { if (!bat.charging && bat.level < 0.2) lowPowerMode = true; });
+  }).catch(() => {});
+}
 const SIM_PRE = parseFloat(Q.get('sim')) || 0;
 const SEED = parseInt(Q.get('seed') || '11', 10);
 const START_SHIFT = parseInt(Q.get('shift') || '0', 10);
@@ -1270,7 +1278,7 @@ const STR = {
     waiting: '{0} bekliyor', planned: 'plan {0}', lateBy: '{0} geç', earlyBy: '{0} erken', depart: 'kalkış {0}', waitDep: 'kalkışa {0}', boarding: 'yolcu alınıyor…', canLeave: 'kalkabilirsin!',
     campaign: 'Sefer planı', endlessShort: 'Sonsuz',
     bestLine: 'En iyi: {0} puan · {1}/24 yıldız · Sonsuz: {2} sefer', bestNone: 'Henüz rekor yok.',
-    s1: 'İlk sefer', s2: 'Beşiktaş hattı', s3: 'Akşam seferi', s4: 'Sisli sabah', s5: 'Gece seferi', s6: 'Güçlü akıntı', s7: 'Fırtına', s8: 'Tanker konvoyu', sE: 'Sonsuz sefer {0}', sDockScore: 'Yanaşma puanı', ropeTension: 'Halat Gerginliği: {0} kN', throwLines: 'Halatları At (Boşluk/Buton)',
+    s1: 'İlk sefer', s2: 'Beşiktaş hattı', s3: 'Akşam seferi', s4: 'Sisli sabah', s5: 'Gece seferi', s6: 'Güçlü akıntı', s7: 'Fırtına', s8: 'Tanker konvoyu', sE: 'Sonsuz sefer {0}', sDockScore: 'Yanaşma puanı', ropeTension: 'Halat Gerginliği: {0} kN', throwLines: 'Halatları At (Boşluk/Buton)', netWarning: 'Ağlara dikkat',
     d1: 'Eminönü, Karaköy ve Üsküdar arasında kısa bir hat. Yanaşmayı öğren: yavaş, paralel, nazik.',
     d2: 'Beşiktaş\'a uzanan hat. Daha fazla trafik, daha uzun yol; tarifeye dikkat.',
     d3: 'Güneş batarken beş iskele. Akşam kalabalığı, hava kararınca ışıklar yanıyor.',
@@ -2281,6 +2289,21 @@ function stepFerry(dt) {
       const dx = _c1.x - o.x, dz = _c1.z - o.z, d = hyp(dx, dz), pen = o.r + _c1.r - d;
       if (pen > 0) impact(dx / (d || 1), dz / (d || 1), pen, 'crash');
     }
+    for (const b of SIM.traffic) {
+      if (b.kind === 'anchored_fish') {
+        const nx = Math.sin(b.hd + Math.PI/2), nz = Math.cos(b.hd + Math.PI/2);
+        for (let l = 2; l < (b.netLength || 25); l += 4) {
+          const nxz = b.x + nx * l, nzz = b.z + nz * l;
+          if (hyp(_c1.x - nxz, _c1.z - nzz) < _c1.r + 2) {
+            SIM.comfort = Math.max(0, SIM.comfort - 0.5);
+            if (!SIM.netToastT || SIM.t - SIM.netToastT > 4) {
+              SIM.netToastT = SIM.t;
+              toast(t('netWarning'), 'bad');
+            }
+          }
+        }
+      }
+    }
   }
 }
 const _r = { x: 0, z: 0 };
@@ -2353,7 +2376,8 @@ function spawnTraffic(sh) {
   }
   for (let i = 0; i < sh.fish; i++) {
     let x, z, tries = 0; do { z = rr(-1300, 1100); x = chanCenter(z) + rr(-1, 1) * chanHalf(z) * 0.85; } while (depth(x, z) < 25 && tries++ < 50);
-    T.push({ kind: 'fish', x, z, hd: rr(0, TAU), v: 0, vT: rr(2, 3.2), path: [], pi: 0, wait: rr(0, 15), delay: 0, len: 8, w: 3, circ: [[0, 3.6]], col: wpick([0x2a7fd4, 0xe8542f, 0x3cae6a, 0xf2c94c, 0xffffff]), hornCd: 0, bob: rr(0, TAU) });
+    const isAnchored = (i % 2 === 0);
+    T.push({ kind: isAnchored ? 'anchored_fish' : 'fish', x, z, hd: rr(0, TAU), v: 0, vT: isAnchored ? 0 : rr(2, 3.2), path: [], pi: 0, wait: isAnchored ? 9999 : rr(0, 15), delay: 0, len: 8, w: 3, circ: [[0, 3.6]], col: wpick([0x2a7fd4, 0xe8542f, 0x3cae6a, 0xf2c94c, 0xffffff]), hornCd: 0, bob: rr(0, TAU), netLength: 25 });
   }
 }
 function fishTarget(b) {
@@ -3177,7 +3201,7 @@ function syncRender(dt) {
     if (b.delay > 0) continue;
     if (b.kind === 'ferry' && n < 7) { ferryMatrix(b.x, b.z, b.hd, 0, 0, _mat); OBJ.ferryB.setMatrixAt(n, _mat); OBJ.ferryW.setMatrixAt(n, _mat); OBJ.ferryN.setMatrixAt(n, _mat); n++; }
     else if (b.kind === 'tanker' && nt < 8) { ferryMatrix(b.x, b.z, b.hd, 0, 0, _mat); OBJ.tankH.setMatrixAt(nt, _mat); OBJ.tankT.setMatrixAt(nt, _mat); OBJ.tankH.setColorAt(nt, _c.setHex(b.col)); nt++; }
-    else if (b.kind === 'fish' && nf < 12) { ferryMatrix(b.x, b.z, b.hd, 0.08 * Math.sin(b.bob * 2.1), 0.05 * Math.sin(b.bob * 1.7), _mat); OBJ.fishH.setMatrixAt(nf, _mat); OBJ.fishT.setMatrixAt(nf, _mat); OBJ.fishH.setColorAt(nf, _c.setHex(b.col)); nf++; }
+    else if ((b.kind === 'fish' || b.kind === 'anchored_fish') && nf < 12) { ferryMatrix(b.x, b.z, b.hd, 0.08 * Math.sin(b.bob * 2.1), 0.05 * Math.sin(b.bob * 1.7), _mat); OBJ.fishH.setMatrixAt(nf, _mat); OBJ.fishT.setMatrixAt(nf, _mat); OBJ.fishH.setColorAt(nf, _c.setHex(b.col)); nf++; }
   }
   OBJ.ferryB.count = OBJ.ferryW.count = OBJ.ferryN.count = n; OBJ.ferryB.instanceMatrix.needsUpdate = OBJ.ferryW.instanceMatrix.needsUpdate = OBJ.ferryN.instanceMatrix.needsUpdate = true;
   OBJ.tankH.count = OBJ.tankT.count = nt; OBJ.tankH.instanceMatrix.needsUpdate = OBJ.tankT.instanceMatrix.needsUpdate = true; if (OBJ.tankH.instanceColor) OBJ.tankH.instanceColor.needsUpdate = true;
@@ -3947,11 +3971,18 @@ function botTick(dt) {
 }
 
 // ---------------------------------------------------------------- main loop
-let lastT = performance.now(), acc = 0, fpsS = 60, frameN = 0, ambT = 8;
+let lastT = performance.now(), lastFrameTime = 0, acc = 0, fpsS = 60, frameN = 0, ambT = 8;
 const FIXED = 1 / 60;
 function frame(now) {
   requestAnimationFrame(frame);
   let dt = (now - lastT) / 1000; lastT = now; if (!(dt > 0)) dt = 0.016; dt = Math.min(dt, 0.1);
+  const userLow = lsGet('arena.vapur.lowPowerOverride');
+  const isLow = (userLow !== null ? userLow : lowPowerMode);
+  if (isLow) {
+    if (now - lastFrameTime < 31.5) return;
+    lastFrameTime = now;
+    dt = Math.max(dt, 0.033);
+  }
   if (document.hidden) return;
   if (G.state === 'loading') return;
   fpsS += (1 / Math.max(dt, 1e-3) - fpsS) * 0.05;
