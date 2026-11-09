@@ -2072,6 +2072,7 @@ function buildWindowLights() {
 
 // ---------------------------------------------------------------- simulation state
 const G = { state: 'loading', mode: 'campaign', shiftIdx: 0, retries: 0, log: [], errors: [], done: false, failed: false, endlessN: 0, totals: { score: 0, pax: 0, stars: [] }, lastResult: null, selIdx: 0 };
+const SIM_EXT = { simitTimer: 0, teaTimer: 0, teaActive: false, teaTimeLeft: 0 };
 const SIM = {
   t: 0, hour: 15, shift: null, stops: [], stopIdx: 0, cur: 0.3, wind: { x: 0, z: 0, a: 0, dir: 0, gust: 0 }, fog: 0, storm: 0, rain: 0, swell: 0, night: 0, dusk: 0,
   traffic: [], aboard: {}, aboardN: 0, delivered: 0, lost: 0, comfort: 100, punct: [], score: 0, target: 1000, potential: 0,
@@ -2556,6 +2557,40 @@ function stepSim(dt) {
   SIM.ff = SIM.docked && SIM.boardDone && !SIM.depAllowed && SIM.stopIdx < SIM.stops.length - 1 ? 8 : 1;
   SIM.t += dt * SIM.ff; SIM.hour = SIM.shift.hour + SIM.t * TS / 3600;
   stepFerry(dt); stepTraffic(dt); stepFog(dt); stepDocking(dt); stepBoarding(dt); stepPiers(dt * SIM.ff); stepWalkers(dt);
+  
+  // Deck moments: Simit throwing & Tea seller round
+  if (!SIM.docked && SIM.aboardN > 10) {
+    SIM_EXT.simitTimer += dt;
+    if (SIM_EXT.simitTimer > 25 && Math.abs(player.u) > 2 && Math.abs(player.u) < 9) {
+      SIM_EXT.simitTimer = 0;
+      SIM.comfort = Math.min(100, SIM.comfort + 1.5);
+      floater('+1.5 🥯', false);
+      toast(LANG === 'tr' ? 'Yolcular martılara simit atıyor, konfor arttı.' : 'Passengers throw simit to gulls, comfort improved.', 'good');
+    }
+    
+    SIM_EXT.teaTimer += dt;
+    if (!SIM_EXT.teaActive && SIM_EXT.teaTimer > 90) {
+      SIM_EXT.teaActive = true;
+      SIM_EXT.teaTimeLeft = 20;
+      toast(LANG === 'tr' ? 'Çaycı tepsisiyle dolaşıyor: Yumuşak dümende kal!' : 'Tea seller is doing a round: keep a gentle helm!', 'info');
+    }
+    if (SIM_EXT.teaActive) {
+      SIM_EXT.teaTimeLeft -= dt;
+      if (Math.abs(player.r) > 0.08) {
+        SIM.comfort = Math.max(0, SIM.comfort - 3);
+        floater('-3 ☕', true);
+        toast(LANG === 'tr' ? 'Sert manevra! Çay döküldü.' : 'Hard turn! Tea spilled.', 'bad');
+        SIM_EXT.teaActive = false;
+        SIM_EXT.teaTimer = 0;
+      } else if (SIM_EXT.teaTimeLeft <= 0) {
+        SIM.comfort = Math.min(100, SIM.comfort + 2);
+        floater('+2 ☕', false);
+        toast(LANG === 'tr' ? 'Çay servisi huzur getirdi.' : 'Tea service brought comfort.', 'good');
+        SIM_EXT.teaActive = false;
+        SIM_EXT.teaTimer = 0;
+      }
+    }
+  }
   // weather drift: storm rain, thunder; fog that thickens a little over the shift
   if (SIM.storm) { SIM.rain += (1 - SIM.rain) * 0.1 * dt; SIM.thunderT -= dt; if (SIM.thunderT <= 0) { SIM.thunderT = rr(14, 40); AUD.thunder(); lightning = 1; } }
   SIM.swell += ((SIM.storm ? 1 : 0.15 + 0.25 * SIM.wind.a) - SIM.swell) * 0.05 * dt;
@@ -3152,12 +3187,22 @@ function syncRender(dt) {
 }
 function syncGulls(dt) {
   const m = OBJ.gulls, t = waterU.uTime.value;
+  const sternFlock = !SIM.docked && Math.abs(player.u) > 1.5;
   for (let i = 0; i < GULLS.length; i++) {
     const g = GULLS[i];
-    const spot = g.spot < WORLD.gullSpots.length ? WORLD.gullSpots[g.spot] : null;
-    const cx = spot ? spot[0] : player.x, cz = spot ? spot[1] : player.z;
-    g.a += g.w * dt * (player.horn && !spot ? 2.2 : 1);
-    const x = cx + Math.cos(g.a) * g.r, z = cz + Math.sin(g.a) * g.r, y = g.h + Math.sin(t * 0.7 + g.ph) * 3 + (player.horn && !spot ? 10 : 0);
+    let cx, cz;
+    if (sternFlock && i < 12) {
+      const s = Math.sin(player.hd), co = Math.cos(player.hd);
+      cx = player.x - s * (20 + (i % 4) * 4) + co * ((i % 3 - 1) * 3);
+      cz = player.z - co * (20 + (i % 4) * 4) - s * ((i % 3 - 1) * 3);
+    } else {
+      const spot = g.spot < WORLD.gullSpots.length ? WORLD.gullSpots[g.spot] : null;
+      cx = spot ? spot[0] : player.x; cz = spot ? spot[1] : player.z;
+    }
+    g.a += g.w * dt * (player.horn && !sternFlock ? 2.2 : 1);
+    const x = sternFlock ? cx + Math.sin(t*3 + i)*1.5 : cx + Math.cos(g.a) * g.r;
+    const z = sternFlock ? cz + Math.cos(t*3 + i)*1.5 : cz + Math.sin(g.a) * g.r;
+    const y = g.h + Math.sin(t * 0.7 + g.ph) * 3 + (player.horn && !sternFlock ? 10 : 0);
     const flap = 1 + 0.55 * Math.sin(t * 9 + g.ph);
     m.setMatrixAt(i, place(x, y, z, -g.a + (g.w > 0 ? Math.PI : 0), 1, flap, 1));
   }
