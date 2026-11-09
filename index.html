@@ -536,6 +536,82 @@ body.compact #topbar .btn.icon { width: 36px; height: 36px; } body.compact #topb
 .cnode.sel .stars-sm svg.on { fill: var(--c-deep); stroke: var(--c-deep); }
 .cnode.endless { width: 66px; }
 
+/* Captain Rank & Shift Missions Ledger */
+.missions-ledger {
+  margin: 12px 0 8px; padding: 10px 12px;
+  background: var(--c-cream-l); border: 1.5px solid var(--c-deep);
+  border-radius: var(--r); box-shadow: 2px 2px 0 var(--c-deep);
+  text-align: left;
+}
+.missions-head {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  padding-bottom: 7px; border-bottom: 1.5px dashed var(--c-teak);
+}
+.rank-badge { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.rank-badge svg.ic { width: 22px; height: 22px; color: var(--c-teal); flex: none; }
+.rank-info { display: flex; flex-direction: column; min-width: 0; }
+.rank-sub {
+  font-family: var(--font-mono); font-size: 9.5px; font-weight: 700;
+  color: var(--c-teal); text-transform: uppercase; letter-spacing: 0.8px; line-height: 1.2;
+}
+.rank-name {
+  font-family: var(--font-display); font-size: 19px; font-weight: 800;
+  color: var(--c-deep); letter-spacing: 0.6px; line-height: 1.15;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.rank-xp-wrap { display: flex; flex-direction: column; align-items: flex-end; min-width: 90px; flex: none; }
+.rank-xp-txt {
+  font-family: var(--font-mono); font-size: 10.5px; font-weight: 700;
+  color: var(--c-deep); font-variant-numeric: tabular-nums; line-height: 1.2; margin-bottom: 3px;
+}
+.rank-bar { width: 90px; height: 7px; margin-top: 0; }
+.rank-bar i { background: linear-gradient(90deg, var(--c-teal), var(--c-gold)); }
+
+.missions-subhead {
+  display: flex; align-items: center; justify-content: space-between;
+  margin: 8px 0 6px; font-family: var(--font-mono); font-size: 10px; font-weight: 700;
+  letter-spacing: 1px; text-transform: uppercase; color: var(--c-teak);
+}
+.missions-datetag { font-size: 9.5px; color: var(--c-deep-mid); letter-spacing: 0.4px; }
+
+.missions-list { display: flex; flex-direction: column; gap: 6px; }
+.mission-item {
+  display: grid; grid-template-columns: auto 1fr auto; align-items: center;
+  gap: 8px 10px; padding: 6px 8px; border-radius: 3px;
+  background: var(--c-cream); border: 1px solid rgba(15, 46, 51, 0.25);
+  transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+.mission-item.done { border-color: var(--c-green); background: #f1f8f5; }
+.mission-tag {
+  font-family: var(--font-mono); font-size: 9px; font-weight: 800;
+  letter-spacing: 0.6px; text-transform: uppercase; padding: 2px 5px;
+  border-radius: 2px; border: 1px solid currentColor; white-space: nowrap;
+}
+.mission-tag.daily { color: var(--c-teal); border-color: var(--c-teal); }
+.mission-tag.weekly { color: var(--c-violet); border-color: var(--c-violet); }
+.mission-body { min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+.mission-title-row { display: flex; align-items: baseline; justify-content: space-between; gap: 6px; }
+.mission-title {
+  font-family: var(--font-mono); font-size: 11.5px; font-weight: 700;
+  color: var(--c-deep); line-height: 1.25; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.mission-count {
+  font-family: var(--font-mono); font-size: 10.5px; font-weight: 700;
+  color: var(--c-deep-mid); font-variant-numeric: tabular-nums; flex: none;
+}
+.mission-bar { height: 5px; margin-top: 0; }
+.mission-bar i { background: var(--c-gold); }
+.mission-item.done .mission-bar i { background: var(--c-green); }
+.mission-reward {
+  font-family: var(--font-mono); font-size: 10px; font-weight: 800;
+  color: var(--c-gold-d); letter-spacing: 0.5px; white-space: nowrap;
+  padding: 2px 6px; border-radius: 2px; border: 1px dashed var(--c-gold-d);
+}
+.mission-reward.done {
+  color: var(--c-green); border: 1.5px solid var(--c-green);
+  font-weight: 800; text-transform: uppercase;
+}
+
 /* Timetable Ledger */
 .timetable {
   display: grid; grid-template-columns: auto 1fr auto; gap: 4px 14px;
@@ -635,10 +711,18 @@ input[type=range] { width: 100%; height: 44px; accent-color: var(--c-teal); back
   .btn.icon { width: 44px; min-width: 44px; min-height: 44px; }
   .card { padding: 18px 14px 16px; }
   #logoBig { width: 110px; height: 85px; }
+  .missions-ledger { padding: 8px; margin: 10px 0 6px; }
+  .rank-name { font-size: 16px; }
+  .rank-bar { width: 70px; }
+  .mission-item { gap: 6px 8px; padding: 5px 6px; }
+  .mission-title { font-size: 11px; }
+  .mission-tag { font-size: 8.5px; padding: 1px 4px; }
 }
 @media (max-height: 520px) {
   .card { padding: 12px 16px; } .card h1 { font-size: 26px; } #logoBig { width: 100px; height: 75px; }
   #minimap { width: 100px; height: 150px; }
+  .missions-ledger { margin: 8px 0 4px; padding: 6px 8px; }
+  .missions-list { gap: 4px; }
 }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .01s !important; transition-duration: 0s !important; }
@@ -1141,6 +1225,26 @@ input[type=range] { width: 100%; height: 44px; accent-color: var(--c-teal); back
           <button class="btn" id="bLangT"><svg class="ic"><use href="#i-globe"/></svg><span id="langTxt">TR / EN</span></button>
         </div>
       </div>
+      <div id="missionsBox" class="missions-ledger">
+        <div class="missions-head">
+          <div class="rank-badge">
+            <svg class="ic"><use href="#i-anchor"/></svg>
+            <div class="rank-info">
+              <span class="rank-sub" data-i="rankTitle">KAPTANLIK RÜTBESİ</span>
+              <b id="rankName" class="rank-name">Miço</b>
+            </div>
+          </div>
+          <div class="rank-xp-wrap">
+            <span id="rankXpTxt" class="rank-xp-txt">0 / 100 XP</span>
+            <div class="bar rank-bar" id="rankBar"><i style="width:0%"></i></div>
+          </div>
+        </div>
+        <div class="missions-subhead">
+          <span data-i="missionsHead">GÜNLÜK VE HAFTALIK GÖREVLER</span>
+          <span id="missionsDateTag" class="missions-datetag"></span>
+        </div>
+        <div id="missionsList" class="missions-list"></div>
+      </div>
       <div class="best" id="bestLine"></div>
       <div class="best" id="dailyLine"></div>
       <div class="rope" aria-hidden="true" style="width:min(100%,200px);margin:12px auto 0"></div>
@@ -1251,7 +1355,7 @@ function mulberry(seed) {
   };
 }
 const Q = new URLSearchParams(location.search);
-const FLAG = { fog: Q.has('fog'), auto: Q.has('auto'), debug: Q.has('debug'), low: Q.has('low'), noaudio: Q.has('noaudio'), touch: Q.has('touch'), noassets: Q.has('noassets'), cal: Q.has('cal') };
+const FLAG = { fog: Q.has('fog'), auto: Q.has('auto'), debug: Q.has('debug'), low: Q.has('low'), noaudio: Q.has('noaudio'), touch: Q.has('touch'), noassets: Q.has('noassets'), cal: Q.has('cal'), nosave: Q.has('nosave') };
 const SIM_PRE = parseFloat(Q.get('sim')) || 0;
 const SEED = parseInt(Q.get('seed') || '11', 10);
 const START_SHIFT = parseInt(Q.get('shift') || '0', 10);
@@ -1310,6 +1414,16 @@ const STR = {
     dailyLine: 'Günlük seri: {0} gün · en iyi: {1}', dailyDone: 'Bugünkü sefer tamam', a11y: 'Erişilebilirlik', a11yOpen: 'Aç',
     share: 'Paylaş', another: 'Başka oyun', shareStars: '{0}/3 yıldız · {1} puan', sharePax: '{0} yolcu taşındı',
     awFirst: 'İlk sefer tamam', awCampaign: '8 seferin hepsi', awAllStars: '24 yıldızın hepsi',
+    rankTitle: 'Kaptanlık Rütbesi', missionsHead: 'Vardiya Görevleri', dailyMission: 'Günlük', weeklyMission: 'Haftalık',
+    missionDoneStamp: 'TAMAM', missionReward: '+{0} XP', missionToastDone: 'Görev Tamamlandı: {0} (+{1} XP)', rankUpToast: 'Rütbe Atladın: {0}!',
+    r1: 'Miço', r2: 'Gemici', r3: 'Serdümen', r4: 'Lostromo', r5: 'Vardiya Zabiti', r6: 'İkinci Kaptan', r7: 'Süvari Kaptan', r8: 'Boğaz Başkaptanı',
+    m_master_docks_t: '{0} usta yanaşma yap', m_master_docks_d: 'İskelelere nazik ve paralel yanaşarak {0} usta yanaşma gerçekleştir.',
+    m_night_nohull_t: 'Hasarsız gece seferi', m_night_nohull_d: 'Gece seferini gövde hasarı almadan tamamla.',
+    m_pax_t: '{0} yolcu taşı', m_pax_d: 'Seferler boyunca toplam {0} yolcuyu iskelelerine ulaştır.',
+    m_clean_shift_t: '{0} hasarsız sefer tamamla', m_clean_shift_d: 'Gövde hasarı almadan {0} seferi başarıyla bitir.',
+    m_punctual_shift_t: '{0} dakik sefer (%85+)', m_punctual_shift_d: 'En az %85 dakiklik ile {0} sefer tamamla.',
+    m_stars_earned_t: '{0} yıldız topla', m_stars_earned_d: 'Tamamlanan seferlerden toplam {0} yıldız kazan.',
+    m_docks_t: '{0} iskeleye yanaş', m_docks_d: 'Boğaz iskelelerine toplam {0} kez başarıyla yanaş.',
   },
   en: {
     subtitle: 'Captain a city ferry on the Bosphorus: dock at the piers, carry passengers, keep the timetable.',
@@ -1356,6 +1470,16 @@ const STR = {
     dailyLine: 'Daily streak: {0} · best: {1}', dailyDone: 'Today\'s shift is done', a11y: 'Accessibility', a11yOpen: 'Open',
     share: 'Share', another: 'Another game', shareStars: '{0}/3 stars · {1} points', sharePax: '{0} passengers carried',
     awFirst: 'First shift cleared', awCampaign: 'All 8 shifts', awAllStars: 'All 24 stars',
+    rankTitle: 'Captain Rank', missionsHead: 'Shift Missions', dailyMission: 'Daily', weeklyMission: 'Weekly',
+    missionDoneStamp: 'DONE', missionReward: '+{0} XP', missionToastDone: 'Mission Complete: {0} (+{1} XP)', rankUpToast: 'Rank Up: {0}!',
+    r1: 'Deck Apprentice', r2: 'Sailor', r3: 'Helmsman', r4: 'Boatswain', r5: 'Watch Officer', r6: 'Chief Mate', r7: 'Master Captain', r8: 'Senior Bosphorus Pilot',
+    m_master_docks_t: '{0} masterful dockings', m_master_docks_d: 'Execute {0} masterful dockings with gentle, parallel approaches.',
+    m_night_nohull_t: 'Night shift without damage', m_night_nohull_d: 'Complete a night shift without any hull damage.',
+    m_pax_t: 'Carry {0} passengers', m_pax_d: 'Deliver a total of {0} passengers to their destinations.',
+    m_clean_shift_t: 'Complete {0} undamaged shifts', m_clean_shift_d: 'Finish {0} shifts with zero hull damage.',
+    m_punctual_shift_t: '{0} punctual shifts (85%+)', m_punctual_shift_d: 'Complete {0} shifts with at least 85% punctuality.',
+    m_stars_earned_t: 'Earn {0} stars', m_stars_earned_d: 'Collect a total of {0} stars from completed shifts.',
+    m_docks_t: 'Dock at {0} piers', m_docks_d: 'Successfully dock at Bosphorus piers {0} times.',
   },
 };
 let LANG = 'tr';
@@ -1407,7 +1531,7 @@ function setCompact(on) {
   requestAnimationFrame(updateBarH);   // the next-stop card sits under the bar
 }
 function lsGet(k) { try { return JSON.parse(localStorage.getItem(k)); } catch (e) { return null; } }
-function lsSet(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) { /* ignore */ } }
+function lsSet(k, v) { if (FLAG.nosave) return; try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) { /* ignore */ } }
 (function loadSettings() {
   const s = lsGet(KEY_SET);
   if (s && typeof s === 'object') for (const k of Object.keys(settings)) if (s[k] !== undefined) settings[k] = s[k];
@@ -1421,6 +1545,232 @@ const SAVED = lsGet(KEY_SAVE) || {};
 const best = Object.assign({ total: 0, stars: [0, 0, 0, 0, 0, 0, 0, 0], score: [0, 0, 0, 0, 0, 0, 0, 0], endless: 0, endlessPax: 0 }, SAVED.best || {});
 let runSave = SAVED.run || null;
 const writeSave = () => lsSet(KEY_SAVE, { best, run: runSave });
+
+// ---------------------------------------------------------------- Captain Rank & Date-Seeded Missions (bogaz-vapuru.missions)
+const KEY_MISSIONS = 'bogaz-vapuru.missions';
+const RANKS = [
+  { level: 1, xpReq: 0,    titleKey: 'r1' },
+  { level: 2, xpReq: 100,  titleKey: 'r2' },
+  { level: 3, xpReq: 250,  titleKey: 'r3' },
+  { level: 4, xpReq: 450,  titleKey: 'r4' },
+  { level: 5, xpReq: 700,  titleKey: 'r5' },
+  { level: 6, xpReq: 1050, titleKey: 'r6' },
+  { level: 7, xpReq: 1500, titleKey: 'r7' },
+  { level: 8, xpReq: 2100, titleKey: 'r8' },
+];
+
+function getCaptainRank(xp = 0) {
+  let cur = RANKS[0], next = null;
+  for (let i = 0; i < RANKS.length; i++) {
+    if (xp >= RANKS[i].xpReq) {
+      cur = RANKS[i];
+      next = RANKS[i + 1] || null;
+    } else break;
+  }
+  const curXP = xp - cur.xpReq;
+  const neededXP = next ? (next.xpReq - cur.xpReq) : 0;
+  const pct = next ? clamp(curXP / Math.max(1, neededXP), 0, 1) : 1;
+  return {
+    level: cur.level,
+    titleKey: cur.titleKey,
+    title: t(cur.titleKey),
+    xp,
+    curXP,
+    neededXP,
+    pct,
+    isMax: !next,
+  };
+}
+
+const DAILY_POOL = [
+  { id: 'd_master_dock', type: 'daily', metric: 'master_docks', target: 3, reward: 50, titleKey: 'm_master_docks_t', descKey: 'm_master_docks_d' },
+  { id: 'd_night_nohull', type: 'daily', metric: 'night_nohull', target: 1, reward: 60, titleKey: 'm_night_nohull_t', descKey: 'm_night_nohull_d' },
+  { id: 'd_pax_200', type: 'daily', metric: 'pax', target: 200, reward: 50, titleKey: 'm_pax_t', descKey: 'm_pax_d' },
+  { id: 'd_clean_2', type: 'daily', metric: 'clean_shift', target: 2, reward: 50, titleKey: 'm_clean_shift_t', descKey: 'm_clean_shift_d' },
+  { id: 'd_punct_2', type: 'daily', metric: 'punctual_shift', target: 2, reward: 55, titleKey: 'm_punctual_shift_t', descKey: 'm_punctual_shift_d' },
+  { id: 'd_stars_5', type: 'daily', metric: 'stars_earned', target: 5, reward: 55, titleKey: 'm_stars_earned_t', descKey: 'm_stars_earned_d' },
+  { id: 'd_dock_5', type: 'daily', metric: 'docks', target: 5, reward: 45, titleKey: 'm_docks_t', descKey: 'm_docks_d' },
+];
+
+const WEEKLY_POOL = [
+  { id: 'w_pax_300', type: 'weekly', metric: 'pax', target: 300, reward: 120, titleKey: 'm_pax_t', descKey: 'm_pax_d' },
+  { id: 'w_master_8', type: 'weekly', metric: 'master_docks', target: 8, reward: 140, titleKey: 'm_master_docks_t', descKey: 'm_master_docks_d' },
+  { id: 'w_clean_4', type: 'weekly', metric: 'clean_shift', target: 4, reward: 130, titleKey: 'm_clean_shift_t', descKey: 'm_clean_shift_d' },
+  { id: 'w_stars_12', type: 'weekly', metric: 'stars_earned', target: 12, reward: 150, titleKey: 'm_stars_earned_t', descKey: 'm_stars_earned_d' },
+];
+
+function fnv1a(str) {
+  let h = 0x811c9dc5;
+  for (let i = 0; i < str.length; i++) {
+    h ^= str.charCodeAt(i);
+    h = Math.imul(h, 0x01000193) >>> 0;
+  }
+  return h >>> 0;
+}
+
+function getDayKey(d = new Date()) {
+  const q = Q.get('d');
+  if (/^\d{8}$/.test(q || '')) return +q;
+  return d.getUTCFullYear() * 10000 + (d.getUTCMonth() + 1) * 100 + d.getUTCDate();
+}
+
+function getWeekKey(d = new Date()) {
+  const q = Q.get('d');
+  const dt = /^\d{8}$/.test(q || '')
+    ? new Date(Date.UTC(+q.slice(0, 4), +q.slice(4, 6) - 1, +q.slice(6, 8)))
+    : new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()));
+  const dayNum = dt.getUTCDay() || 7;
+  dt.setUTCDate(dt.getUTCDate() + 4 - dayNum);
+  const yearStart = new Date(Date.UTC(dt.getUTCFullYear(), 0, 1));
+  const weekNo = Math.ceil((((dt - yearStart) / 86400000) + 1) / 7);
+  return dt.getUTCFullYear() * 100 + weekNo;
+}
+
+function getActiveMissions() {
+  const dayKey = getDayKey();
+  const weekKey = getWeekKey();
+  const rngD = mulberry(fnv1a('bv-missions-d:' + dayKey));
+  const i1 = Math.floor(rngD() * DAILY_POOL.length);
+  let i2 = Math.floor(rngD() * DAILY_POOL.length);
+  if (i2 === i1) i2 = (i1 + 1) % DAILY_POOL.length;
+  const rngW = mulberry(fnv1a('bv-missions-w:' + weekKey));
+  const iW = Math.floor(rngW() * WEEKLY_POOL.length);
+  return [DAILY_POOL[i1], DAILY_POOL[i2], WEEKLY_POOL[iW]];
+}
+
+let missionsState = null;
+
+function loadMissionsState() {
+  const dayKey = getDayKey();
+  const weekKey = getWeekKey();
+  const raw = lsGet(KEY_MISSIONS) || {};
+  missionsState = {
+    xp: typeof raw.xp === 'number' ? raw.xp : 0,
+    dayKey: raw.dayKey || dayKey,
+    weekKey: raw.weekKey || weekKey,
+    progress: (raw.progress && typeof raw.progress === 'object') ? raw.progress : {},
+    claimed: (raw.claimed && typeof raw.claimed === 'object') ? raw.claimed : {},
+  };
+  if (missionsState.dayKey !== dayKey) {
+    missionsState.dayKey = dayKey;
+    for (const m of DAILY_POOL) delete missionsState.progress[m.id];
+  }
+  if (missionsState.weekKey !== weekKey) {
+    missionsState.weekKey = weekKey;
+    for (const m of WEEKLY_POOL) delete missionsState.progress[m.id];
+  }
+  saveMissionsState();
+  return missionsState;
+}
+
+function saveMissionsState() {
+  if (FLAG.nosave || !missionsState) return;
+  lsSet(KEY_MISSIONS, missionsState);
+}
+
+function recordMissionProgress(metric, amount = 1) {
+  if (!missionsState) loadMissionsState();
+  const active = getActiveMissions();
+  let changed = false;
+  for (const m of active) {
+    if (m.metric !== metric) continue;
+    const claimKey = m.id + ':' + (m.type === 'daily' ? missionsState.dayKey : missionsState.weekKey);
+    if (missionsState.claimed[claimKey]) continue;
+    const cur = missionsState.progress[m.id] || 0;
+    const next = Math.min(m.target, cur + amount);
+    if (next !== cur) {
+      missionsState.progress[m.id] = next;
+      changed = true;
+      if (next >= m.target) {
+        missionsState.claimed[claimKey] = true;
+        addCaptainXP(m.reward, true);
+        const title = t(m.titleKey, m.target);
+        toast(t('missionToastDone', title, m.reward), 'good', 4000);
+        if (AUD && AUD.ready && AUD.star) AUD.star();
+      }
+    }
+  }
+  if (changed) {
+    saveMissionsState();
+    renderMissionsUI();
+  }
+}
+
+function addCaptainXP(amount, isMission = false) {
+  if (!missionsState) loadMissionsState();
+  const prevRank = getCaptainRank(missionsState.xp);
+  missionsState.xp += amount;
+  const newRank = getCaptainRank(missionsState.xp);
+  if (newRank.level > prevRank.level) {
+    const rankTitle = t(newRank.titleKey);
+    toast(t('rankUpToast', rankTitle), 'good', 5000);
+    if (AUD && AUD.ready && AUD.star) AUD.star();
+  }
+  saveMissionsState();
+  renderMissionsUI();
+}
+
+const MONTHS_TR = ['Oca', 'Şub', 'Mar', 'Nis', 'May', 'Haz', 'Tem', 'Ağu', 'Eyl', 'Eki', 'Kas', 'Ara'];
+const MONTHS_EN = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+function formatMissionDate(dayKey, weekKey) {
+  const d = dayKey % 100, m = (Math.floor(dayKey / 100) % 100) - 1, w = weekKey % 100;
+  if (LANG === 'tr') return d + ' ' + (MONTHS_TR[m] || '') + ' · Hafta ' + w;
+  return (MONTHS_EN[m] || '') + ' ' + d + ' · Week ' + w;
+}
+
+function renderMissionsUI() {
+  const mList = el.missionsList || document.getElementById('missionsList');
+  if (!mList) return;
+  if (!missionsState) loadMissionsState();
+  const rank = getCaptainRank(missionsState.xp);
+  const rName = el.rankName || document.getElementById('rankName');
+  if (rName) rName.textContent = rank.title;
+  const rXp = el.rankXpTxt || document.getElementById('rankXpTxt');
+  if (rXp) {
+    rXp.textContent = rank.isMax ? rank.xp + ' XP (MAX)' : rank.curXP + ' / ' + rank.neededXP + ' XP';
+  }
+  const rBar = el.rankBar || document.getElementById('rankBar');
+  if (rBar && rBar.firstChild) {
+    rBar.firstChild.style.width = (rank.pct * 100).toFixed(1) + '%';
+  }
+  const mDate = el.missionsDateTag || document.getElementById('missionsDateTag');
+  if (mDate) {
+    mDate.textContent = formatMissionDate(missionsState.dayKey, missionsState.weekKey);
+  }
+
+  const active = getActiveMissions();
+  mList.innerHTML = '';
+  for (const m of active) {
+    const claimKey = m.id + ':' + (m.type === 'daily' ? missionsState.dayKey : missionsState.weekKey);
+    const isDone = !!missionsState.claimed[claimKey];
+    const cur = isDone ? m.target : (missionsState.progress[m.id] || 0);
+    const pct = clamp(cur / m.target, 0, 1) * 100;
+    const title = t(m.titleKey, m.target);
+    const typeLabel = t(m.type === 'daily' ? 'dailyMission' : 'weeklyMission');
+
+    const row = document.createElement('div');
+    row.className = 'mission-item' + (isDone ? ' done' : '');
+    row.setAttribute('role', 'article');
+    row.setAttribute('aria-label', typeLabel + ': ' + title + ' (' + cur + '/' + m.target + ')');
+
+    row.innerHTML =
+      '<span class="mission-tag ' + m.type + '">' + typeLabel + '</span>' +
+      '<div class="mission-body">' +
+        '<div class="mission-title-row">' +
+          '<span class="mission-title" title="' + title + '">' + title + '</span>' +
+          '<b class="mission-count">' + cur + '/' + m.target + '</b>' +
+        '</div>' +
+        '<div class="bar mission-bar" role="progressbar" aria-valuenow="' + Math.round(pct) + '" aria-valuemin="0" aria-valuemax="100">' +
+          '<i style="width:' + pct.toFixed(1) + '%"></i>' +
+        '</div>' +
+      '</div>' +
+      '<span class="mission-reward' + (isDone ? ' done' : '') + '">' +
+        (isDone ? t('missionDoneStamp') : t('missionReward', m.reward)) +
+      '</span>';
+
+    mList.appendChild(row);
+  }
+}
 
 // ---------------------------------------------------------------- audio (everything synthesised with Web Audio)
 settings.musicOn = settings.musicOn !== false; settings.sfxOn = settings.sfxOn !== false; settings.mute = !!settings.mute;
@@ -2174,6 +2524,8 @@ function dockAt(P, idx, initial = false) {
   if (!initial) {
     const dq = clamp(1 - DOCK.spd / 1.2, 0, 1) * 0.6 + clamp(1 - Math.abs(DOCK.ang) / 0.36, 0, 1) * 0.4, db = Math.round(dq * 30);
     SIM.dockBonus = (SIM.dockBonus || 0) + db; if (db > 0) { floater('+' + db, false); toast(t(dq > 0.8 ? 'toastDockPro' : 'toastDockOk', db), dq > 0.8 ? 'good' : 'info'); }
+    if (dq > 0.8) recordMissionProgress('master_docks', 1);
+    recordMissionProgress('docks', 1);
     if (SIM.fogRun) { const fb = fogDockBonus(dq); SIM.dockBonus += fb; SIM.fogBonus += fb; FOG.docks++; toast(t('toastFogDock', fb), 'good'); }
     s.late = Math.max(0, SIM.t - s.arr); s.punct = s.late <= 20 ? SCORE_K.punct : Math.max(0, SCORE_K.punct - (s.late - 20) * 1.0); s.done = true;
     SIM.punct.push(s.punct);
@@ -2182,6 +2534,7 @@ function dockAt(P, idx, initial = false) {
   }
   // queue: everyone bound for this stop gets off, then the waiting crowd boards (if there is a next stop)
   const off = SIM.aboard[idx] || 0; delete SIM.aboard[idx]; SIM.aboardN -= off; SIM.delivered += off;
+  if (off > 0) recordMissionProgress('pax', off);
   for (let i = 0; i < off; i++) SIM.boardQ.push({ dir: 'off' });
   SIM.offN = off;
   if (idx < SIM.stops.length - 1) {
@@ -3325,7 +3678,7 @@ function setCamMode(m) {
 const el = {};
 for (const id of ['hud', 'topbar', 'stShift', 'stClock', 'stPlan', 'stPax', 'comfBar', 'hullBar', 'stStars', 'bPanel', 'bCamH', 'bPause', 'bSound', 'bLang', 'toasts', 'nextCard', 'ncName', 'ncL2', 'ncL3', 'camLbl', 'minimap', 'lvThr', 'lvThrS', 'lvRud', 'speedo', 'spArc', 'spVal', 'spUnit', 'dock', 'dkDist', 'dkSpd', 'dkAng', 'dkHint', 'floaters', 'touch', 'tWheel', 'tWheelSvg', 'tThr', 'tHorn', 'tCam',
   'sTitle', 'sIntro', 'sPause', 'sSettings', 'sEnd', 'bPlay', 'playTxt', 'bCont', 'bEndless', 'bSettingsT', 'bLangT', 'langTxt', 'bestLine', 'cmap', 'inTitle', 'inDesc', 'inCond', 'inTT', 'inTarget', 'bStart', 'bFog', 'fogTxt', 'bIntroBack',
-  'bResume', 'bRestart', 'bSettingsP', 'bMenuP', 'rMaster', 'rMusic', 'rSfx', 'oMaster', 'oMusic', 'oSfx', 'bTR', 'bEN', 'bQLow', 'bQHigh', 'bFull', 'bSetBack', 'enTitle', 'enSub', 'enStars', 'enStats', 'enRec', 'bNext', 'nextTxt', 'bRetry', 'bMenuE', 'dbg', 'hurt', 'bDaily', 'dailyLine', 'bA11y', 'bShare', 'aOther', 'enDaily']) el[id] = document.getElementById(id);
+  'bResume', 'bRestart', 'bSettingsP', 'bMenuP', 'rMaster', 'rMusic', 'rSfx', 'oMaster', 'oMusic', 'oSfx', 'bTR', 'bEN', 'bQLow', 'bQHigh', 'bFull', 'bSetBack', 'enTitle', 'enSub', 'enStars', 'enStats', 'enRec', 'bNext', 'nextTxt', 'bRetry', 'bMenuE', 'dbg', 'hurt', 'bDaily', 'dailyLine', 'bA11y', 'bShare', 'aOther', 'enDaily', 'rankName', 'rankXpTxt', 'rankBar', 'missionsDateTag', 'missionsList']) el[id] = document.getElementById(id);
 function toast(msg, kind = 'info', ms = 2600) {
   const d = document.createElement('div'); d.className = 'toast ' + kind; d.textContent = msg; el.toasts.appendChild(d);
   while (el.toasts.children.length > 4) el.toasts.firstChild.remove();
@@ -3346,6 +3699,7 @@ function applyLang() {
   el.bTR.classList.toggle('sel', LANG === 'tr'); el.bEN.classList.toggle('sel', LANG === 'en');
   updateBestLine(); if (G.state === 'intro') renderIntro(); if (G.state === 'end' && G.lastResult) renderEnd(G.lastResult);
   el.camLbl.textContent = t(['camChase', 'camBridge', 'camTop'][camMode]);
+  renderMissionsUI();
   setTimeout(updateBarH, 0);
 }
 function updateBestLine() {
@@ -3667,11 +4021,22 @@ function beginShift() {
 function pauseGame() { if (G.state !== 'play') return; G.state = 'paused'; show('sPause'); el.bResume.focus(); AUD.hornStop(); }
 function resumeGame() { if (G.state !== 'paused') return; G.state = 'play'; show(null); lastT = performance.now(); }
 function retryCurrent() { G.retries++; beginShift(); }
-function goMenu() { G.state = 'title'; SIM.shift = null; SIM.stops = []; show('sTitle'); showcase(); updateBestLine(); el.bPlay.focus(); }
+function goMenu() { G.state = 'title'; SIM.shift = null; SIM.stops = []; show('sTitle'); showcase(); updateBestLine(); renderMissionsUI(); el.bPlay.focus(); }
 function finishShiftUI(res) {
   G.state = 'end';
   const idx = G.shiftIdx;
   let rec = false;
+  if (res.stars > 0) {
+    recordMissionProgress('stars_earned', res.stars);
+    if (res.hull === 0) {
+      recordMissionProgress('clean_shift', 1);
+      const isNight = SIM.shift && (sunElevation(SIM.shift.hour) < -0.08 || SIM.shift.hour >= 20 || SIM.shift.hour <= 5 || SIM.shift.id === 5);
+      if (isNight) recordMissionProgress('night_nohull', 1);
+    }
+    if (res.punct >= 85) recordMissionProgress('punctual_shift', 1);
+    if (res.comfort >= 90) recordMissionProgress('high_comfort', 1);
+    addCaptainXP(res.stars * 15, false);
+  }
   if (G.mode === 'campaign') {
     if (res.stars > best.stars[idx]) { best.stars[idx] = res.stars; rec = true; }
     if (res.score > best.score[idx]) { best.score[idx] = res.score; rec = true; }
@@ -3996,6 +4361,8 @@ window.vapur = {
   setCam: setCamMode, end: kind => { if (G.state === 'play') endShift(kind || 'clear'); },
   get gpu() { try { const gl = renderer.getContext(), e = gl.getExtension('WEBGL_debug_renderer_info'); return e ? gl.getParameter(e.UNMASKED_RENDERER_WEBGL) : gl.getParameter(gl.RENDERER); } catch (err) { return '?'; } },
   stats() { return { calls: renderer.info.render.calls, tris: renderer.info.render.triangles, fps: fpsS, traffic: SIM.traffic.length }; },
+  get missions() { return missionsState || loadMissionsState(); },
+  get rank() { return getCaptainRank((missionsState || loadMissionsState()).xp); },
 };
 
 // ---------------------------------------------------------------- boot
@@ -4014,7 +4381,7 @@ async function boot() {
   await step(() => { buildScene(); applyQuality(); });
   await step(() => { buildMinimapBase(); });
   G.state = 'title'; el.bPlay.disabled = false; el.playTxt.setAttribute('data-i', 'play'); el.playTxt.textContent = t('play'); window.__vapurReady = true; if (!lsGet(KEY_SET)) saveSettings();
-  showcase(); applyLang(); updateBestLine();
+  showcase(); applyLang(); updateBestLine(); renderMissionsUI();
   if (FLAG.auto || SIM_PRE > 0) {
     if (Q.get('mode') === 'endless') startEndless(); else if (Q.get('mode') === 'daily' && window.Arena) startDaily(); else startCampaign(false);
     beginShift();
