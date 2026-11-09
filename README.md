@@ -58,7 +58,7 @@
 | 1 | First crossing | Eminönü, Karaköy, Üsküdar: learn to dock |
 | 2 | Beşiktaş line | Longer legs, more traffic |
 | 3 | Evening run | Five piers while the sun sets, lights come on |
-| 4 | Foggy morning | Fog: short visibility, trust the minimap |
+| 4 | Foggy morning | Fog run (Sis Seferi): blind radar, navigate by horn echoes and pier lanterns |
 | 5 | Night shift | Night, pier lanterns and bridge lights |
 | 6 | Strong current | Current 1.0: the ferry drifts mid-strait |
 | 7 | Storm | Wind, waves, rain, thunder: slow down for comfort |
@@ -67,13 +67,26 @@
 
 </details>
 
+### Fog run (Sis Seferi)
+
+A foggy-day mode where you navigate by sound and light instead of the radar.
+
+- **When:** campaign shift 4 and the fog days of endless mode (shifts with `fog >= 1` in the shift table) are always fog runs. For any other shift, turn on **Fog run** on the shift screen before you start. `?fog` forces it on every shift.
+- **Fog:** visibility ends at about 150 m (three.js fog 8 to 190 m), so piers and other boats fade out.
+- **Blind radar:** the minimap shows no route, no traffic and no pier labels. Only the marks left by your horn's echoes and by other boats' fog horns show up, for a few seconds.
+- **Fog horn and echo (`Space` or the horn button):** each blast echoes back from every pier within 700 m (the three nearest answer, with a pier bell) and from the nearest shore on each side. Each echo comes back after the time sound needs to get there and back (2 × distance ÷ 343 m/s, so 100 m is about 0.6 s and 300 m about 1.75 s). In stereo it is panned towards its source. A sound front spreads out on the radar at the speed of sound.
+- **Lights through the fog:** pier lanterns and the Maiden's Tower light are drawn without fog. The next pier burns amber and flashes every 2 s, and the tower flashes white every 3 s.
+- **Fair traffic:** a boat within about 110 m, or one on a collision course within 30 s, sounds its fog horn from its own direction before contact. A tanker's horn is low, a ferry's is in the middle and a fishing boat's is high.
+- **Bonus:** every docking in fog adds 50 to 100 points, depending on how slowly and how parallel you dock. It is listed as "Fog bonus" on the shift report.
+- **`?auto`:** the bot steers by the game's internal state as before, and sounds the fog horn every 15 s.
+
 ### Controls
 
 | Action | Mouse / touch | Keyboard |
 |---|---|---|
 | Throttle ahead / astern (sticky telegraph) | Right lever (up = ahead, down = astern) | `W` / `S` or `Up` / `Down` |
 | Rudder (returns to midships) | Wheel on the left | `A` / `D` or `Left` / `Right` |
-| Horn | Horn button | `Space` |
+| Horn (fog horn with echoes on a fog run) | Horn button | `Space` |
 | Camera (chase / bridge / top) | Camera button | `C` |
 | Orbit the chase camera | Drag on the scene, wheel to zoom | Drag / scroll wheel |
 | Pause | Pause button | `P` / `Esc` |
@@ -99,6 +112,7 @@
 | `?mode=endless` | With `?auto` or `?sim`, start in endless mode |
 | `?seed=N` | Gameplay random seed (default 11) |
 | `?touch` | Force the touch controls |
+| `?fog` | Every shift is a fog run (Sis Seferi) |
 | `?cal` | With `?auto`: advance to the next shift whatever the result (used to calibrate the targets) |
 
 `window.vapur` exposes the live state (`state`, `shift`, `time`, `score`, `target`, `aboard`, `delivered`, `hull`, `comfort`, `finishedShifts`, `errors`). Example: `index.html?auto&debug&sim=3000` plays most of the campaign in a few seconds without rendering.

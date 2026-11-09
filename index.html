@@ -605,6 +605,8 @@ input[type=range] { width: 100%; height: 44px; accent-color: var(--c-teal); back
 .seg { display: flex; gap: 6px; grid-column: 2/4; }
 .seg .btn { flex: 1; padding: 8px 10px; min-height: 44px; }
 .seg .btn.sel { background: var(--c-gold); color: var(--c-deep); border-color: var(--c-deep); font-weight: 800; }
+#bFog.sel { background: var(--c-gold); color: var(--c-deep); border-color: var(--c-deep); font-weight: 800; }
+#bFog[disabled].sel { opacity: 0.85; }
 
 #dbg { position: fixed; left: 8px; top: 120px; z-index: 50; font: 12px/1.35 monospace; color: #9fffa8; background: rgba(0,0,0,.6); padding: 6px 8px; border-radius: 6px; white-space: pre; pointer-events: none; display: none; max-width: 70vw; }
 #vignette { position: fixed; inset: 0; pointer-events: none; z-index: 4; background: radial-gradient(ellipse at center, transparent 58%, rgba(15,46,51,.35)); opacity: .85; }
@@ -800,6 +802,7 @@ input[type=range] { width: 100%; height: 44px; accent-color: var(--c-teal); back
       <div class="timetable" id="inTT"></div>
       <div class="kv" id="inTarget"></div>
       <div class="col"><button class="btn primary" id="bStart"><svg class="ic fill"><use href="#i-play"/></svg><span data-i="startShift"></span></button>
+      <button class="btn" id="bFog" aria-pressed="false"><svg class="ic"><use href="#i-horn"/></svg><span id="fogTxt"></span></button>
       <button class="btn" id="bIntroBack"><svg class="ic"><use href="#i-home"/></svg><span data-i="menu"></span></button></div>
     </div>
   </section>
@@ -884,7 +887,7 @@ function mulberry(seed) {
   };
 }
 const Q = new URLSearchParams(location.search);
-const FLAG = { auto: Q.has('auto'), debug: Q.has('debug'), low: Q.has('low'), noaudio: Q.has('noaudio'), touch: Q.has('touch'), noassets: Q.has('noassets'), cal: Q.has('cal') };
+const FLAG = { fog: Q.has('fog'), auto: Q.has('auto'), debug: Q.has('debug'), low: Q.has('low'), noaudio: Q.has('noaudio'), touch: Q.has('touch'), noassets: Q.has('noassets'), cal: Q.has('cal') };
 const SIM_PRE = parseFloat(Q.get('sim')) || 0;
 const SEED = parseInt(Q.get('seed') || '11', 10);
 const START_SHIFT = parseInt(Q.get('shift') || '0', 10);
@@ -917,7 +920,10 @@ const STR = {
     d1: 'Eminönü, Karaköy ve Üsküdar arasında kısa bir hat. Yanaşmayı öğren: yavaş, paralel, nazik.',
     d2: 'Beşiktaş\'a uzanan hat. Daha fazla trafik, daha uzun yol; tarifeye dikkat.',
     d3: 'Güneş batarken beş iskele. Akşam kalabalığı, hava kararınca ışıklar yanıyor.',
-    d4: 'Sabah sisi Boğaz\'ı örtmüş. Görüş kısa; düdük çal, mini haritaya güven.',
+    d4: 'Sabah sisi Boğaz\'ı örtmüş: bugün sis seferi. Radar kör; düdük çal, yankıyı dinle, iskele fenerlerini izle.',
+    fogOn: 'Sis seferi: açık', fogOff: 'Sis seferi: kapalı', c_fogrun: 'Sis seferi · radar kör',
+    fogDesc: 'Sis seferi: yoğun sis, radar kör. Boşluk ile düdük çal: yankı iskeleden (çan sesiyle) ve kıyıdan döner; ne kadar geç dönerse o kadar uzak, sesin yönü kulaklıkta sağdan ya da soldan gelir. İskele fenerleri sisi deler, sıradaki iskele kehribar renkte yanıp söner. Diğer tekneler yaklaşınca düdük çalar. Siste her yanaşma prim kazandırır.',
+    toastFogRun: 'Sis seferi! Radar kör. Boşluk ile düdük çal, yankıyı dinle.', toastFogDock: 'Siste yanaşma primi +{0}', sFogBonus: 'Sis primi', mmFog: 'SİS · RADAR KÖR',
     d5: 'Gece seferi. İskele fenerleri ve köprü ışıkları yol gösterir; tankerler karanlıkta gelir.',
     d6: 'Karadeniz\'den güçlü akıntı. Ortada vapur sürüklenir; yanaşırken akıntıya karşı dur.',
     d7: 'Fırtına: rüzgâr, dalga, yağmur. Yolcuların konforu için hızı düşür.',
@@ -956,7 +962,10 @@ const STR = {
     d1: 'A short line between Eminönü, Karaköy and Üsküdar. Learn to dock: slow, parallel, gentle.',
     d2: 'The line stretches to Beşiktaş. More traffic, longer legs; mind the timetable.',
     d3: 'Five piers while the sun sets. Evening crowds, and the lights come on at dusk.',
-    d4: 'Morning fog covers the strait. Short visibility; sound the horn, trust the minimap.',
+    d4: 'Morning fog covers the strait: today is a fog run. The radar is blind; sound the horn, listen for the echo, follow the pier lanterns.',
+    fogOn: 'Fog run: on', fogOff: 'Fog run: off', c_fogrun: 'Fog run · radar blind',
+    fogDesc: 'Fog run: dense fog, the radar is blind. Sound the horn with Space: the echo comes back from the piers (with a bell) and from the shore; the later it returns, the farther away, and in headphones it comes from the left or the right. Pier lanterns shine through the fog, the next pier blinks amber. Other boats sound their horns when they get close. Every docking in fog earns a bonus.',
+    toastFogRun: 'Fog run! The radar is blind. Sound the horn with Space and listen for the echo.', toastFogDock: 'Fog docking bonus +{0}', sFogBonus: 'Fog bonus', mmFog: 'FOG · RADAR BLIND',
     d5: 'Night shift. Pier lanterns and bridge lights guide you; tankers come out of the dark.',
     d6: 'A strong current from the Black Sea. The ferry drifts mid-strait; hold against it when docking.',
     d7: 'Storm: wind, waves, rain. Slow down for the passengers\' comfort.',
@@ -1117,6 +1126,11 @@ const AUD = (() => {
     f.type = type; f.frequency.value = freq; f.Q.value = q; s.connect(f); f.connect(g); g.connect(bus);
     env(g, t0, 0.004, dur, vol); s.start(t0, Math.random()); s.stop(t0 + dur + 0.05);
   }
+  /** a stereo panner into the effects bus (plain effects bus where StereoPannerNode is missing) */
+  function panBus(pan) {
+    if (!ctx.createStereoPanner) return sfxBus;
+    const p = ctx.createStereoPanner(); p.pan.value = clamp(pan, -1, 1); p.connect(sfxBus); return p;
+  }
   function sched() {
     if (!ctx || ctx.state !== 'running') return;
     if (nextT < ctx.currentTime) nextT = ctx.currentTime + 0.05; // prevent catchup burst after hitch
@@ -1209,6 +1223,14 @@ const AUD = (() => {
     hornFar(vol = 0.08, f = 95) { // another ship's horn, distant
       if (!ctx) return; const t0 = ctx.currentTime; tone(sfxBus, 'sawtooth', f, f * 0.97, t0, 1.4, vol, 700); tone(sfxBus, 'sawtooth', f * 1.26, f * 1.22, t0, 1.4, vol * 0.7, 700);
     },
+    /** Sis seferi: the echo of our horn, delay s from now, panned to the source (-1 left .. 1 right); piers answer with a bell */
+    echo(delay, vol, pan, lpf, bell) {
+      if (!ctx) return; const t0 = ctx.currentTime + Math.max(0, delay), out = panBus(pan);
+      tone(out, 'sawtooth', 110, 106, t0, 0.75, vol, lpf); tone(out, 'sawtooth', 138.6, 134, t0, 0.75, vol * 0.7, lpf);
+      if (bell) { tone(out, 'sine', 1320, 1312, t0 + 0.06, 0.8, vol * 0.8); tone(out, 'sine', 1980, 1966, t0 + 0.06, 0.45, vol * 0.35); }
+    },
+    /** another boat's fog horn from a direction (pan), louder when closer */
+    hornAt(pan, vol, f, dur) { if (!ctx) return; const t0 = ctx.currentTime, out = panBus(pan); tone(out, 'sawtooth', f, f * 0.97, t0, dur, vol, 800); tone(out, 'sawtooth', f * 1.26, f * 1.22, t0, dur, vol * 0.7, 800); },
     bell() { if (!ctx) return; if (smp(['bell'])) return; const t0 = ctx.currentTime; for (let k = 0; k < 3; k++) { const d = t0 + k * 0.42; tone(sfxBus, 'sine', 1320, 1310, d, 0.9, 0.16); tone(sfxBus, 'sine', 1980, 1960, d, 0.5, 0.07); tone(sfxBus, 'triangle', 660, 655, d, 0.7, 0.05); noise(sfxBus, d, 0.03, 0.1, 4000, 1); } },
     gull() { if (!ctx) return; const t0 = ctx.currentTime; const n = 1 + (Math.random() * 3 | 0); for (let k = 0; k < n; k++) { const d = t0 + k * 0.16, f = 1500 + Math.random() * 400; tone(sfxBus, 'sawtooth', f, f * 1.5, d, 0.09, 0.04, 2600); tone(sfxBus, 'sawtooth', f * 1.5, f * 0.9, d + 0.08, 0.1, 0.03, 2600); } },
     bump(v = 1) { if (!ctx) return; const t0 = ctx.currentTime; if (!smp(['bump'], v)) { tone(sfxBus, 'sine', 90, 35, t0, 0.35, 0.5 * v); noise(sfxBus, t0, 0.25, 0.3 * v, 500, 0.6); } tone(sfxBus, 'triangle', 180, 60, t0 + 0.02, 0.4, 0.15 * v); },
@@ -1746,7 +1768,7 @@ function startShiftSim(sh) {
   SIM.shift = sh; SIM.t = 0; SIM.hour = sh.hour; SIM.cur = sh.current; SIM.fog = sh.fog; SIM.storm = sh.storm; SIM.rain = 0; SIM.swell = sh.storm ? 1 : 0.2;
   SIM.wind.a = sh.wind; SIM.wind.dir = rr(0, TAU); SIM.wind.gust = 0;
   SIM.aboard = {}; SIM.aboardN = 0; SIM.delivered = 0; SIM.lost = 0; SIM.comfort = 100; SIM.punct = []; SIM.score = 0; SIM.stopIdx = 1;
-  SIM.docked = null; SIM.dockT = 0; SIM.dockOk = 0; SIM.boardQ = []; SIM.boardDone = false; SIM.ropes = false; SIM.depAllowed = false; SIM.walkers = []; SIM.toasted = {}; SIM.ended = false; SIM.dockBonus = 0;
+  SIM.docked = null; SIM.dockT = 0; SIM.dockOk = 0; SIM.boardQ = []; SIM.boardDone = false; SIM.ropes = false; SIM.depAllowed = false; SIM.walkers = []; SIM.toasted = {}; SIM.ended = false; SIM.dockBonus = 0; SIM.fogRun = false; SIM.fogBonus = 0;
   SIM.lastThrSign = 0; SIM.bumpCd = 0; SIM.heelT = 0; SIM.hornT = 0; SIM.lostT = 0; SIM.wrongT = 0; SIM.thunderT = 20;
   for (const id of Object.keys(PIERS)) { const P = PIERS[id]; P.wait = 0; P.wait0 = 0; P.cap = 90; P.lostToast = false; }
   planShift(sh);
@@ -1780,6 +1802,7 @@ function dockAt(P, idx, initial = false) {
   if (!initial) {
     const dq = clamp(1 - DOCK.spd / 1.2, 0, 1) * 0.6 + clamp(1 - Math.abs(DOCK.ang) / 0.36, 0, 1) * 0.4, db = Math.round(dq * 30);
     SIM.dockBonus = (SIM.dockBonus || 0) + db; if (db > 0) { floater('+' + db, false); toast(t(dq > 0.8 ? 'toastDockPro' : 'toastDockOk', db), dq > 0.8 ? 'good' : 'info'); }
+    if (SIM.fogRun) { const fb = fogDockBonus(dq); SIM.dockBonus += fb; SIM.fogBonus += fb; FOG.docks++; toast(t('toastFogDock', fb), 'good'); }
     s.late = Math.max(0, SIM.t - s.arr); s.punct = s.late <= 20 ? SCORE_K.punct : Math.max(0, SCORE_K.punct - (s.late - 20) * 1.0); s.done = true;
     SIM.punct.push(s.punct);
     AUD.bell(); AUD.rope();
@@ -2074,6 +2097,7 @@ function stepTraffic(dt) {
           // relative velocity along the normal: the other boat moves too
           const bvx = Math.sin(b.hd) * b.v, bvz = Math.cos(b.hd) * b.v;
           const nx = dx / d, nz = dz / d;
+          if (SIM.fogRun && !(b.fogHitT > FOG.clock - 3)) { b.fogHitT = FOG.clock; FOG.hits++; if (FOG.clock - (b.fogCueT ?? -1e9) < 40) FOG.hitsCued++; }   // was it heard first?
           player.vx -= bvx; player.vz -= bvz; impact(nx, nz, pen, b.kind === 'fish' ? 'bump' : 'crash'); player.vx += bvx; player.vz += bvz;
           b.v *= 0.7; if (b.kind === 'fish') { b.x -= nx * pen * 0.5; b.z -= nz * pen * 0.5; }
         }
@@ -2100,17 +2124,76 @@ function stepDocking(dt) {
   // wrong pier reminder: slow and close to another pier
   if (player.speed < 1.5) for (const id of Object.keys(PIERS)) { if (id === ns.id) continue; const Q2 = PIERS[id]; if (hyp(player.x - Q2.bx, player.z - Q2.bz) < 25) { SIM.wrongT += dt; if (SIM.wrongT > 2.5) { SIM.wrongT = -20; toast(t('toastWrongPier', pierName(ns.id)), 'info'); } } }
 }
+// ---------------------------------------------------------------- Sis seferi (fog run): navigate by sound and light
+// On a fog run the radar is blind and the view ends at about 200 m. The horn (Space) is the fog horn: its echo comes back
+// from every pier within ECHO_MAX (with a pier bell) and from the nearest shore on either side, after the time sound takes
+// to get there and back (2 d / 343 m/s), panned towards the source. Each echo also leaves a short-lived mark on the blind
+// radar. Other boats close to the ferry, or on a collision course, sound their fog horns from their direction first.
+// A fog run is: campaign shift 4 and the fog days of endless mode (shift fog >= 1), the "Fog run" button on the shift
+// screen for any other shift, or ?fog.
+const SOUND_V = 343, ECHO_MAX = 700, FOG_DOCK = { base: 50, q: 50 };
+const FOG = { clock: 0, hornPrev: false, blasts: 0, lastBlast: -99, echoes: [], blips: [], cues: 0, hits: 0, hitsCued: 0, docks: 0 };
+const isFogRun = sh => !!sh && (FLAG.fog || sh.fog >= 1 || !!G.fogPick);
+const fogDockBonus = dq => Math.round(FOG_DOCK.base + FOG_DOCK.q * clamp(dq, 0, 1));
+function fogReset() { FOG.clock = 0; FOG.hornPrev = false; FOG.blasts = 0; FOG.lastBlast = -99; FOG.echoes = []; FOG.blips = []; FOG.cues = 0; FOG.hits = 0; FOG.hitsCued = 0; FOG.docks = 0; }
+/** stereo position of a world point heard on the ferry: -1 left .. 1 right of the bow (the cameras look along the bow) */
+function panOf(x, z) { const dx = x - player.x, dz = z - player.z, d = hyp(dx, dz) || 1; return clamp((-dx * Math.cos(player.hd) + dz * Math.sin(player.hd)) / d, -1, 1); }
+/** the echoes a horn blast at (x, z) returns: piers in range, the nearest shore and the nearest shore on the other side */
+function fogEchoes(x, z) {
+  const out = [];
+  const add = (kind, id, sx, sz, d) => out.push({ kind, id, x: sx, z: sz, d, delay: 2 * d / SOUND_V, pan: panOf(sx, sz), gain: clamp(60 / Math.max(d, 1), 0.08, 1) });
+  for (const id of Object.keys(PIERS)) { const P = PIERS[id], d = hyp(P.ex - x, P.ez - z); if (d < ECHO_MAX) add('pier', id, P.ex, P.ez, d); }
+  const hits = [];
+  for (let k = 0; k < 16; k++) {
+    const a = k / 16 * TAU, dx = Math.sin(a), dz = Math.cos(a);
+    for (let r = 4; r < ECHO_MAX; r += 4) if (depth(x + dx * r, z + dz * r) <= 0) { hits.push({ x: x + dx * r, z: z + dz * r, d: r, dx, dz }); break; }
+  }
+  hits.sort((a, b) => a.d - b.d);
+  if (hits.length) { const h0 = hits[0]; add('shore', 'shore', h0.x, h0.z, h0.d); const h1 = hits.find(h => h.dx * h0.dx + h.dz * h0.dz < -0.3); if (h1) add('shore', 'shore', h1.x, h1.z, h1.d); }
+  return out.sort((a, b) => a.d - b.d);
+}
+function fogHornBlast() {
+  const list = fogEchoes(player.x, player.z);
+  FOG.blasts++; FOG.lastBlast = FOG.clock; FOG.echoes = list;
+  let piers = 0;
+  for (const e of list) {
+    if (e.kind === 'pier' && ++piers > 3) continue;   // the three nearest piers answer
+    AUD.echo(e.delay, 0.17 * e.gain, e.pan * 0.9, clamp(950 - e.d, 260, 950), e.kind === 'pier');
+    FOG.blips.push({ x: e.x, z: e.z, kind: e.kind, id: e.id, at: FOG.clock + e.delay, ttl: 7 });
+  }
+}
+function stepFog(dt) {
+  if (!SIM.fogRun) return;
+  FOG.clock += dt;
+  if (input.horn && !FOG.hornPrev) fogHornBlast();
+  FOG.hornPrev = input.horn;
+  for (let i = FOG.blips.length - 1; i >= 0; i--) if (FOG.clock > FOG.blips[i].at + FOG.blips[i].ttl) FOG.blips.splice(i, 1);
+  // fair play: a boat close by, or closing on the ferry, sounds its fog horn from where it is
+  for (const b of SIM.traffic) {
+    if (b.delay > 0) continue;
+    b.fogCd = Math.max(0, (b.fogCd || 0) - dt);
+    if (b.fogCd > 0) continue;
+    const dx = b.x - player.x, dz = b.z - player.z, d = hyp(dx, dz); if (d > 320) continue;
+    const rvx = Math.sin(b.hd) * b.v - player.vx, rvz = Math.cos(b.hd) * b.v - player.vz, rv2 = rvx * rvx + rvz * rvz;
+    const tc = rv2 > 0.05 ? clamp(-(dx * rvx + dz * rvz) / rv2, 0, 30) : 0, cd = hyp(dx + rvx * tc, dz + rvz * tc);
+    if (!((!SIM.docked && d < 110 + b.len / 2) || (tc > 0 && cd < 45 + b.len / 2))) continue;
+    b.fogCd = b.kind === 'fish' ? 6 : 9; b.fogCueT = FOG.clock; FOG.cues++;
+    const f = b.kind === 'tanker' ? 68 : b.kind === 'ferry' ? 104 : 210;
+    AUD.hornAt(panOf(b.x, b.z) * 0.9, clamp(40 / Math.max(d, 20), 0.05, 0.22), f, b.kind === 'fish' ? 0.5 : 1.6);
+    FOG.blips.push({ x: b.x, z: b.z, kind: 'boat', at: FOG.clock + d / SOUND_V, ttl: 4 });
+  }
+}
 // ---------------------------------------------------------------- shift step and end
 function stepSim(dt) {
   if (SIM.ended) return;
   SIM.ff = SIM.docked && SIM.boardDone && !SIM.depAllowed && SIM.stopIdx < SIM.stops.length - 1 ? 8 : 1;
   SIM.t += dt * SIM.ff; SIM.hour = SIM.shift.hour + SIM.t * TS / 3600;
-  stepFerry(dt); stepTraffic(dt); stepDocking(dt); stepBoarding(dt); stepPiers(dt * SIM.ff); stepWalkers(dt);
+  stepFerry(dt); stepTraffic(dt); stepFog(dt); stepDocking(dt); stepBoarding(dt); stepPiers(dt * SIM.ff); stepWalkers(dt);
   // weather drift: storm rain, thunder; fog that thickens a little over the shift
   if (SIM.storm) { SIM.rain += (1 - SIM.rain) * 0.1 * dt; SIM.thunderT -= dt; if (SIM.thunderT <= 0) { SIM.thunderT = rr(14, 40); AUD.thunder(); lightning = 1; } }
   SIM.swell += ((SIM.storm ? 1 : 0.15 + 0.25 * SIM.wind.a) - SIM.swell) * 0.05 * dt;
   SIM.gullT -= dt; if (SIM.gullT <= 0) { SIM.gullT = rr(4, 11); AUD.gull(); }
-  if (SIM.t > 1 && !SIM.toasted.fog && SIM.fog >= 1) { SIM.toasted.fog = true; toast(t('toastFog'), 'info'); }
+  if (SIM.t > 1 && !SIM.toasted.fog && SIM.fog >= 1) { SIM.toasted.fog = true; if (SIM.fogRun) toast(t('toastFogRun'), 'info', 5200); else toast(t('toastFog'), 'info'); }
   if (SIM.t > 1 && !SIM.toasted.storm && SIM.storm) { SIM.toasted.storm = true; toast(t('toastStorm'), 'info'); }
   if (!SIM.toasted.night && SIM.night > 0.5) { SIM.toasted.night = true; toast(t('toastNight'), 'info'); }
 }
@@ -2122,7 +2205,7 @@ function endShift(kind) {
   const score = kind === 'wreck' ? Math.round(shiftScore() * 0.5) : shiftScore();
   const stars = kind === 'wreck' ? 0 : starsFor(score, SIM.target);
   const punctAvg = SIM.punct.length ? SIM.punct.reduce((a, b) => a + b, 0) / SIM.punct.length : 0;
-  const res = { kind: stars > 0 ? kind : 'fail', score, stars, target: SIM.target, pax: SIM.delivered, lost: SIM.lost, comfort: Math.round(SIM.comfort), hull: Math.round(player.hull), punct: Math.round(punctAvg), shift: SIM.shift.id };
+  const res = { kind: stars > 0 ? kind : 'fail', score, stars, target: SIM.target, pax: SIM.delivered, lost: SIM.lost, comfort: Math.round(SIM.comfort), hull: Math.round(player.hull), punct: Math.round(punctAvg), shift: SIM.shift.id, fog: SIM.fogRun ? SIM.fogBonus : null };
   G.lastResult = res; G.log.push({ shift: SIM.shift.id, stars, score });
   finishShiftUI(res);
 }
@@ -2543,6 +2626,9 @@ function buildScene() {
     const m = pointsMaterial(true, true); FOGMATS.push(m); m.uniforms.uOpacity.value = 0;
     OBJ.lights = new THREE.Points(g, m); OBJ.lights.frustumCulled = false; OBJ.lights.renderOrder = 7; scene.add(OBJ.lights); }
   OBJ.boatLights = new Particles(96, true, true); scene.add(OBJ.boatLights.obj);
+  // fog run: pier lanterns and the Maiden's Tower light drawn without fog, so they shine through it
+  OBJ.fogLights = new Particles(48, true, true); FOGMATS.pop(); OBJ.fogLights.obj.material.uniforms.fogNear.value = 1e8; OBJ.fogLights.obj.material.uniforms.fogFar.value = 1e9;
+  OBJ.fogLights.obj.renderOrder = 9; scene.add(OBJ.fogLights.obj);
   OBJ.wake = new Particles(lowQ() ? 480 : 960, true, false); scene.add(OBJ.wake.obj);
   OBJ.smoke = new Particles(160, true, false); scene.add(OBJ.smoke.obj);
   OBJ.rain = new Particles(1100, true, false, true); scene.add(OBJ.rain.obj); OBJ.rain.max = lowQ() ? 500 : 1100;
@@ -2640,7 +2726,8 @@ function updateSky(force) {
   // fog
   SKY.tmp2.copy(SKY.hor).lerp(SKY.mid, 0.35);
   scene.fog.color.copy(SKY.tmp2);
-  const near = fogA > 0 ? lerp(300, 30, fogA) : 300, far = fogA > 0 ? lerp(2400, 330, fogA) : (night ? lerp(2400, 1500, night) : 2400) * (1 - 0.35 * storm);
+  let near = fogA > 0 ? lerp(300, 30, fogA) : 300, far = fogA > 0 ? lerp(2400, 330, fogA) : (night ? lerp(2400, 1500, night) : 2400) * (1 - 0.35 * storm);
+  if (SIM.fogRun) { near = 8; far = 190; }    // fog run: piers and boats fade out at about 150 m
   scene.fog.near = near; scene.fog.far = far;
   for (const m of FOGMATS) { m.uniforms.fogColor.value.copy(SKY.tmp2); m.uniforms.fogNear.value = near; m.uniforms.fogFar.value = far; }
   stars.material.uniforms.fogNear.value = 1e8; stars.material.uniforms.fogFar.value = 1e9;
@@ -2752,6 +2839,20 @@ function syncParticles(dt) {
     put(WORLD.maiden.x + 5, 25.5, WORLD.maiden.z, 0xffffff, 2.5 + 2 * Math.max(0, Math.sin(waterU.uTime.value * 3)));
   }
   L.flush();
+  syncFogLights();
+}
+function syncFogLights() {
+  const F = OBJ.fogLights; F.cur = 0; F.life.fill(0);
+  if (SIM.fogRun && G.state !== 'title') {
+    const tm = waterU.uTime.value, ns = nextStop();
+    const lamp = (x, y, z, hex, core, halo, a) => { F.spawn(x, y, z, 0, 0, 0, 1, halo, halo, hex, 0.22 * a); F.spawn(x, y, z, 0, 0, 0, 1, core, core, hex, a); };
+    for (const id of Object.keys(PIERS)) {
+      const P = PIERS[id], next = ns && ns.id === id && !SIM.docked, fl = next && (tm % 2) < 0.7;   // the next pier burns amber and flashes every 2 s
+      for (const dz of [-P.len / 2 + 2, P.len / 2 - 2]) { const w = pierLocal(P, P.w / 2 - 2.5, dz); lamp(w[0], 10.2, w[1], next ? 0xffa526 : P.lampC, fl ? 4.2 : next ? 2.8 : 2.4, fl ? 20 : next ? 11 : 9, 1); }
+    }
+    if ((tm % 3) < 0.5) lamp(WORLD.maiden.x + 5, 25.5, WORLD.maiden.z, 0xffffff, 4, 20, 1);   // the lighthouse: one flash every 3 s
+  }
+  F.flush();
 }
 function syncMarkers(dt) {
   const ns = nextStop();
@@ -2842,7 +2943,7 @@ function setCamMode(m) {
 // ---------------------------------------------------------------- UI: elements, toasts, HUD
 const el = {};
 for (const id of ['hud', 'topbar', 'stShift', 'stClock', 'stPlan', 'stPax', 'comfBar', 'hullBar', 'stStars', 'bPanel', 'bCamH', 'bPause', 'bSound', 'bLang', 'toasts', 'nextCard', 'ncName', 'ncL2', 'ncL3', 'camLbl', 'minimap', 'lvThr', 'lvThrS', 'lvRud', 'speedo', 'spArc', 'spVal', 'spUnit', 'dock', 'dkDist', 'dkSpd', 'dkAng', 'dkHint', 'floaters', 'touch', 'tWheel', 'tWheelSvg', 'tThr', 'tHorn', 'tCam',
-  'sTitle', 'sIntro', 'sPause', 'sSettings', 'sEnd', 'bPlay', 'playTxt', 'bCont', 'bEndless', 'bSettingsT', 'bLangT', 'langTxt', 'bestLine', 'cmap', 'inTitle', 'inDesc', 'inCond', 'inTT', 'inTarget', 'bStart', 'bIntroBack',
+  'sTitle', 'sIntro', 'sPause', 'sSettings', 'sEnd', 'bPlay', 'playTxt', 'bCont', 'bEndless', 'bSettingsT', 'bLangT', 'langTxt', 'bestLine', 'cmap', 'inTitle', 'inDesc', 'inCond', 'inTT', 'inTarget', 'bStart', 'bFog', 'fogTxt', 'bIntroBack',
   'bResume', 'bRestart', 'bSettingsP', 'bMenuP', 'rMaster', 'rMusic', 'rSfx', 'oMaster', 'oMusic', 'oSfx', 'bTR', 'bEN', 'bQLow', 'bQHigh', 'bFull', 'bSetBack', 'enTitle', 'enSub', 'enStars', 'enStats', 'enRec', 'bNext', 'nextTxt', 'bRetry', 'bMenuE', 'dbg', 'hurt']) el[id] = document.getElementById(id);
 function toast(msg, kind = 'info', ms = 2600) {
   const d = document.createElement('div'); d.className = 'toast ' + kind; d.textContent = msg; el.toasts.appendChild(d);
@@ -2973,6 +3074,7 @@ let mmWp = null, mmWpFor = null, mmWpT = -99;
 function drawMinimap() {
   const g = el.minimap.getContext('2d'), W = el.minimap.width, H = el.minimap.height;
   g.drawImage(MM.base, 0, 0);
+  if (SIM.fogRun) { drawFogRadar(g, W, H); return; }
   const ns = nextStop();
   // route: from the ferry through the fairway to the next pier (throttled to avoid per-frame fairway graph searches)
   if (ns && !SIM.docked) {
@@ -3001,6 +3103,28 @@ function drawMinimap() {
   }
   // the player ferry
   g.save(); g.translate(mmX(player.x), mmZ(player.z)); g.rotate(-player.hd);
+  g.fillStyle = '#E8A13A'; g.strokeStyle = '#0F2E33'; g.lineWidth = 2; g.beginPath(); g.moveTo(0, -14); g.lineTo(8, 10); g.lineTo(0, 5); g.lineTo(-8, 10); g.closePath(); g.fill(); g.stroke();
+  g.restore();
+}
+/** fog run: the chart is washed out, no route, no traffic; only the horn's echoes and the boats' fog horns leave marks */
+function drawFogRadar(g, W, H) {
+  g.fillStyle = 'rgba(206,212,214,0.88)'; g.fillRect(0, 0, W, H);
+  const px = mmX(player.x), pz = mmZ(player.z), k = W / (MM.x1 - MM.x0);
+  // the outgoing sound front of the last blast (it travels at the speed of sound)
+  const r = (FOG.clock - FOG.lastBlast) * SOUND_V;
+  if (r > 0 && r < ECHO_MAX) { g.strokeStyle = 'rgba(15,46,51,' + (0.5 * (1 - r / ECHO_MAX)).toFixed(2) + ')'; g.lineWidth = 2; g.beginPath(); g.arc(px, pz, r * k, 0, TAU); g.stroke(); }
+  g.textBaseline = 'middle'; g.font = '700 16px "Grenze Gotisch", Georgia, serif';
+  for (const b of FOG.blips) {
+    if (FOG.clock < b.at) continue;
+    const a = clamp(1 - (FOG.clock - b.at) / b.ttl, 0, 1), x = mmX(b.x), z = mmZ(b.z);
+    if (b.kind === 'pier') {
+      g.strokeStyle = 'rgba(193,68,46,' + a.toFixed(2) + ')'; g.lineWidth = 2.5; g.beginPath(); g.arc(x, z, 7, 0, TAU); g.stroke();
+      g.fillStyle = 'rgba(15,46,51,' + a.toFixed(2) + ')'; g.textAlign = PIERS[b.id].side === 'w' ? 'right' : 'left'; g.fillText(pierName(b.id), x + (PIERS[b.id].side === 'w' ? -12 : 12), z);
+    } else if (b.kind === 'shore') { g.fillStyle = 'rgba(15,46,51,' + (0.8 * a).toFixed(2) + ')'; g.fillRect(x - 3, z - 3, 6, 6); }
+    else { g.fillStyle = 'rgba(193,68,46,' + a.toFixed(2) + ')'; g.beginPath(); g.arc(x, z, 4, 0, TAU); g.fill(); }
+  }
+  g.fillStyle = '#0F2E33'; g.font = '700 13px "IBM Plex Mono", monospace'; g.textAlign = 'center'; g.fillText(t('mmFog'), W / 2, H - 14);
+  g.save(); g.translate(px, pz); g.rotate(-player.hd);
   g.fillStyle = '#E8A13A'; g.strokeStyle = '#0F2E33'; g.lineWidth = 2; g.beginPath(); g.moveTo(0, -14); g.lineTo(8, 10); g.lineTo(0, 5); g.lineTo(-8, 10); g.closePath(); g.fill(); g.stroke();
   g.restore();
 }
@@ -3123,8 +3247,10 @@ function renderIntro() {
   const e = document.createElement('button'); e.className = 'cnode endless' + (G.mode === 'endless' ? ' sel' : ''); e.innerHTML = '<b>∞</b><small style="font-size:10px">' + t('endlessShort') + '</small>'; e.disabled = G.mode === 'endless';
   e.addEventListener('click', () => { AUD.click(); startEndless(); }); el.cmap.appendChild(e);
   el.inTitle.textContent = sh.endless ? t('sE', sh.endless) : t('s' + sh.id);
-  el.inDesc.textContent = sh.endless ? t('dE') : t('d' + sh.id);
-  el.inCond.innerHTML = condChips(sh);
+  const fogRun = isFogRun(sh), forced = FLAG.fog || sh.fog >= 1;
+  el.inDesc.textContent = (sh.endless ? t('dE') : t('d' + sh.id)) + (fogRun ? ' ' + t('fogDesc') : '');
+  el.inCond.innerHTML = condChips(sh) + (fogRun ? '<span>' + t('c_fogrun') + '</span>' : '');
+  el.fogTxt.textContent = t(fogRun ? 'fogOn' : 'fogOff'); el.bFog.disabled = forced; el.bFog.setAttribute('aria-pressed', String(fogRun)); el.bFog.classList.toggle('sel', fogRun);
   // timetable preview
   const saveStops = SIM.stops; planShift(sh); const stops = SIM.stops; SIM.stops = saveStops;
   el.inTT.innerHTML = '<span>' + t('ttHead') + '</span><span></span><span></span>' + stops.map((s, i) => '<span>' + (i + 1) + '</span><span>' + pierName(s.id) + '</span><span>' + fmtClock(sh.hour + s.arr * TS / 3600) + '</span>').join('');
@@ -3136,6 +3262,7 @@ function beginShift() {
   G.state = 'play'; show(null);
   R = mulberry(SEED + (sh.endless ? 1000 + sh.endless : sh.id) * 97 + G.retries);
   startShiftSim(sh);
+  fogReset(); SIM.fogRun = isFogRun(sh); if (SIM.fogRun) SIM.fog = 1;
   lastSkyHour = -99; updateSky(true);
   setCamMode(camMode);
   CAM.yaw = 0; CAM.pitch = 0.42; CAM.px = player.x; CAM.py = 30; CAM.pz = player.z - 60;
@@ -3173,6 +3300,7 @@ function renderEnd(res) {
   el.enSub.textContent = res.kind === 'wreck' ? t('subWreck') : !won ? t('subFail') : campaignDone ? t('subWin') : G.mode === 'endless' ? t('subEndless', G.endlessN, G.totals.pax) : t('subClear');
   el.enStars.innerHTML = [0, 1, 2].map(i => '<svg class="' + (i < res.stars ? 'on' : '') + '" style="animation-delay:' + (i * 0.2) + 's" viewBox="0 0 24 24"><use href="#i-star"/></svg>').join('');
   const kv = [[t('sPax'), res.pax + ' / ' + SIM.potential], [t('sPunct'), res.punct + '%'], [t('sComfort'), res.comfort + '%'], [t('sLost'), res.lost, res.lost > 0 ? 'neg' : ''], [t('sHull'), res.hull + '%', res.hull > 30 ? 'neg' : ''], [t('sScore'), res.score + ' / ' + res.target], [t('sTotal'), G.totals.score]];
+  if (res.fog !== null && res.fog !== undefined) kv.splice(5, 0, [t('sFogBonus'), '+' + res.fog]);
   el.enStats.innerHTML = kv.map(([k, v, c]) => '<span>' + k + '</span><span class="' + (c || '') + '">' + v + '</span>').join('');
   el.enRec.classList.toggle('hidden', !res.rec); el.enRec.textContent = t('newRecord');
   el.nextTxt.textContent = !won ? t('retry') : campaignDone ? t('playAgain') : t('nextShift');
@@ -3211,7 +3339,7 @@ function showcase() {
 const click = (b, fn) => { b.addEventListener('click', e => { AUD.init(); AUD.resume(); AUD.click(); fn(e); }); };
 click(el.bPlay, () => startCampaign(false)); click(el.bCont, () => startCampaign(true)); click(el.bEndless, () => startEndless());
 click(el.bSettingsT, () => openSettings('title')); click(el.bLangT, toggleLang); click(el.bLang, toggleLang);
-click(el.bStart, beginShift); click(el.bIntroBack, goMenu);
+click(el.bStart, beginShift); click(el.bIntroBack, goMenu); click(el.bFog, () => { G.fogPick = !G.fogPick; renderIntro(); });
 click(el.bPanel, () => setCompact(!document.body.classList.contains('compact')));
 click(el.bPause, () => { if (G.state === 'play') pauseGame(); }); click(el.bCamH, () => { if (G.state === 'play') setCamMode(camMode + 1); });
 click(el.bSound, () => { settings.mute = !settings.mute; AUD.applyGains(); saveSettings(); syncSettingsUI(); });
@@ -3256,6 +3384,8 @@ function botTick(dt) {
   const P = player;
   input.horn = false;
   if (SIM.docked) { BOT.wp = []; BOT.wpFor = null; BOT.dockDir = 0; BOT.back = false; BOT.backOut = false; BOT.escape = false; BOT.near = false; BOT.finalT = 0; input.rudder = 0; input.throttle = (SIM.depAllowed && SIM.stopIdx < SIM.stops.length - 1) ? 0.5 : 0; BOT.stuck = 0; return; }
+  // fog run: the bot steers on its internal state, but blows the fog horn now and then like a captain would
+  if (SIM.fogRun) { BOT.fogHornT = (BOT.fogHornT ?? 2) - dt; if (BOT.fogHornT <= 0) { BOT.fogHornT = 15; input.horn = true; } }
   const ns = nextStop(); if (!ns) { input.throttle = 0; return; }
   const Pr = PIERS[ns.id];
   if (BOT.wpFor !== ns || !BOT.wp.length) { BOT.wp = routeTo(P.x, P.z, ns.id); BOT.dockDir = routeTo.lastDir; BOT.wp.push([Pr.bx, Pr.bz]); BOT.wpFor = ns; BOT.detour = false; BOT.near = false; }
@@ -3441,7 +3571,8 @@ window.vapurSim = function (seconds) {
   return window.vapur;
 };
 window.vapur = {
-  G, SIM, player, input, AUD, STR, WORLD, PIERS, SHIFTS, ASSETS, DOCK, BOT, CAM, scene, renderer, camera,
+  G, SIM, player, input, AUD, STR, WORLD, PIERS, SHIFTS, ASSETS, DOCK, BOT, CAM, scene, renderer, camera, FOG, fogEchoes, fogHornBlast, fogDockBonus, OBJ,
+  fog(on) { G.fogPick = !!on; },
   get state() { return G.state; }, get shift() { return SIM.shift && SIM.shift.id; }, get time() { return SIM.t; }, get hour() { return SIM.hour; },
   get score() { return shiftScore(); }, get target() { return SIM.target; }, get aboard() { return SIM.aboardN; }, get delivered() { return SIM.delivered; },
   get hull() { return player.hull; }, get comfort() { return SIM.comfort; }, get log() { return G.log; }, get done() { return G.done; }, get errors() { return G.errors; },
