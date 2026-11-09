@@ -8,3 +8,4 @@ Thumbs.db
 *.tmp
 .heavy.lock
 graphify-out/
+.graphify-src/
