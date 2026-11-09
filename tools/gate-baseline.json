@@ -1,0 +1,15 @@
+{
+  "game": "bogaz-vapuru",
+  "recorded": "2026-11-09T22:32:45.691Z",
+  "commit": "1416fd4",
+  "entrySha": "cd58434d7500",
+  "run": "() => { window.vapurSim(8000); }",
+  "metrics": {
+    "shifts": 8,
+    "stars": 23,
+    "score": 20120,
+    "perShift": "33333233",
+    "done": true,
+    "gameErrors": 0
+  }
+}
