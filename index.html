@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
 <meta name="theme-color" content="#0F2E33">
+<meta name="arena-game" content="bogaz-vapuru">
 <title>Boğaz Vapuru</title>
 <meta name="description" content="A 3D ferry-captain game on a stylized low-poly Bosphorus, redesigned with golden-hour light and a vintage 1960s ferry ticket UI: dock at Eminönü, Karaköy and Üsküdar on time through currents, fog and night. Plays in the browser.">
 <meta property="og:type" content="website">
@@ -134,6 +135,7 @@ button:focus-visible, input:focus-visible, a:focus-visible, [tabindex]:focus-vis
   transition: transform 0.08s ease, box-shadow 0.08s ease, filter 0.12s ease;
 }
 .btn:hover { filter: brightness(1.08); }
+a.btn { text-decoration: none; }
 .btn:active {
   transform: translate(3px, 3px);
   box-shadow: 0 0 0 transparent;
@@ -1133,12 +1135,14 @@ input[type=range] { width: 100%; height: 44px; accent-color: var(--c-teal); back
         <button class="btn primary" id="bPlay" disabled><svg class="ic fill"><use href="#i-play"/></svg><span id="playTxt" data-i="loading"></span></button>
         <button class="btn" id="bCont"><svg class="ic"><use href="#i-restart"/></svg><span data-i="continue"></span></button>
         <button class="btn" id="bEndless"><svg class="ic"><use href="#i-wave"/></svg><span data-i="endless"></span></button>
+        <button class="btn" id="bDaily"><svg class="ic"><use href="#i-star"/></svg><span data-i="daily"></span></button>
         <div class="row">
           <button class="btn" id="bSettingsT"><svg class="ic"><use href="#i-gear"/></svg><span data-i="settings"></span></button>
           <button class="btn" id="bLangT"><svg class="ic"><use href="#i-globe"/></svg><span id="langTxt">TR / EN</span></button>
         </div>
       </div>
       <div class="best" id="bestLine"></div>
+      <div class="best" id="dailyLine"></div>
       <div class="rope" aria-hidden="true" style="width:min(100%,200px);margin:12px auto 0"></div>
       <div class="foot"><a href="https://github.com/Furkiozknn" target="_blank" rel="noopener">Claude Game Arena</a> · built by Claude Fable 5.1</div>
     </div>
@@ -1188,6 +1192,7 @@ input[type=range] { width: 100%; height: 44px; accent-color: var(--c-teal); back
         <label data-i="language"></label><div class="seg"><button class="btn" id="bTR">Türkçe</button><button class="btn" id="bEN">English</button></div>
         <label data-i="quality"></label><div class="seg"><button class="btn" id="bQLow" data-i="low"></button><button class="btn" id="bQHigh" data-i="high"></button></div>
         <label data-i="fullscreen"></label><div class="seg"><button class="btn" id="bFull"><svg class="ic"><use href="#i-full"/></svg><span data-i="toggle"></span></button></div>
+        <label data-i="a11y"></label><div class="seg"><button class="btn" id="bA11y"><span data-i="a11yOpen"></span></button></div>
       </div>
       <div class="col"><button class="btn primary" id="bSetBack"><span data-i="back"></span></button></div>
       <p class="how" data-i="keysHelp" style="margin-top:12px"></p>
@@ -1208,7 +1213,12 @@ input[type=range] { width: 100%; height: 44px; accent-color: var(--c-teal); back
         <button class="btn primary" id="bNext"><span id="nextTxt"></span></button>
         <button class="btn" id="bRetry"><svg class="ic"><use href="#i-restart"/></svg><span data-i="retry"></span></button>
         <button class="btn" id="bMenuE"><svg class="ic"><use href="#i-home"/></svg><span data-i="menu"></span></button>
+        <div class="row">
+          <button class="btn" id="bShare"><span data-i="share"></span></button>
+          <a class="btn" id="aOther" href="https://furkiozknn.github.io/" target="_blank" rel="noopener"><span data-i="another"></span></a>
+        </div>
       </div>
+      <div class="best" id="enDaily"></div>
     </div>
   </section>
 </main>
@@ -1296,6 +1306,10 @@ const STR = {
     hintSlow: 'Yavaşla', hintAlign: 'Paralel yanaş', hintCloser: 'Daha yakına', hintOk: 'Yanaşıyor…', hintStop: 'Dur ve bekle', hintFast: 'Çok hızlı!',
     dockDone: 'Yanaşma tamam', pierNames: { eminonu: 'Eminönü', karakoy: 'Karaköy', uskudar: 'Üsküdar', besiktas: 'Beşiktaş', kadikoy: 'Kadıköy', kanlica: 'Kanlıca' },
     hintLeave: '<b>W</b> ile kalk', unitKn: 'kn',
+    daily: 'Günün Meydan Okuması', sD: 'Günün Meydan Okuması', dD: 'Bugünün seferi herkes için aynı: aynı rota, aynı hava, aynı trafik. Bitir, seriyi sürdür.',
+    dailyLine: 'Günlük seri: {0} gün · en iyi: {1}', dailyDone: 'Bugünkü sefer tamam', a11y: 'Erişilebilirlik', a11yOpen: 'Aç',
+    share: 'Paylaş', another: 'Başka oyun', shareStars: '{0}/3 yıldız · {1} puan', sharePax: '{0} yolcu taşındı',
+    awFirst: 'İlk sefer tamam', awCampaign: '8 seferin hepsi', awAllStars: '24 yıldızın hepsi',
   },
   en: {
     subtitle: 'Captain a city ferry on the Bosphorus: dock at the piers, carry passengers, keep the timetable.',
@@ -1338,6 +1352,10 @@ const STR = {
     hintSlow: 'Slow down', hintAlign: 'Come parallel', hintCloser: 'Closer', hintOk: 'Coming alongside…', hintStop: 'Stop and hold', hintFast: 'Too fast!',
     dockDone: 'Docked', pierNames: { eminonu: 'Eminönü', karakoy: 'Karaköy', uskudar: 'Üsküdar', besiktas: 'Beşiktaş', kadikoy: 'Kadıköy', kanlica: 'Kanlıca' },
     hintLeave: 'Cast off with <b>W</b>', unitKn: 'kn',
+    daily: 'Daily challenge', sD: 'Daily challenge', dD: 'Today\'s shift is the same for everyone: same route, same weather, same traffic. Finish it to keep your streak.',
+    dailyLine: 'Daily streak: {0} days · best: {1}', dailyDone: 'Today\'s shift is done', a11y: 'Accessibility', a11yOpen: 'Open',
+    share: 'Share', another: 'Another game', shareStars: '{0}/3 stars · {1} points', sharePax: '{0} passengers carried',
+    awFirst: 'First shift cleared', awCampaign: 'All 8 shifts', awAllStars: 'All 24 stars',
   },
 };
 let LANG = 'tr';
@@ -2578,6 +2596,15 @@ function applyQuality() {
   scene.traverse(o => { if (o.material) o.material.needsUpdate = true; });
   if (OBJ.rain) OBJ.rain.max = lowQ() ? 500 : 1100;
   resize();
+  attachPerf();
+}
+// arena-kit dynamic resolution: never above the pixel ratio the quality setting chose, re-attached when it changes
+let arenaPerf = null;
+function attachPerf() {
+  if (!window.Arena) return;
+  if (arenaPerf) arenaPerf.stop();
+  const base = renderer.getPixelRatio();
+  arenaPerf = Arena.perf.attach({ setPixelRatio: r => { renderer.setPixelRatio(r); resize(); } }, { max: base, start: base, min: Math.min(0.6, base) });
 }
 function resize() {
   const w = window.innerWidth, h = window.innerHeight;
@@ -3298,7 +3325,7 @@ function setCamMode(m) {
 const el = {};
 for (const id of ['hud', 'topbar', 'stShift', 'stClock', 'stPlan', 'stPax', 'comfBar', 'hullBar', 'stStars', 'bPanel', 'bCamH', 'bPause', 'bSound', 'bLang', 'toasts', 'nextCard', 'ncName', 'ncL2', 'ncL3', 'camLbl', 'minimap', 'lvThr', 'lvThrS', 'lvRud', 'speedo', 'spArc', 'spVal', 'spUnit', 'dock', 'dkDist', 'dkSpd', 'dkAng', 'dkHint', 'floaters', 'touch', 'tWheel', 'tWheelSvg', 'tThr', 'tHorn', 'tCam',
   'sTitle', 'sIntro', 'sPause', 'sSettings', 'sEnd', 'bPlay', 'playTxt', 'bCont', 'bEndless', 'bSettingsT', 'bLangT', 'langTxt', 'bestLine', 'cmap', 'inTitle', 'inDesc', 'inCond', 'inTT', 'inTarget', 'bStart', 'bFog', 'fogTxt', 'bIntroBack',
-  'bResume', 'bRestart', 'bSettingsP', 'bMenuP', 'rMaster', 'rMusic', 'rSfx', 'oMaster', 'oMusic', 'oSfx', 'bTR', 'bEN', 'bQLow', 'bQHigh', 'bFull', 'bSetBack', 'enTitle', 'enSub', 'enStars', 'enStats', 'enRec', 'bNext', 'nextTxt', 'bRetry', 'bMenuE', 'dbg', 'hurt']) el[id] = document.getElementById(id);
+  'bResume', 'bRestart', 'bSettingsP', 'bMenuP', 'rMaster', 'rMusic', 'rSfx', 'oMaster', 'oMusic', 'oSfx', 'bTR', 'bEN', 'bQLow', 'bQHigh', 'bFull', 'bSetBack', 'enTitle', 'enSub', 'enStars', 'enStats', 'enRec', 'bNext', 'nextTxt', 'bRetry', 'bMenuE', 'dbg', 'hurt', 'bDaily', 'dailyLine', 'bA11y', 'bShare', 'aOther', 'enDaily']) el[id] = document.getElementById(id);
 function toast(msg, kind = 'info', ms = 2600) {
   const d = document.createElement('div'); d.className = 'toast ' + kind; d.textContent = msg; el.toasts.appendChild(d);
   while (el.toasts.children.length > 4) el.toasts.firstChild.remove();
@@ -3312,6 +3339,7 @@ let hurtA = 0;
 function hurtFlash(a) { hurtA = Math.max(hurtA, a); el.hurt.style.opacity = hurtA.toFixed(2); }
 function applyLang() {
   document.documentElement.lang = LANG;
+  if (window.Arena) Arena.lang(LANG);
   $$('[data-i]').forEach(e => { const k = e.getAttribute('data-i'); if (k === 'howto') e.innerHTML = t(document.body.classList.contains('touch') ? 'howtoTouch' : 'howto'); else if (k !== 'loading') e.textContent = t(k); });
   $$('[data-t]').forEach(e => { e.title = t(e.getAttribute('data-t')); e.setAttribute('aria-label', t(e.getAttribute('data-t'))); });
   el.langTxt.textContent = LANG === 'tr' ? 'TR / EN' : 'EN / TR';
@@ -3324,6 +3352,7 @@ function updateBestLine() {
   const st = best.stars.reduce((a, b) => a + b, 0);
   el.bestLine.textContent = (best.total > 0 || best.endless > 0) ? t('bestLine', best.total, st, best.endless) : t('bestNone');
   el.bCont.classList.toggle('hidden', !runSave);
+  if (window.Arena) { const d = Arena.daily(); el.dailyLine.textContent = (d.done ? t('dailyDone') + ' · ' : '') + t('dailyLine', d.streak, d.best); }
 }
 function syncSettingsUI() {
   el.rMaster.value = Math.round(settings.master * 100); el.rMusic.value = Math.round(settings.music * 100); el.rSfx.value = Math.round(settings.sfx * 100);
@@ -3498,6 +3527,7 @@ function readInput(dt) {
   input.horn = !!keys.Space || TOUCH.horn;
 }
 function onKey(e, down) {
+  if (down && document.querySelector('.arena-modal')) return;   // the arena-kit panel handles its own keys (Esc closes it)
   // a11y: trap Tab / Shift+Tab focus inside the active .screen.show modal (#sPause, #sSettings, etc.)
   if (down && e.code === 'Tab') {
     const sc = $('.screen.show');
@@ -3571,7 +3601,7 @@ function show(id) { for (const s of ['sTitle', 'sIntro', 'sPause', 'sSettings', 
 let settingsFrom = 'title';
 function openSettings(from) { settingsFrom = from; G.prevState = G.state; G.state = 'settings'; syncSettingsUI(); show('sSettings'); el.bSetBack.focus(); }
 function closeSettings() { G.state = settingsFrom === 'pause' ? 'paused' : settingsFrom === 'intro' ? 'intro' : 'title'; show(settingsFrom === 'pause' ? 'sPause' : settingsFrom === 'intro' ? 'sIntro' : 'sTitle'); (settingsFrom === 'pause' ? el.bSettingsP : settingsFrom === 'intro' ? el.bStart : el.bSettingsT).focus(); }
-function currentShiftDef() { return G.mode === 'endless' ? G.curEndless : SHIFTS[G.shiftIdx]; }
+function currentShiftDef() { return G.mode !== 'campaign' ? G.curEndless : SHIFTS[G.shiftIdx]; }
 function startCampaign(resume) {
   G.mode = 'campaign';
   if (resume && runSave) { G.shiftIdx = clamp(runSave.shift, 0, 7); G.totals = { score: runSave.total || 0, pax: runSave.pax || 0, stars: runSave.stars || [] }; }
@@ -3579,6 +3609,16 @@ function startCampaign(resume) {
   G.retries = 0; G.selIdx = G.shiftIdx; enterIntro();
 }
 function startEndless() { G.mode = 'endless'; G.endlessN = 0; G.totals = { score: 0, pax: 0, stars: [] }; G.curEndless = endlessShift(1); G.endlessN = 1; enterIntro(); }
+// Daily challenge: one endless-style shift built from the arena-kit day seed (same for everyone that UTC day, ?d=YYYYMMDD replays a day)
+function dailyShift(d) {
+  const keep = R; R = d.rng;
+  const sh = endlessShift(3); R = keep;
+  return Object.assign(sh, { id: 'D', endless: 0, daily: d.day, seed: d.seed });
+}
+function startDaily() {
+  if (!window.Arena) return;
+  G.mode = 'daily'; G.daily = Arena.daily(); G.totals = { score: 0, pax: 0, stars: [] }; G.curEndless = dailyShift(G.daily); G.dailyRec = null; G.retries = 0; G.fogPick = false; enterIntro();
+}
 function enterIntro() { G.state = 'intro'; renderIntro(); show('sIntro'); el.bStart.focus(); }
 function condChips(sh) {
   const out = [];
@@ -3588,13 +3628,13 @@ function condChips(sh) {
   return out.map(k => '<span>' + t(k) + '</span>').join('');
 }
 function renderIntro() {
-  const sh = G.mode === 'endless' ? G.curEndless : SHIFTS[G.selIdx];
+  const sh = G.mode !== 'campaign' ? G.curEndless : SHIFTS[G.selIdx];
   // campaign map: the 8 shifts and endless
   el.cmap.innerHTML = '';
   SHIFTS.forEach((s, i) => {
     const b = document.createElement('button'); b.className = 'cnode' + (G.mode === 'campaign' && i === G.selIdx ? ' sel' : '') + (i > unlockedShift() ? ' lock' : '');
     b.innerHTML = '<b>' + s.id + '</b><div class="stars-sm">' + [0, 1, 2].map(k => '<svg class="' + (k < best.stars[i] ? 'on' : '') + '" viewBox="0 0 24 24"><use href="#i-star"/></svg>').join('') + '</div>';
-    b.disabled = i > unlockedShift() || G.mode === 'endless'; b.setAttribute('aria-label', t('shift') + ' ' + s.id);
+    b.disabled = i > unlockedShift() || G.mode !== 'campaign'; b.setAttribute('aria-label', t('shift') + ' ' + s.id);
     b.addEventListener('click', () => { AUD.click(); G.selIdx = i; G.shiftIdx = i; renderIntro(); });
     el.cmap.appendChild(b);
   });
@@ -3614,7 +3654,7 @@ function unlockedShift() { let u = 0; for (let i = 0; i < 8; i++) if (best.stars
 function beginShift() {
   const sh = currentShiftDef();
   G.state = 'play'; show(null);
-  R = mulberry(SEED + (sh.endless ? 1000 + sh.endless : sh.id) * 97 + G.retries);
+  R = sh.daily ? mulberry(sh.seed) : mulberry(SEED + (sh.endless ? 1000 + sh.endless : sh.id) * 97 + G.retries);
   startShiftSim(sh);
   fogReset(); SIM.fogRun = isFogRun(sh); if (SIM.fogRun) SIM.fog = 1;
   lastSkyHour = -99; updateSky(true);
@@ -3638,11 +3678,18 @@ function finishShiftUI(res) {
     if (res.stars > 0) { G.totals.score += res.score; G.totals.pax += res.pax; G.totals.stars[idx] = res.stars; }
     if (res.stars > 0 && idx < 7) runSave = { shift: idx + 1, total: G.totals.score, pax: G.totals.pax, stars: G.totals.stars }; else if (idx >= 7 && res.stars > 0) runSave = null;
     if (G.totals.score > best.total) { best.total = G.totals.score; }
+  } else if (G.mode === 'daily') {
+    if (res.stars > 0) { G.totals.score += res.score; G.totals.pax += res.pax; if (G.daily) G.dailyRec = G.daily.complete(res.score); }
   } else {
     if (res.stars > 0) { G.totals.score += res.score; G.totals.pax += res.pax; }
     if (res.stars > 0 && G.endlessN > best.endless) { best.endless = G.endlessN; best.endlessPax = G.totals.pax; rec = true; }
   }
   writeSave();
+  if (window.Arena && res.stars > 0) {
+    Arena.award('bogaz-vapuru:first-shift', t('awFirst'));
+    if (G.mode === 'campaign' && idx >= 7) Arena.award('bogaz-vapuru:campaign', t('awCampaign'));
+    if (best.stars.every(v => v >= 3)) Arena.award('bogaz-vapuru:all-stars', t('awAllStars'));
+  }
   res.rec = rec;
   renderEnd(res); show('sEnd');
   if (res.stars >= 2) AUD.star(); else if (res.stars === 1) AUD.good(); else AUD.bad();
@@ -3657,7 +3704,9 @@ function renderEnd(res) {
   if (res.fog !== null && res.fog !== undefined) kv.splice(5, 0, [t('sFogBonus'), '+' + res.fog]);
   el.enStats.innerHTML = kv.map(([k, v, c]) => '<span>' + k + '</span><span class="' + (c || '') + '">' + v + '</span>').join('');
   el.enRec.classList.toggle('hidden', !res.rec); el.enRec.textContent = t('newRecord');
-  el.nextTxt.textContent = !won ? t('retry') : campaignDone ? t('playAgain') : t('nextShift');
+  el.nextTxt.textContent = !won ? t('retry') : G.mode === 'daily' ? t('menu') : campaignDone ? t('playAgain') : t('nextShift');
+  el.enDaily.textContent = G.mode === 'daily' && G.dailyRec && won ? t('dailyLine', G.dailyRec.streak, G.dailyRec.best) : '';
+  if (window.Arena) { const others = Arena.games.filter(g => g !== Arena.game); el.aOther.href = 'https://furkiozknn.github.io/' + others[(G.log.length * 7 + res.score) % others.length] + '/'; }
   el.bRetry.classList.toggle('hidden', !won);
   const stamp = document.getElementById('stampOutcome');
   if (stamp) {
@@ -3680,6 +3729,7 @@ function nextAction() {
   const r = G.lastResult; if (!r) return;
   if (r.stars <= 0) { retryCurrent(); return; }
   if (G.mode === 'endless') { G.endlessN++; G.curEndless = endlessShift(G.endlessN); G.retries = 0; enterIntro(); return; }
+  if (G.mode === 'daily') { goMenu(); return; }
   if (G.shiftIdx >= 7) { goMenu(); return; }
   G.shiftIdx++; G.selIdx = G.shiftIdx; G.retries = 0; enterIntro();
 }
@@ -3702,9 +3752,19 @@ click(el.bSetBack, closeSettings); click(el.bTR, () => { LANG = 'tr'; settings.l
 click(el.bQLow, () => { settings.quality = 'low'; saveSettings(); applyQuality(); syncSettingsUI(); }); click(el.bQHigh, () => { settings.quality = 'high'; saveSettings(); applyQuality(); syncSettingsUI(); });
 click(el.bFull, toggleFull);
 click(el.bNext, nextAction); click(el.bRetry, retryCurrent); click(el.bMenuE, goMenu);
+click(el.bDaily, startDaily); click(el.bA11y, () => { if (window.Arena) Arena.openSettings(); }); click(el.bShare, shareResult);
+function shareResult() {
+  const r = G.lastResult; if (!r || !window.Arena) return;
+  const sh = SIM.shift || currentShiftDef();
+  const name = sh && sh.daily ? t('sD') + ' ' + sh.daily : sh && sh.endless ? t('sE', sh.endless) : t('s' + r.shift);
+  return Arena.share({ title: 'Boğaz Vapuru', lines: [name, t('shareStars', r.stars, r.score), t('sharePax', r.pax)], url: 'https://furkiozknn.github.io/bogaz-vapuru/' + (sh && sh.daily ? '?d=' + sh.daily : '') });
+}
 for (const [r, k, o] of [[el.rMaster, 'master', el.oMaster], [el.rMusic, 'music', el.oMusic], [el.rSfx, 'sfx', el.oSfx]]) r.addEventListener('input', () => { settings[k] = r.value / 100; o.value = r.value; AUD.init(); AUD.applyGains(); saveSettings(); });
 window.addEventListener('resize', resize);
 document.addEventListener('visibilitychange', () => { if (document.hidden && G.state === 'play') pauseGame(); });
+// arena-kit: the game already pauses (and suspends audio) when the tab is hidden; the kit event does the same, and on
+// 'resume' the pause menu stays up so the captain resumes by hand. The game has no reduced-motion flag of its own to map.
+if (window.Arena) Arena.on('pause', () => { if (G.state === 'play') pauseGame(); });
 
 // ---------------------------------------------------------------- assets: none are shipped (every sound is synthesised), the hook stays for ?noassets and window.vapur.assets
 const ASSETS = { loaded: [], failed: [], snd: 0, enabled: !FLAG.noassets, started: false };
@@ -3720,7 +3780,7 @@ function botTick(dt) {
   BOT.uiT += dt;
   const act = (th, fn) => { if (BOT.uiT > th) { BOT.uiT = 0; fn(); } };
   if (G.done) return;
-  if (G.state === 'title') { act(0.6, () => { if (Q.get('mode') === 'endless') startEndless(); else startCampaign(false); }); return; }
+  if (G.state === 'title') { act(0.6, () => { if (Q.get('mode') === 'endless') startEndless(); else if (Q.get('mode') === 'daily' && window.Arena) startDaily(); else startCampaign(false); }); return; }
   if (G.state === 'intro') { act(0.6, beginShift); return; }
   if (G.state === 'paused') { resumeGame(); return; }
   if (G.state === 'end') {
@@ -3728,6 +3788,7 @@ function botTick(dt) {
       const r = G.lastResult;
       if (G.mode === 'campaign' && G.shiftIdx >= 7 && (r.stars > 0 || FLAG.cal)) { G.done = true; return; }
       if (G.mode === 'endless' && (r.stars <= 0 || G.endlessN >= 3)) { G.done = true; return; }
+      if (G.mode === 'daily' && r.stars > 0) { G.done = true; return; }
       if (FLAG.cal) { if (G.shiftIdx >= 7) { G.done = true; return; } G.shiftIdx++; G.selIdx = G.shiftIdx; G.retries = 0; enterIntro(); return; }
       if (r.stars > 0) nextAction();
       else { if (G.retries >= 3) { G.done = true; G.failed = true; return; } retryCurrent(); }
@@ -3955,7 +4016,7 @@ async function boot() {
   G.state = 'title'; el.bPlay.disabled = false; el.playTxt.setAttribute('data-i', 'play'); el.playTxt.textContent = t('play'); window.__vapurReady = true; if (!lsGet(KEY_SET)) saveSettings();
   showcase(); applyLang(); updateBestLine();
   if (FLAG.auto || SIM_PRE > 0) {
-    if (Q.get('mode') === 'endless') startEndless(); else startCampaign(false);
+    if (Q.get('mode') === 'endless') startEndless(); else if (Q.get('mode') === 'daily' && window.Arena) startDaily(); else startCampaign(false);
     beginShift();
     if (SIM_PRE > 0) window.vapurSim(SIM_PRE);
     lastSkyHour = -99;
