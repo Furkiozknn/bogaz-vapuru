@@ -4,6 +4,6 @@
   "description": "Dev-only tools for tools/smoke.mjs; the game itself has no build step and no dependencies.",
   "license": "MIT",
   "devDependencies": {
-    "playwright": "1.63.0"
+    "playwright": "1.64.1"
   }
 }
