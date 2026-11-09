@@ -1096,11 +1096,11 @@ input[type=range] { width: 100%; height: 44px; accent-color: var(--c-teal); back
   <canvas id="minimap" width="300" height="460"></canvas>
   <div id="gauges">
     <div id="levers">
-      <div class="lever thr" title="iskele makine / port engine"><i id="lvThr"></i><small id="rpmPortLbl">İ A/T</small></div>
-      <div class="lever thr" title="sancak makine / starboard engine"><i id="lvThrS"></i><small id="rpmStbLbl">S A/T</small></div>
+      <div class="lever thr" title="iskele makine / port engine"><i id="lvThr"></i><small>İ T/G</small></div>
+      <div class="lever thr" title="sancak makine / starboard engine"><i id="lvThrS"></i><small>S Y/H</small></div>
       <div class="lever rud" title="rudder"><i id="lvRud"></i><small>A/D</small></div>
     </div>
-    <div id="speedo"><svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="42" stroke="rgba(15,46,51,.15)" stroke-dasharray="198 264"/><circle class="ticks" cx="50" cy="50" r="35" stroke-dasharray="1.5 9.5"/><circle id="spArc" cx="50" cy="50" r="42" stroke-dasharray="0 264"/></svg><div><b id="spVal">0</b><small id="spUnit">kn</small><div id="rpmReadout" style="font-size:8px;font-weight:700;letter-spacing:.5px;margin-top:1px;color:var(--c-teal)">P:0 S:0</div></div></div>
+    <div id="speedo"><svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="42" stroke="rgba(15,46,51,.15)" stroke-dasharray="198 264"/><circle class="ticks" cx="50" cy="50" r="35" stroke-dasharray="1.5 9.5"/><circle id="spArc" cx="50" cy="50" r="42" stroke-dasharray="0 264"/></svg><div><b id="spVal">0</b><small id="spUnit">kn</small></div></div>
   </div>
   <div id="dock" class="glass">
     <div class="row3">
@@ -1113,7 +1113,7 @@ input[type=range] { width: 100%; height: 44px; accent-color: var(--c-teal); back
   <div id="floaters"></div>
   <div id="touch">
     <div id="tWheel" class="glass" role="slider" aria-label="Rudder"><svg viewBox="0 0 100 100" id="tWheelSvg"><use href="#i-wheel"/></svg></div>
-    <div id="tThr" class="glass" role="slider" aria-label="Throttle"><small style="top:4px" data-i="ahead"></small><u></u><i class="p"><svg class="ic" style="width:22px;height:22px;transform:rotate(-90deg)"><use href="#i-play"/></svg><span id="tPVal" style="position:absolute;font-size:7px;bottom:-10px;left:0;right:0;text-align:center">0</span></i><i class="s"><svg class="ic" style="width:22px;height:22px;transform:rotate(-90deg)"><use href="#i-play"/></svg><span id="tSVal" style="position:absolute;font-size:7px;bottom:-10px;left:0;right:0;text-align:center">0</span></i><small style="bottom:4px" data-i="astern"></small></div>
+    <div id="tThr" class="glass" role="slider" aria-label="Throttle"><small style="top:4px" data-i="ahead"></small><u></u><i class="p"><svg class="ic" style="width:22px;height:22px;transform:rotate(-90deg)"><use href="#i-play"/></svg></i><i class="s"><svg class="ic" style="width:22px;height:22px;transform:rotate(-90deg)"><use href="#i-play"/></svg></i><small style="bottom:4px" data-i="astern"></small></div>
     <div id="tHorn" class="tb glass" aria-label="Horn"><svg class="ic" style="width:26px;height:26px"><use href="#i-horn"/></svg></div>
     <div id="tCam" class="tb glass" aria-label="Camera"><svg class="ic" style="width:26px;height:26px"><use href="#i-cam"/></svg></div>
   </div>
@@ -1252,14 +1252,6 @@ function mulberry(seed) {
 }
 const Q = new URLSearchParams(location.search);
 const FLAG = { fog: Q.has('fog'), auto: Q.has('auto'), debug: Q.has('debug'), low: Q.has('low'), noaudio: Q.has('noaudio'), touch: Q.has('touch'), noassets: Q.has('noassets'), cal: Q.has('cal') };
-let lowPowerMode = FLAG.low || (navigator.deviceMemory !== undefined && navigator.deviceMemory <= 2);
-if (navigator.getBattery) {
-  navigator.getBattery().then(bat => {
-    if (!bat.charging && bat.level < 0.2) lowPowerMode = true;
-    bat.addEventListener('levelchange', () => { if (!bat.charging && bat.level < 0.2) lowPowerMode = true; });
-    bat.addEventListener('chargingchange', () => { if (!bat.charging && bat.level < 0.2) lowPowerMode = true; });
-  }).catch(() => {});
-}
 const SIM_PRE = parseFloat(Q.get('sim')) || 0;
 const SEED = parseInt(Q.get('seed') || '11', 10);
 const START_SHIFT = parseInt(Q.get('shift') || '0', 10);
@@ -1288,7 +1280,7 @@ const STR = {
     waiting: '{0} bekliyor', planned: 'plan {0}', lateBy: '{0} geç', earlyBy: '{0} erken', depart: 'kalkış {0}', waitDep: 'kalkışa {0}', boarding: 'yolcu alınıyor…', canLeave: 'kalkabilirsin!',
     campaign: 'Sefer planı', endlessShort: 'Sonsuz',
     bestLine: 'En iyi: {0} puan · {1}/24 yıldız · Sonsuz: {2} sefer', bestNone: 'Henüz rekor yok.',
-    s1: 'İlk sefer', s2: 'Beşiktaş hattı', s3: 'Akşam seferi', s4: 'Sisli sabah', s5: 'Gece seferi', s6: 'Güçlü akıntı', s7: 'Fırtına', s8: 'Tanker konvoyu', sE: 'Sonsuz sefer {0}', sDockScore: 'Yanaşma puanı', ropeTension: 'Halat Gerginliği: {0} kN', throwLines: 'Halatları At (Boşluk/Buton)', netWarning: 'Ağlara dikkat',
+    s1: 'İlk sefer', s2: 'Beşiktaş hattı', s3: 'Akşam seferi', s4: 'Sisli sabah', s5: 'Gece seferi', s6: 'Güçlü akıntı', s7: 'Fırtına', s8: 'Tanker konvoyu', sE: 'Sonsuz sefer {0}',
     d1: 'Eminönü, Karaköy ve Üsküdar arasında kısa bir hat. Yanaşmayı öğren: yavaş, paralel, nazik.',
     d2: 'Beşiktaş\'a uzanan hat. Daha fazla trafik, daha uzun yol; tarifeye dikkat.',
     d3: 'Güneş batarken beş iskele. Akşam kalabalığı, hava kararınca ışıklar yanıyor.',
@@ -1393,7 +1385,6 @@ const SHIFTS = [
 ];
 const SCORE_K = { pax: 10, punct: 100, comfort: 3, lost: -5, stars: [0.4, 0.65, 0.85] };
 const FERRY = { len: 36, beam: 9, cap: 150, maxV: 12.5 };
-let gearPauseP = 0, gearPauseS = 0;
 const TS = 12;                 // game seconds per real second (12: a 5-minute shift is one game hour)
 const DWELL = 22;              // scheduled dwell per stop (real seconds)
 function endlessShift(n) {     // endless shift n (1-based): random route, growing difficulty
@@ -2098,7 +2089,6 @@ function buildWindowLights() {
 
 // ---------------------------------------------------------------- simulation state
 const G = { state: 'loading', mode: 'campaign', shiftIdx: 0, retries: 0, log: [], errors: [], done: false, failed: false, endlessN: 0, totals: { score: 0, pax: 0, stars: [] }, lastResult: null, selIdx: 0 };
-const SIM_EXT = { simitTimer: 0, teaTimer: 0, teaActive: false, teaTimeLeft: 0 };
 const SIM = {
   t: 0, hour: 15, shift: null, stops: [], stopIdx: 0, cur: 0.3, wind: { x: 0, z: 0, a: 0, dir: 0, gust: 0 }, fog: 0, storm: 0, rain: 0, swell: 0, night: 0, dusk: 0,
   traffic: [], aboard: {}, aboardN: 0, delivered: 0, lost: 0, comfort: 100, punct: [], score: 0, target: 1000, potential: 0,
@@ -2176,7 +2166,7 @@ function destFor(fromIdx) {   // destination stop index for a passenger boarding
 }
 function dockAt(P, idx, initial = false) {
   const s = SIM.stops[idx];
-  SIM.docked = P; SIM.dockT = 0; SIM.ropes = false; SIM.boardDone = false; SIM.depAllowed = false; SIM.leaveToast = false; SIM.boardQ = []; SIM.boardT = 0; SIM.offN = 0; SIM.onN = 0;
+  SIM.docked = P; SIM.dockT = 0; SIM.ropes = true; SIM.boardDone = false; SIM.depAllowed = false; SIM.leaveToast = false; SIM.boardQ = []; SIM.boardT = 0; SIM.offN = 0; SIM.onN = 0;
   player.u = player.v = player.r = 0; player.thr = player.thrP = player.thrS = 0; input.throttle = 0;
   // snap alongside
   player.x = P.bx; player.z = P.bz;
@@ -2253,16 +2243,9 @@ function circleAt(k, out) { const [a, r] = HULL_C[k]; out.x = player.x + Math.si
 const _c1 = { x: 0, z: 0, r: 0 }, _g = { x: 0, z: 0 };
 function stepFerry(dt) {
   const P = player;
-  if (gearPauseP > 0) gearPauseP -= dt;
-  else {
-    if (Math.sign(input.thrP) !== Math.sign(P.thrP || 0) && Math.abs(input.thrP) > 0.1 && Math.abs(P.thrP || 0) > 0.1) gearPauseP = 0.5;
-    else P.thrP = (P.thrP || 0) + clamp(input.thrP - (P.thrP || 0), -0.7 * dt, 0.7 * dt);
-  }
-  if (gearPauseS > 0) gearPauseS -= dt;
-  else {
-    if (Math.sign(input.thrS) !== Math.sign(P.thrS || 0) && Math.abs(input.thrS) > 0.1 && Math.abs(P.thrS || 0) > 0.1) gearPauseS = 0.5;
-    else P.thrS = (P.thrS || 0) + clamp(input.thrS - (P.thrS || 0), -0.7 * dt, 0.7 * dt);
-  }
+  // telegraph and rudder respond with lag
+  P.thrP = (P.thrP || 0) + clamp(input.thrP - (P.thrP || 0), -0.7 * dt, 0.7 * dt);
+  P.thrS = (P.thrS || 0) + clamp(input.thrS - (P.thrS || 0), -0.7 * dt, 0.7 * dt);
   P.thr = (P.thrP + P.thrS) / 2;
   P.rud += clamp(input.rudder - P.rud, -1.6 * dt, 1.6 * dt);
   if (SIM.docked) { P.u = P.v = P.r = 0; P.vx = P.vz = 0; P.speed = 0; P.heel *= 0.95; return; }
@@ -2306,21 +2289,6 @@ function stepFerry(dt) {
     for (const o of OBST) {
       const dx = _c1.x - o.x, dz = _c1.z - o.z, d = hyp(dx, dz), pen = o.r + _c1.r - d;
       if (pen > 0) impact(dx / (d || 1), dz / (d || 1), pen, 'crash');
-    }
-    for (const b of SIM.traffic) {
-      if (b.kind === 'anchored_fish') {
-        const nx = Math.sin(b.hd + Math.PI/2), nz = Math.cos(b.hd + Math.PI/2);
-        for (let l = 2; l < (b.netLength || 25); l += 4) {
-          const nxz = b.x + nx * l, nzz = b.z + nz * l;
-          if (hyp(_c1.x - nxz, _c1.z - nzz) < _c1.r + 2) {
-            SIM.comfort = Math.max(0, SIM.comfort - 0.5);
-            if (!SIM.netToastT || SIM.t - SIM.netToastT > 4) {
-              SIM.netToastT = SIM.t;
-              toast(t('netWarning'), 'bad');
-            }
-          }
-        }
-      }
     }
   }
 }
@@ -2394,8 +2362,7 @@ function spawnTraffic(sh) {
   }
   for (let i = 0; i < sh.fish; i++) {
     let x, z, tries = 0; do { z = rr(-1300, 1100); x = chanCenter(z) + rr(-1, 1) * chanHalf(z) * 0.85; } while (depth(x, z) < 25 && tries++ < 50);
-    const isAnchored = (i % 2 === 0);
-    T.push({ kind: isAnchored ? 'anchored_fish' : 'fish', x, z, hd: rr(0, TAU), v: 0, vT: isAnchored ? 0 : rr(2, 3.2), path: [], pi: 0, wait: isAnchored ? 9999 : rr(0, 15), delay: 0, len: 8, w: 3, circ: [[0, 3.6]], col: wpick([0x2a7fd4, 0xe8542f, 0x3cae6a, 0xf2c94c, 0xffffff]), hornCd: 0, bob: rr(0, TAU), netLength: 25 });
+    T.push({ kind: 'fish', x, z, hd: rr(0, TAU), v: 0, vT: rr(2, 3.2), path: [], pi: 0, wait: rr(0, 15), delay: 0, len: 8, w: 3, circ: [[0, 3.6]], col: wpick([0x2a7fd4, 0xe8542f, 0x3cae6a, 0xf2c94c, 0xffffff]), hornCd: 0, bob: rr(0, TAU) });
   }
 }
 function fishTarget(b) {
@@ -2524,12 +2491,7 @@ function stepDocking(dt) {
   DOCK.near = dist < 110;
   const okGap = gap > -0.6 && gap < 4.5, okAlong = Math.abs(along) < 12, okAng = Math.abs(ang) < 0.36, okSpd = player.speed < 0.9;
   DOCK.ok = okGap && okAlong && okAng && okSpd;
-  if (DOCK.ok && (keys.Space || input.horn || FLAG.auto)) {
-    SIM.dockOk += dt;
-    if (SIM.dockOk > 0.3) { dockAt(P, SIM.stopIdx); toast(t('toastDocked', pierName(P.id)), 'good'); return; }
-  } else if (DOCK.ok) {
-    if (!SIM.throwPrompt) { SIM.throwPrompt = true; toast(t('throwLines'), 'info'); }
-  } else { SIM.dockOk = 0; SIM.throwPrompt = false; }
+  if (DOCK.ok) { SIM.dockOk += dt; if (SIM.dockOk > 0.5) { dockAt(P, SIM.stopIdx); toast(t('toastDocked', pierName(P.id)), 'good'); return; } } else SIM.dockOk = 0;
   DOCK.hint = !okSpd && dist < 40 ? (player.speed > 2.5 ? 'hintFast' : 'hintSlow') : !okAng && dist < 50 ? 'hintAlign' : !(okGap && okAlong) ? 'hintCloser' : 'hintStop';
   // wrong pier reminder: slow and close to another pier
   if (player.speed < 1.5) for (const id of Object.keys(PIERS)) { if (id === ns.id) continue; const Q2 = PIERS[id]; if (hyp(player.x - Q2.bx, player.z - Q2.bz) < 25) { SIM.wrongT += dt; if (SIM.wrongT > 2.5) { SIM.wrongT = -20; toast(t('toastWrongPier', pierName(ns.id)), 'info'); } } }
@@ -2599,40 +2561,6 @@ function stepSim(dt) {
   SIM.ff = SIM.docked && SIM.boardDone && !SIM.depAllowed && SIM.stopIdx < SIM.stops.length - 1 ? 8 : 1;
   SIM.t += dt * SIM.ff; SIM.hour = SIM.shift.hour + SIM.t * TS / 3600;
   stepFerry(dt); stepTraffic(dt); stepFog(dt); stepDocking(dt); stepBoarding(dt); stepPiers(dt * SIM.ff); stepWalkers(dt);
-  
-  // Deck moments: Simit throwing & Tea seller round
-  if (!SIM.docked && SIM.aboardN > 10) {
-    SIM_EXT.simitTimer += dt;
-    if (SIM_EXT.simitTimer > 25 && Math.abs(player.u) > 2 && Math.abs(player.u) < 9) {
-      SIM_EXT.simitTimer = 0;
-      SIM.comfort = Math.min(100, SIM.comfort + 1.5);
-      floater('+1.5 🥯', false);
-      toast(LANG === 'tr' ? 'Yolcular martılara simit atıyor, konfor arttı.' : 'Passengers throw simit to gulls, comfort improved.', 'good');
-    }
-    
-    SIM_EXT.teaTimer += dt;
-    if (!SIM_EXT.teaActive && SIM_EXT.teaTimer > 90) {
-      SIM_EXT.teaActive = true;
-      SIM_EXT.teaTimeLeft = 20;
-      toast(LANG === 'tr' ? 'Çaycı tepsisiyle dolaşıyor: Yumuşak dümende kal!' : 'Tea seller is doing a round: keep a gentle helm!', 'info');
-    }
-    if (SIM_EXT.teaActive) {
-      SIM_EXT.teaTimeLeft -= dt;
-      if (Math.abs(player.r) > 0.08) {
-        SIM.comfort = Math.max(0, SIM.comfort - 3);
-        floater('-3 ☕', true);
-        toast(LANG === 'tr' ? 'Sert manevra! Çay döküldü.' : 'Hard turn! Tea spilled.', 'bad');
-        SIM_EXT.teaActive = false;
-        SIM_EXT.teaTimer = 0;
-      } else if (SIM_EXT.teaTimeLeft <= 0) {
-        SIM.comfort = Math.min(100, SIM.comfort + 2);
-        floater('+2 ☕', false);
-        toast(LANG === 'tr' ? 'Çay servisi huzur getirdi.' : 'Tea service brought comfort.', 'good');
-        SIM_EXT.teaActive = false;
-        SIM_EXT.teaTimer = 0;
-      }
-    }
-  }
   // weather drift: storm rain, thunder; fog that thickens a little over the shift
   if (SIM.storm) { SIM.rain += (1 - SIM.rain) * 0.1 * dt; SIM.thunderT -= dt; if (SIM.thunderT <= 0) { SIM.thunderT = rr(14, 40); AUD.thunder(); lightning = 1; } }
   SIM.swell += ((SIM.storm ? 1 : 0.15 + 0.25 * SIM.wind.a) - SIM.swell) * 0.05 * dt;
@@ -3228,7 +3156,7 @@ function syncRender(dt) {
     if (b.delay > 0) continue;
     if (b.kind === 'ferry' && n < 7) { ferryMatrix(b.x, b.z, b.hd, 0, 0, _mat); OBJ.ferryB.setMatrixAt(n, _mat); OBJ.ferryW.setMatrixAt(n, _mat); OBJ.ferryN.setMatrixAt(n, _mat); n++; }
     else if (b.kind === 'tanker' && nt < 8) { ferryMatrix(b.x, b.z, b.hd, 0, 0, _mat); OBJ.tankH.setMatrixAt(nt, _mat); OBJ.tankT.setMatrixAt(nt, _mat); OBJ.tankH.setColorAt(nt, _c.setHex(b.col)); nt++; }
-    else if ((b.kind === 'fish' || b.kind === 'anchored_fish') && nf < 12) { ferryMatrix(b.x, b.z, b.hd, 0.08 * Math.sin(b.bob * 2.1), 0.05 * Math.sin(b.bob * 1.7), _mat); OBJ.fishH.setMatrixAt(nf, _mat); OBJ.fishT.setMatrixAt(nf, _mat); OBJ.fishH.setColorAt(nf, _c.setHex(b.col)); nf++; }
+    else if (b.kind === 'fish' && nf < 12) { ferryMatrix(b.x, b.z, b.hd, 0.08 * Math.sin(b.bob * 2.1), 0.05 * Math.sin(b.bob * 1.7), _mat); OBJ.fishH.setMatrixAt(nf, _mat); OBJ.fishT.setMatrixAt(nf, _mat); OBJ.fishH.setColorAt(nf, _c.setHex(b.col)); nf++; }
   }
   OBJ.ferryB.count = OBJ.ferryW.count = OBJ.ferryN.count = n; OBJ.ferryB.instanceMatrix.needsUpdate = OBJ.ferryW.instanceMatrix.needsUpdate = OBJ.ferryN.instanceMatrix.needsUpdate = true;
   OBJ.tankH.count = OBJ.tankT.count = nt; OBJ.tankH.instanceMatrix.needsUpdate = OBJ.tankT.instanceMatrix.needsUpdate = true; if (OBJ.tankH.instanceColor) OBJ.tankH.instanceColor.needsUpdate = true;
@@ -3238,22 +3166,12 @@ function syncRender(dt) {
 }
 function syncGulls(dt) {
   const m = OBJ.gulls, t = waterU.uTime.value;
-  const sternFlock = !SIM.docked && Math.abs(player.u) > 1.5;
   for (let i = 0; i < GULLS.length; i++) {
     const g = GULLS[i];
-    let cx, cz;
-    if (sternFlock && i < 12) {
-      const s = Math.sin(player.hd), co = Math.cos(player.hd);
-      cx = player.x - s * (20 + (i % 4) * 4) + co * ((i % 3 - 1) * 3);
-      cz = player.z - co * (20 + (i % 4) * 4) - s * ((i % 3 - 1) * 3);
-    } else {
-      const spot = g.spot < WORLD.gullSpots.length ? WORLD.gullSpots[g.spot] : null;
-      cx = spot ? spot[0] : player.x; cz = spot ? spot[1] : player.z;
-    }
-    g.a += g.w * dt * (player.horn && !sternFlock ? 2.2 : 1);
-    const x = sternFlock ? cx + Math.sin(t*3 + i)*1.5 : cx + Math.cos(g.a) * g.r;
-    const z = sternFlock ? cz + Math.cos(t*3 + i)*1.5 : cz + Math.sin(g.a) * g.r;
-    const y = g.h + Math.sin(t * 0.7 + g.ph) * 3 + (player.horn && !sternFlock ? 10 : 0);
+    const spot = g.spot < WORLD.gullSpots.length ? WORLD.gullSpots[g.spot] : null;
+    const cx = spot ? spot[0] : player.x, cz = spot ? spot[1] : player.z;
+    g.a += g.w * dt * (player.horn && !spot ? 2.2 : 1);
+    const x = cx + Math.cos(g.a) * g.r, z = cz + Math.sin(g.a) * g.r, y = g.h + Math.sin(t * 0.7 + g.ph) * 3 + (player.horn && !spot ? 10 : 0);
     const flap = 1 + 0.55 * Math.sin(t * 9 + g.ph);
     m.setMatrixAt(i, place(x, y, z, -g.a + (g.w > 0 ? Math.PI : 0), 1, flap, 1));
   }
@@ -3325,8 +3243,8 @@ function syncMarkers(dt) {
     matBerth.opacity = DOCK.ok ? 0.55 : 0.2 + 0.1 * Math.sin(waterU.uTime.value * 3);
     OBJ.beacon.visible = !SIM.docked; OBJ.beacon.position.set(P.x, 22 + Math.sin(waterU.uTime.value * 2) * 1.5, P.z); OBJ.beacon.rotation.y += dt;
   } else { OBJ.berth.visible = false; OBJ.beacon.visible = false; }
-  OBJ.ropes.visible = !!SIM.docked && SIM.ropes;
-  if (SIM.docked && SIM.ropes) {
+  OBJ.ropes.visible = !!SIM.docked;
+  if (SIM.docked) {
     const P = SIM.docked, a = OBJ.ropes.geometry.attributes.position, s = Math.sin(player.hd), c = Math.cos(player.hd);
     // cleats near the bow and the stern on the pier side
     const sideSign = ((P.ex - player.x) * c - (P.ez - player.z) * s) > 0 ? 1 : -1;
@@ -3456,18 +3374,6 @@ function updateHUD(dt) {
     el.stClock.className = diff > 15 ? 'late' : '';
   } else { el.stPlan.textContent = ''; el.stClock.className = ''; }
   el.stPax.textContent = SIM.aboardN + '/' + FERRY.cap;
-  const rpmP = Math.round((player.thrP || 0) * 350);
-  const rpmS = Math.round((player.thrS || 0) * 350);
-  const modeP = rpmP >= 0 ? (LANG === 'tr' ? 'İLERİ' : 'AHEAD') : (LANG === 'tr' ? 'TORN' : 'ASTERN');
-  const modeS = rpmS >= 0 ? (LANG === 'tr' ? 'İLERİ' : 'AHEAD') : (LANG === 'tr' ? 'TORN' : 'ASTERN');
-  const rpmEl = document.getElementById('rpmReadout');
-  if (rpmEl) rpmEl.textContent = 'P:' + Math.abs(rpmP) + ' ' + modeP + ' S:' + Math.abs(rpmS) + ' ' + modeS;
-  const tPVal = document.getElementById('tPVal'); if (tPVal) tPVal.textContent = Math.abs(rpmP);
-  const tSVal = document.getElementById('tSVal'); if (tSVal) tSVal.textContent = Math.abs(rpmS);
-  if (SIM.docked && SIM.ropes) {
-    const tension = Math.round(Math.abs(player.thr) * 45 + Math.abs(player.u) * 12);
-    el.ncL3.textContent = t('ropeTension', tension);
-  }
   el.comfBar.firstChild.style.width = SIM.comfort.toFixed(0) + '%';
   el.hullBar.firstChild.style.width = player.hull.toFixed(0) + '%';
   const proj = starsFor(shiftScore() + (SIM.stops.length - 1 - SIM.punct.length) * 0 + 0, SIM.target);   // stars so far (score grows with the stops)
@@ -3794,7 +3700,7 @@ function renderEnd(res) {
   el.enTitle.textContent = res.kind === 'wreck' ? t('endWreck') : !won ? t('endFail') : campaignDone ? t('endWin') : G.mode === 'endless' ? t('endClear') : t('endClear');
   el.enSub.textContent = res.kind === 'wreck' ? t('subWreck') : !won ? t('subFail') : campaignDone ? t('subWin') : G.mode === 'endless' ? t('subEndless', G.endlessN, G.totals.pax) : t('subClear');
   el.enStars.innerHTML = [0, 1, 2].map(i => '<svg class="' + (i < res.stars ? 'on' : '') + '" style="animation-delay:' + (i * 0.2) + 's" viewBox="0 0 24 24"><use href="#i-star"/></svg>').join('');
-  const kv = [[t('sPax'), res.pax + ' / ' + SIM.potential], [t('sPunct'), res.punct + '%'], [t('sComfort'), res.comfort + '%'], [t('sLost'), res.lost, res.lost > 0 ? 'neg' : ''], [t('sHull'), res.hull + '%', res.hull > 30 ? 'neg' : ''], [t('sDockScore'), (SIM.dockBonus || 0) + ' p'], [t('sScore'), res.score + ' / ' + res.target], [t('sTotal'), G.totals.score]];
+  const kv = [[t('sPax'), res.pax + ' / ' + SIM.potential], [t('sPunct'), res.punct + '%'], [t('sComfort'), res.comfort + '%'], [t('sLost'), res.lost, res.lost > 0 ? 'neg' : ''], [t('sHull'), res.hull + '%', res.hull > 30 ? 'neg' : ''], [t('sScore'), res.score + ' / ' + res.target], [t('sTotal'), G.totals.score]];
   if (res.fog !== null && res.fog !== undefined) kv.splice(5, 0, [t('sFogBonus'), '+' + res.fog]);
   el.enStats.innerHTML = kv.map(([k, v, c]) => '<span>' + k + '</span><span class="' + (c || '') + '">' + v + '</span>').join('');
   el.enRec.classList.toggle('hidden', !res.rec); el.enRec.textContent = t('newRecord');
@@ -3892,10 +3798,7 @@ function botTick(dt) {
   if (G.state !== 'play') return;
   const P = player;
   input.horn = false;
-  if (SIM.docked) {
-    if (!SIM.ropes && DOCK.ok) SIM.ropes = true;
-    BOT.wp = []; BOT.wpFor = null; BOT.dockDir = 0; BOT.back = false; BOT.backOut = false; BOT.escape = false; BOT.near = false; BOT.finalT = 0; input.rudder = 0; input.throttle = (SIM.depAllowed && SIM.stopIdx < SIM.stops.length - 1) ? 0.5 : 0; BOT.stuck = 0; return;
-  }
+  if (SIM.docked) { BOT.wp = []; BOT.wpFor = null; BOT.dockDir = 0; BOT.back = false; BOT.backOut = false; BOT.escape = false; BOT.near = false; BOT.finalT = 0; input.rudder = 0; input.throttle = (SIM.depAllowed && SIM.stopIdx < SIM.stops.length - 1) ? 0.5 : 0; BOT.stuck = 0; return; }
   // fog run: the bot steers on its internal state, but blows the fog horn now and then like a captain would
   if (SIM.fogRun) { BOT.fogHornT = (BOT.fogHornT ?? 2) - dt; if (BOT.fogHornT <= 0) { BOT.fogHornT = 15; input.horn = true; } }
   const ns = nextStop(); if (!ns) { input.throttle = 0; return; }
@@ -4032,18 +3935,11 @@ function botTick(dt) {
 }
 
 // ---------------------------------------------------------------- main loop
-let lastT = performance.now(), lastFrameTime = 0, acc = 0, fpsS = 60, frameN = 0, ambT = 8;
+let lastT = performance.now(), acc = 0, fpsS = 60, frameN = 0, ambT = 8;
 const FIXED = 1 / 60;
 function frame(now) {
   requestAnimationFrame(frame);
   let dt = (now - lastT) / 1000; lastT = now; if (!(dt > 0)) dt = 0.016; dt = Math.min(dt, 0.1);
-  const userLow = lsGet('arena.vapur.lowPowerOverride');
-  const isLow = (userLow !== null ? userLow : lowPowerMode);
-  if (isLow) {
-    if (now - lastFrameTime < 31.5) return;
-    lastFrameTime = now;
-    dt = Math.max(dt, 0.033);
-  }
   if (document.hidden) return;
   if (G.state === 'loading') return;
   fpsS += (1 / Math.max(dt, 1e-3) - fpsS) * 0.05;
