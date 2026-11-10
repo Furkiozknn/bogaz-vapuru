@@ -1493,6 +1493,7 @@ input[type=range] { width: 100%; height: 44px; accent-color: var(--c-teal); back
         <label for="rSfx" data-i="effects"></label><input type="range" id="rSfx" min="0" max="100" data-t="effects" aria-label="Efektler"><output id="oSfx"></output>
         <label data-i="language"></label><div class="seg"><button class="btn" id="bTR">Türkçe</button><button class="btn" id="bEN">English</button></div>
         <label data-i="quality"></label><div class="seg"><button class="btn" id="bQLow" data-i="low"></button><button class="btn" id="bQHigh" data-i="high"></button></div>
+        <label data-i="lowPower"></label><div class="seg"><button class="btn" id="bLPAuto" data-i="lpAuto"></button><button class="btn" id="bLPOn" data-i="lpOn"></button><button class="btn" id="bLPOff" data-i="lpOff"></button></div>
         <label data-i="fullscreen"></label><div class="seg"><button class="btn" id="bFull"><svg class="ic"><use href="#i-full"/></svg><span data-i="toggle"></span></button></div>
         <label data-i="a11y"></label><div class="seg"><button class="btn" id="bA11y"><span data-i="a11yOpen"></span></button></div>
       </div>
@@ -1574,7 +1575,7 @@ const STR = {
     loading: 'Yükleniyor… {0}/{1}', play: 'Oyna', continue: 'Devam', endless: 'Sonsuz sefer', settings: 'Ayarlar',
     language: 'Dil', paused: 'Duraklatıldı', resume: 'Devam et', restart: 'Yeniden başla', menu: 'Ana menü',
     startShift: 'Sefere çık', master: 'Genel ses', music: 'Müzik', effects: 'Efektler', quality: 'Kalite',
-    low: 'Düşük', high: 'Yüksek', fullscreen: 'Tam ekran', toggle: 'Aç / kapat', back: 'Geri',
+    low: 'Düşük', high: 'Yüksek', lowPower: 'Düşük güç modu', lpAuto: 'Otomatik', lpOn: 'Açık', lpOff: 'Kapalı', fullscreen: 'Tam ekran', toggle: 'Aç / kapat', back: 'Geri',
     keysHelp: 'P / Esc duraklat · M müzik · X efekt · L dil · C kamera · Boşluk düdük (dokun/tut) · W/S makineler · T/G iskele · Y/H sancak · A/D dümen · E halat at',
     keysHelpTouch: 'Sağdaki kol gaz (yukarı ileri, aşağı tornistan; sol ya da sağ kenarı tek makine) · soldaki simit dümen · korna düğmesi düdük · kamera düğmesi görünüm · HALAT AT düğmesi yanaşma · üst çubuk duraklat, ses, dil',
     retry: 'Tekrar dene', next: 'Sonraki sefer', playAgain: 'Tekrar oyna', nextShift: 'Sonraki sefer',
@@ -1603,6 +1604,7 @@ const STR = {
     tgt: 'Hedef', star1: '1 yıldız', star2: '2 yıldız', star3: '3 yıldız', ttHead: 'Tarife',
     toastStart: 'Sefer başladı. İlk iskele: {0}', toastDocked: '{0} iskelesine yanaşıldı', toastRopes: 'Halatlar atıldı!', toastBump: 'Sert yanaşma! Yolcular rahatsız', toastCrash: 'Çarpışma! Gövde hasar aldı', toastGround: 'Karaya oturdun!',
     toastLate: 'Geç kaldın, yolcular sabırsız', toastLost: '{0} yolcu beklemekten vazgeçti', toastEarly: 'Erken geldin: saat hızlandı, kalkışa az kaldı', toastDockPro: 'Usta yanaşma! +{0}', toastDockOk: 'Yanaşma puanı +{0}', toastLeave: 'Kalkış saati. Yola çık!', toastWrongPier: 'Burası sıradaki iskele değil: {0}', toastTanker: 'Tanker yaklaşıyor, yol ver!',
+    toastNets: 'Ağlara dikkat',
     toastHeel: 'Sert dümen, yolcular sallanıyor', toastFog: 'Sis bastırdı', toastStorm: 'Fırtına şiddetleniyor', toastNight: 'Işıklar yakıldı',
     toastSimitStart: 'Yolcular kıç güverteden martılara simit atıyor!', toastSimitDone: 'Martılarla keyifli seyir (+konfor)',
     toastTeaStart: 'Çaycı güvertede! Nazik dümenle çay servisi başladı.', toastTeaSpill: 'Sert dümen! Çaylar döküldü (-konfor)', toastTeaDone: 'Taze çaylar yudumlandı (+konfor)',
@@ -1636,7 +1638,7 @@ const STR = {
     loading: 'Loading… {0}/{1}', play: 'Play', continue: 'Continue', endless: 'Endless shift', settings: 'Settings',
     language: 'Language', paused: 'Paused', resume: 'Resume', restart: 'Restart', menu: 'Main menu',
     startShift: 'Start the shift', master: 'Master', music: 'Music', effects: 'Effects', quality: 'Quality',
-    low: 'Low', high: 'High', fullscreen: 'Fullscreen', toggle: 'Toggle', back: 'Back',
+    low: 'Low', high: 'High', lowPower: 'Low-power mode', lpAuto: 'Auto', lpOn: 'On', lpOff: 'Off', fullscreen: 'Fullscreen', toggle: 'Toggle', back: 'Back',
     keysHelp: 'P / Esc pause · M music · X effects · L language · C camera · Space horn (tap/hold) · W/S engines · T/G port · Y/H starboard · A/D rudder · E throw lines',
     keysHelpTouch: 'Right lever is the throttle (up ahead, down astern; its left or right edge drives one engine) · wheel on the left steers · horn button sounds the horn · camera button changes the view · THROW LINES button to moor · top bar: pause, sound, language',
     retry: 'Retry', next: 'Next shift', playAgain: 'Play again', nextShift: 'Next shift',
@@ -1665,6 +1667,7 @@ const STR = {
     tgt: 'Target', star1: '1 star', star2: '2 stars', star3: '3 stars', ttHead: 'Timetable',
     toastStart: 'Shift started. First pier: {0}', toastDocked: 'Docked at {0}', toastRopes: 'Ropes thrown!', toastBump: 'Hard docking! Passengers upset', toastCrash: 'Collision! Hull damaged', toastGround: 'Run aground!',
     toastLate: 'You are late, passengers are impatient', toastLost: '{0} passengers gave up waiting', toastEarly: 'Early: the clock runs fast until departure', toastDockPro: 'Masterful docking! +{0}', toastDockOk: 'Docking score +{0}', toastLeave: 'Departure time. Cast off!', toastWrongPier: 'This is not the next pier: {0}', toastTanker: 'Tanker approaching, give way!',
+    toastNets: 'Watch out for nets',
     toastHeel: 'Hard rudder, passengers are swaying', toastFog: 'Fog rolls in', toastStorm: 'The storm picks up', toastNight: 'Lights on',
     toastSimitStart: 'Passengers are throwing simit to seagulls aft!', toastSimitDone: 'Calm cruise with the seagulls (+comfort)',
     toastTeaStart: 'Tea seller on deck! Steady helm keeps the glasses steady.', toastTeaSpill: 'Hard turn! Tea spilled on deck (-comfort)', toastTeaDone: 'Fresh tea enjoyed by passengers (+comfort)',
@@ -1733,7 +1736,31 @@ function endlessShift(n) {     // endless shift n (1-based): random route, growi
 // ---------------------------------------------------------------- settings / save (all in try/catch)
 const KEY_SET = 'arena.vapur.settings', KEY_SAVE = 'arena.vapur.save';
 const isPhone = /Android|iPhone|iPad|iPod|Mobi/i.test(navigator.userAgent) || (matchMedia && matchMedia('(pointer:coarse)').matches && Math.min(screen.width, screen.height) < 800);
-const settings = { master: 0.8, music: 0.6, sfx: 0.8, mute: false, lang: (navigator.language || 'tr').toLowerCase().startsWith('tr') ? 'tr' : 'en', quality: isPhone ? 'low' : 'high' };
+const settings = { master: 0.8, music: 0.6, sfx: 0.8, mute: false, lang: (navigator.language || 'tr').toLowerCase().startsWith('tr') ? 'tr' : 'en', quality: isPhone ? 'low' : 'high', lowPower: 'auto' };
+const batteryState = { low: false, charging: false };
+if (typeof navigator !== 'undefined' && navigator.getBattery) {
+  navigator.getBattery().then(bat => {
+    function updateBat() {
+      batteryState.low = (bat.level <= 0.20);
+      batteryState.charging = !!bat.charging;
+      if (typeof applyQuality === 'function') applyQuality();
+    }
+    updateBat();
+    bat.addEventListener('levelchange', updateBat);
+    bat.addEventListener('chargingchange', updateBat);
+  }).catch(() => {});
+}
+function isAutoLowPower() {
+  const lowMem = (typeof navigator !== 'undefined' && navigator.deviceMemory && navigator.deviceMemory <= 2);
+  const lowBat = (batteryState.low && !batteryState.charging);
+  return !!(lowMem || lowBat);
+}
+function isLowPower() {
+  if (FLAG.low) return true;
+  if (settings.lowPower === 'on') return true;
+  if (settings.lowPower === 'off') return false;
+  return isAutoLowPower();
+}
 function setCompact(on) {
   document.body.classList.toggle('compact', on);
   const b = document.getElementById('bPanel'); if (b) b.classList.toggle('on', on);
@@ -2732,6 +2759,7 @@ const SIM = {
   walkers: [], heelT: 0, lastThrSign: 0, bumpCd: 0, toasted: {}, thunderT: 0, hornT: 0, ended: false, lostT: 0, gullT: 4, ropeTension: 0,
 };
 const player = { x: 0, z: 0, hd: 0, u: 0, v: 0, r: 0, thr: 0, thrP: 0, thrS: 0, gearDirP: 0, gearDirS: 0, gearPauseP: 0, gearPauseS: 0, rpmP: 0, rpmS: 0, rud: 0, hull: 0, vx: 0, vz: 0, speed: 0, heel: 0, pitch: 0, wakeT: 0, smokeT: 0, horn: false };
+let lastPlayerX = 0, lastPlayerZ = 0;
 const input = {
   thrP: 0, thrS: 0, rudder: 0, horn: false,   // port / starboard engine telegraphs -1..1; rudder > 0 turns to port
   get throttle() { return (this.thrP + this.thrS) / 2; },
@@ -2781,7 +2809,7 @@ function startShiftSim(sh) {
     simitActive: false, simitTimer: 18 + rr(6, 12), simitTime: 0, simitDur: 14, simitBonusAcc: 0, gullSfxT: 0,
     teaActive: false, teaTimer: 32 + rr(8, 16), teaTime: 0, teaDur: 16, teaSpilled: false, teaBonusAcc: 0, teaClinkT: 0,
   };
-  SIM.lastThrSign = 0; SIM.bumpCd = 0; SIM.heelT = 0; SIM.hornT = 0; SIM.lostT = 0; SIM.wrongT = 0; SIM.thunderT = 20;
+  SIM.lastThrSign = 0; SIM.bumpCd = 0; SIM.heelT = 0; SIM.hornT = 0; SIM.lostT = 0; SIM.wrongT = 0; SIM.thunderT = 20; lastPlayerX = 0; lastPlayerZ = 0;
   for (const id of Object.keys(PIERS)) { const P = PIERS[id]; P.wait = 0; P.wait0 = 0; P.cap = 90; P.lostToast = false; }
   planShift(sh);
   // initial queues: every stop on the route that is not the first one
@@ -3046,8 +3074,33 @@ function spawnTraffic(sh) {
     T.push({ kind: 'ferry', x: ox, z: oz, hd: P0.hd, v: 0, vT: rr(7, 9), seq, si: 0, path: [], pi: 0, wait: 18 + i * 10, delay: 0, len: 36, w: 9, circ: [[-12, 5], [0, 5.5], [12, 5]], hornCd: 0, lights: true });
   }
   for (let i = 0; i < sh.fish; i++) {
-    let x, z, tries = 0; do { z = rr(-1300, 1100); x = chanCenter(z) + rr(-1, 1) * chanHalf(z) * 0.85; } while (depth(x, z) < 25 && tries++ < 50);
-    T.push({ kind: 'fish', x, z, hd: rr(0, TAU), v: 0, vT: rr(2, 3.2), path: [], pi: 0, wait: rr(0, 15), delay: 0, len: 8, w: 3, circ: [[0, 3.6]], col: wpick([0x2a7fd4, 0xe8542f, 0x3cae6a, 0xf2c94c, 0xffffff]), hornCd: 0, bob: rr(0, TAU) });
+    let x = 0, z = 0, tries = 0;
+    do {
+      z = rr(-1250, 1050);
+      const side = (i % 2 === 0) ? -1 : 1;
+      x = chanCenter(z) + side * chanHalf(z) * rr(0.55, 0.82);
+      let nearPier = false;
+      for (const id of Object.keys(PIERS)) {
+        const P = PIERS[id];
+        if (hyp(x - P.bx, z - P.bz) < 130) { nearPier = true; break; }
+      }
+      if (!nearPier && depth(x, z) >= 20) break;
+    } while (tries++ < 60);
+    currentAt(x, z, _v);
+    const hd = Math.atan2(-_v.x, -_v.z);
+    const sgn = x < chanCenter(z) ? -1 : 1;
+    const netLen = rr(45, 65);
+    let nx = sgn * rr(0.6, 0.9), nz = rr(0.3, 0.7);
+    const nl = hyp(nx, nz) || 1; nx /= nl; nz /= nl;
+    let netEndX = x + nx * netLen, netEndZ = z + nz * netLen;
+    if (depth(netEndX, netEndZ) < 6) { netEndX = x + nx * (netLen * 0.55); netEndZ = z + nz * (netLen * 0.55); }
+    T.push({
+      kind: 'fish', x, z, hd, v: 0, vT: 0, anchored: true,
+      netLen, netEndX, netEndZ, netBuoys: 6, netHitCd: 0,
+      path: [], pi: 0, wait: 99999, delay: 0, len: 8, w: 3,
+      circ: [[0, 3.6]], col: wpick([0x2a7fd4, 0xe8542f, 0x3cae6a, 0xf2c94c, 0xffffff]),
+      hornCd: 0, bob: rr(0, TAU)
+    });
   }
 }
 function fishTarget(b) {
@@ -3091,6 +3144,7 @@ function closestApproach(x, z, vx, vz, horizon, self) {
 function stepTraffic(dt) {
   for (const b of SIM.traffic) {
     if (b.delay > 0) { b.delay -= dt; continue; }
+    if (b.anchored) { b.bob += dt; b.v = 0; continue; }
     b.hornCd = Math.max(0, b.hornCd - dt);
     if (b.wait > 0) { b.wait -= dt; b.v = Math.max(0, b.v - 1.2 * dt); if (b.kind === 'fish') b.bob += dt; }
     if (b.wait <= 0 && b.pi >= b.path.length) {
@@ -3389,12 +3443,42 @@ function stepFog(dt) {
     FOG.blips.push({ x: b.x, z: b.z, kind: 'boat', at: FOG.clock + d / SOUND_V, ttl: 4 });
   }
 }
+function segIntersect(x1, z1, x2, z2, x3, z3, x4, z4) {
+  const ccw = (ax, az, bx, bz, cx, cz) => (cz - az) * (bx - ax) > (bz - az) * (cx - ax);
+  return (ccw(x1, z1, x3, z3, x4, z4) !== ccw(x2, z2, x3, z3, x4, z4)) &&
+         (ccw(x1, z1, x2, z2, x3, z3) !== ccw(x1, z1, x2, z2, x4, z4));
+}
+function stepNets(dt) {
+  const P = player;
+  if (!lastPlayerX && !lastPlayerZ) { lastPlayerX = P.x; lastPlayerZ = P.z; }
+  const s = Math.sin(P.hd), c = Math.cos(P.hd);
+  const bowX = P.x + s * 17, bowZ = P.z + c * 17;
+  const sternX = P.x - s * 17, sternZ = P.z - c * 17;
+  for (const b of SIM.traffic) {
+    if (!b.anchored || !b.netEndX) continue;
+    if (b.netHitCd > 0) b.netHitCd -= dt;
+    const midX = (b.x + b.netEndX) * 0.5, midZ = (b.z + b.netEndZ) * 0.5;
+    if (Math.abs(P.x - midX) > 90 || Math.abs(P.z - midZ) > 90) continue;
+    const hitKeel = segIntersect(bowX, bowZ, sternX, sternZ, b.x, b.z, b.netEndX, b.netEndZ);
+    const hitTravel = segIntersect(lastPlayerX, lastPlayerZ, P.x, P.z, b.x, b.z, b.netEndX, b.netEndZ);
+    if ((hitKeel || hitTravel) && !(b.netHitCd > 0)) {
+      b.netHitCd = 4.0;
+      SIM.comfort = Math.max(0, SIM.comfort - 6);
+      floater('-6', true);
+      toast(t('toastNets'), 'bad');
+      AUD.rope();
+      AUD.bump(0.5);
+      hurtFlash(0.28);
+    }
+  }
+  lastPlayerX = P.x; lastPlayerZ = P.z;
+}
 // ---------------------------------------------------------------- shift step and end
 function stepSim(dt) {
   if (SIM.ended) return;
   SIM.ff = SIM.docked && SIM.boardDone && !SIM.depAllowed && SIM.stopIdx < SIM.stops.length - 1 ? 8 : 1;
   SIM.t += dt * SIM.ff; SIM.hour = SIM.shift.hour + SIM.t * TS / 3600;
-  stepFerry(dt); stepTraffic(dt); stepColreg(dt); stepFog(dt); stepDocking(dt); stepBoarding(dt); stepPiers(dt * SIM.ff); stepWalkers(dt); stepDeckLife(dt);
+  stepFerry(dt); stepTraffic(dt); stepNets(dt); stepColreg(dt); stepFog(dt); stepDocking(dt); stepBoarding(dt); stepPiers(dt * SIM.ff); stepWalkers(dt); stepDeckLife(dt);
   // weather drift: storm rain, thunder; fog that thickens a little over the shift
   if (SIM.storm) { SIM.rain += (1 - SIM.rain) * 0.1 * dt; SIM.thunderT -= dt; if (SIM.thunderT <= 0) { SIM.thunderT = rr(14, 40); AUD.thunder(); lightning = 1; } }
   SIM.swell += ((SIM.storm ? 1 : 0.15 + 0.25 * SIM.wind.a) - SIM.swell) * 0.05 * dt;
@@ -3422,7 +3506,7 @@ const canvas = $('#gl');
 const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: 'high-performance', alpha: false });
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(55, 1, 0.8, 3200);
-const lowQ = () => settings.quality === 'low' || FLAG.low;
+const lowQ = () => settings.quality === 'low' || FLAG.low || isLowPower();
 function applyQuality() {
   renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, lowQ() ? 1 : 1.5));
   renderer.shadowMap.enabled = !lowQ();
@@ -3614,6 +3698,14 @@ function buildFishGeo() {
   tp.box(0, 1.45, -3.2, 2.0, 0.7, 1.2, 0x4f8a5a); for (const [x, z] of [[-1.1, 1.6], [1.0, 0.9], [0.4, -3.5]]) tp.sphere(x, 1.7, z, 0.28, 0xf28c28, 5);   // net heap, buoys
   for (const s of [-1, 1]) for (const z of [-2, 1.2]) tp.box(s * 1.75, 0.6, z, 0.3, 0.5, 0.5, 0x242424);   // tyre fenders
   return { hull: g.build(), top: tp.build() };
+}
+/** orange net buoy: bright float barrel, small pole mast, amber pennant */
+function buildBuoyGeo() {
+  const g = new GB();
+  g.cyl(0, 0, 0, 0.38, 0.55, 0xf26522, 6);
+  g.cyl(0, 0.45, 0, 0.04, 0.85, 0x242424, 4);
+  g.box(0.14, 0.82, 0, 0.28, 0.18, 0.02, 0xffa022);
+  return g.build();
 }
 /** tiny passenger: body (tinted) and head */
 function buildPeopleGeo() {
@@ -3829,6 +3921,8 @@ function buildScene() {
   OBJ.fishH = new THREE.InstancedMesh(fsh.hull, matTint, 12); OBJ.fishT = new THREE.InstancedMesh(fsh.top, matLam, 12);
   for (const m of [OBJ.fishH, OBJ.fishT]) { m.castShadow = true; m.receiveShadow = true; m.frustumCulled = false; m.count = 0; scene.add(m); }
   OBJ.fishH.setColorAt(0, _c.setHex(0xffffff));
+  OBJ.buoys = new THREE.InstancedMesh(buildBuoyGeo(), matLam, 96);
+  OBJ.buoys.castShadow = false; OBJ.buoys.receiveShadow = true; OBJ.buoys.frustumCulled = false; OBJ.buoys.count = 0; scene.add(OBJ.buoys);
   // people and gulls
   const pg = buildPeopleGeo(); OBJ.peopleMax = 360;
   OBJ.pplB = new THREE.InstancedMesh(pg.body, matTint, OBJ.peopleMax); OBJ.pplH = new THREE.InstancedMesh(pg.head, matLam, OBJ.peopleMax);
@@ -4096,6 +4190,29 @@ function syncRender(dt) {
   OBJ.ferryB.count = OBJ.ferryW.count = OBJ.ferryN.count = n; OBJ.ferryB.instanceMatrix.needsUpdate = OBJ.ferryW.instanceMatrix.needsUpdate = OBJ.ferryN.instanceMatrix.needsUpdate = true;
   OBJ.tankH.count = OBJ.tankT.count = nt; OBJ.tankH.instanceMatrix.needsUpdate = OBJ.tankT.instanceMatrix.needsUpdate = true; if (OBJ.tankH.instanceColor) OBJ.tankH.instanceColor.needsUpdate = true;
   OBJ.fishH.count = OBJ.fishT.count = nf; OBJ.fishH.instanceMatrix.needsUpdate = OBJ.fishT.instanceMatrix.needsUpdate = true; if (OBJ.fishH.instanceColor) OBJ.fishH.instanceColor.needsUpdate = true;
+  let nb = 0;
+  if (OBJ.buoys) {
+    for (const b of SIM.traffic) {
+      if (!b.anchored || !b.netEndX) continue;
+      const count = b.netBuoys || 6;
+      for (let k = 0; k < count; k++) {
+        if (nb >= 96) break;
+        const u = (k + 1) / (count + 1);
+        const bx = lerp(b.x, b.netEndX, u);
+        const bz = lerp(b.z, b.netEndZ, u);
+        const bob = Math.sin(waterU.uTime.value * 2.5 + k * 1.2 + b.bob);
+        const by = waveY(bx, bz) + 0.12 + bob * 0.08;
+        _o.position.set(bx, by, bz);
+        _e.set(bob * 0.12, b.hd + u * 0.4, bob * 0.08, 'YXZ');
+        _o.quaternion.setFromEuler(_e);
+        _o.scale.set(1, 1, 1);
+        _o.updateMatrix();
+        OBJ.buoys.setMatrixAt(nb++, _o.matrix);
+      }
+    }
+    OBJ.buoys.count = nb;
+    OBJ.buoys.instanceMatrix.needsUpdate = true;
+  }
   syncPeople(); syncGulls(dt); syncParticles(dt); syncMarkers(dt);
   updateCamera(dt);
 }
@@ -4463,7 +4580,7 @@ function setCamMode(m) {
 const el = {};
 for (const id of ['hud', 'topbar', 'stShift', 'stClock', 'stPlan', 'stPax', 'comfBar', 'hullBar', 'stStars', 'bPanel', 'bCamH', 'bPause', 'bSound', 'bLang', 'toasts', 'colregBadge', 'colregArrow', 'colregTxt', 'colregSub', 'nextCard', 'ncName', 'ncL2', 'ncL3', 'ncRope', 'ncRopeVal', 'ncRopeBar', 'camLbl', 'minimap', 'lvThr', 'lvThrS', 'lvRud', 'rpmP', 'rpmS', 'speedo', 'spArc', 'spVal', 'spUnit', 'dock', 'dkDist', 'dkSpd', 'dkAng', 'dkHint', 'bMoor', 'floaters', 'touch', 'tWheel', 'tWheelSvg', 'tThr', 'tRpmP', 'tRpmS', 'tHorn', 'tCam',
   'sTitle', 'sIntro', 'sPause', 'sSettings', 'sEnd', 'bPlay', 'playTxt', 'bCont', 'bEndless', 'bSettingsT', 'bLangT', 'langTxt', 'bestLine', 'cmap', 'inTitle', 'inDesc', 'inCond', 'inTT', 'inTarget', 'bStart', 'bFog', 'fogTxt', 'bIntroBack',
-  'bResume', 'bRestart', 'bSettingsP', 'bMenuP', 'rMaster', 'rMusic', 'rSfx', 'oMaster', 'oMusic', 'oSfx', 'bTR', 'bEN', 'bQLow', 'bQHigh', 'bFull', 'bSetBack', 'enTitle', 'enSub', 'enStars', 'enStats', 'enRec', 'bNext', 'nextTxt', 'bRetry', 'bMenuE', 'dbg', 'hurt', 'bDaily', 'dailyLine', 'bA11y', 'bShare', 'aOther', 'enDaily', 'rankName', 'rankXpTxt', 'rankBar', 'missionsDateTag', 'missionsList']) el[id] = document.getElementById(id);
+  'bResume', 'bRestart', 'bSettingsP', 'bMenuP', 'rMaster', 'rMusic', 'rSfx', 'oMaster', 'oMusic', 'oSfx', 'bTR', 'bEN', 'bQLow', 'bQHigh', 'bLPAuto', 'bLPOn', 'bLPOff', 'bFull', 'bSetBack', 'enTitle', 'enSub', 'enStars', 'enStats', 'enRec', 'bNext', 'nextTxt', 'bRetry', 'bMenuE', 'dbg', 'hurt', 'bDaily', 'dailyLine', 'bA11y', 'bShare', 'aOther', 'enDaily', 'rankName', 'rankXpTxt', 'rankBar', 'missionsDateTag', 'missionsList']) el[id] = document.getElementById(id);
 function toast(msg, kind = 'info', ms = 2600) {
   const d = document.createElement('div'); d.className = 'toast ' + kind; d.textContent = msg; el.toasts.appendChild(d);
   while (el.toasts.children.length > 4) el.toasts.firstChild.remove();
@@ -4499,6 +4616,10 @@ function syncSettingsUI() {
   el.rMaster.value = Math.round(settings.master * 100); el.rMusic.value = Math.round(settings.music * 100); el.rSfx.value = Math.round(settings.sfx * 100);
   el.oMaster.value = el.rMaster.value; el.oMusic.value = el.rMusic.value; el.oSfx.value = el.rSfx.value;
   el.bQLow.classList.toggle('sel', settings.quality === 'low'); el.bQHigh.classList.toggle('sel', settings.quality === 'high');
+  const lp = settings.lowPower || 'auto';
+  if (el.bLPAuto) el.bLPAuto.classList.toggle('sel', lp === 'auto');
+  if (el.bLPOn) el.bLPOn.classList.toggle('sel', lp === 'on');
+  if (el.bLPOff) el.bLPOff.classList.toggle('sel', lp === 'off');
   el.bSound.innerHTML = '<svg class="ic"><use href="#' + (settings.mute || !settings.sfxOn ? 'i-sfx-off' : 'i-sfx') + '"/></svg>';
 }
 const starSvg = () => '<svg viewBox="0 0 24 24"><use href="#i-star"/></svg>';
@@ -4661,6 +4782,11 @@ function drawMinimap() {
   for (const b of SIM.traffic) {
     if (b.delay > 0) continue;
     const x = mmX(b.x), z = mmZ(b.z);
+    if (b.anchored && b.netEndX) {
+      g.strokeStyle = '#E8542F'; g.lineWidth = 1.8; g.setLineDash([3, 3]);
+      g.beginPath(); g.moveTo(x, z); g.lineTo(mmX(b.netEndX), mmZ(b.netEndZ)); g.stroke();
+      g.setLineDash([]);
+    }
     g.save(); g.translate(x, z); g.rotate(-b.hd);
     g.fillStyle = b.kind === 'tanker' ? '#C1442E' : b.kind === 'ferry' ? '#1E5F63' : '#B98A5A';
     if (b.kind === 'tanker') g.fillRect(-4, -14, 8, 28); else if (b.kind === 'ferry') g.fillRect(-3, -7, 6, 14); else { g.beginPath(); g.arc(0, 0, 3, 0, TAU); g.fill(); }
@@ -4945,6 +5071,7 @@ click(el.bSound, () => { settings.mute = !settings.mute; AUD.applyGains(); saveS
 click(el.bResume, resumeGame); click(el.bRestart, () => { G.retries++; beginShift(); }); click(el.bSettingsP, () => openSettings('pause')); click(el.bMenuP, goMenu);
 click(el.bSetBack, closeSettings); click(el.bTR, () => { LANG = 'tr'; settings.lang = 'tr'; saveSettings(); applyLang(); }); click(el.bEN, () => { LANG = 'en'; settings.lang = 'en'; saveSettings(); applyLang(); });
 click(el.bQLow, () => { settings.quality = 'low'; saveSettings(); applyQuality(); syncSettingsUI(); }); click(el.bQHigh, () => { settings.quality = 'high'; saveSettings(); applyQuality(); syncSettingsUI(); });
+click(el.bLPAuto, () => { settings.lowPower = 'auto'; saveSettings(); applyQuality(); syncSettingsUI(); }); click(el.bLPOn, () => { settings.lowPower = 'on'; saveSettings(); applyQuality(); syncSettingsUI(); }); click(el.bLPOff, () => { settings.lowPower = 'off'; saveSettings(); applyQuality(); syncSettingsUI(); });
 click(el.bFull, toggleFull); click(el.bMoor, throwMooringLines);
 click(el.bNext, nextAction); click(el.bRetry, retryCurrent); click(el.bMenuE, goMenu);
 click(el.bDaily, startDaily); click(el.bA11y, () => { if (window.Arena) Arena.openSettings(); }); click(el.bShare, shareResult);
@@ -5137,10 +5264,12 @@ function botTick(dt) {
 }
 
 // ---------------------------------------------------------------- main loop
-let lastT = performance.now(), acc = 0, fpsS = 60, frameN = 0, ambT = 8;
+let lastT = performance.now(), lastRenderT = 0, acc = 0, fpsS = 60, frameN = 0, ambT = 8;
 const FIXED = 1 / 60;
 function frame(now) {
   requestAnimationFrame(frame);
+  if (isLowPower() && (now - lastRenderT < 30)) return;
+  lastRenderT = now;
   let dt = (now - lastT) / 1000; lastT = now; if (!(dt > 0)) dt = 0.016; dt = Math.min(dt, 0.1);
   if (document.hidden) return;
   if (G.state === 'loading') return;
@@ -5198,6 +5327,8 @@ window.vapur = {
   get ropeTension() { return SIM.ropeTension || 0; },
   get dockBonus() { return SIM.dockBonus || 0; },
   get deckLife() { return SIM.deckLife; },
+  get lowPower() { return isLowPower(); },
+  get buoys() { return OBJ.buoys; },
   moor: throwMooringLines,
   start(n) { G.mode = 'campaign'; G.shiftIdx = clamp((n || 1) - 1, 0, 7); G.selIdx = G.shiftIdx; G.retries = 0; G.totals = { score: 0, pax: 0, stars: [] }; beginShift(); },
   setCam: setCamMode, end: kind => { if (G.state === 'play') endShift(kind || 'clear'); },
