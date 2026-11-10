@@ -221,7 +221,7 @@ a.btn { text-decoration: none; }
 /* Toasts / Telegram-style notifications */
 #toasts {
   position: absolute; left: 50%; transform: translateX(-50%);
-  top: calc(var(--barh, 56px) + max(10px, env(safe-area-inset-top)) + 8px);
+  top: calc(var(--barh, 56px) + max(10px, env(safe-area-inset-top)) + 48px);
   display: flex; flex-direction: column; gap: 6px; align-items: center; width: min(92vw, 500px);
   z-index: 12;
 }
@@ -367,6 +367,38 @@ a.btn { text-decoration: none; }
   box-shadow: var(--shadow-press-sm); pointer-events: auto;
 }
 
+/* COLREG Right-of-Way Alert Badge */
+#colregBadge {
+  position: absolute; left: 50%; transform: translateX(-50%);
+  top: calc(var(--barh, 56px) + max(10px, env(safe-area-inset-top)) + 10px);
+  display: none; align-items: center; gap: 7px;
+  padding: 6px 14px; border-radius: var(--r);
+  background: var(--c-cream); border: 2px solid var(--c-red);
+  box-shadow: var(--shadow-press); color: var(--c-red);
+  font-family: var(--font-display); font-weight: 800; font-size: 15px;
+  letter-spacing: 1.2px; text-transform: uppercase;
+  z-index: 11; pointer-events: none;
+  animation: colregPop .22s cubic-bezier(.2,.8,.2,1);
+}
+#colregBadge.show { display: inline-flex; }
+#colregBadge.warning {
+  background: var(--c-red); color: var(--c-cream);
+  border-color: var(--c-deep);
+  box-shadow: 0 0 0 2px var(--c-gold), var(--shadow-press);
+  animation: colregPulse .65s infinite alternate ease-in-out;
+}
+#colregBadge svg.arrow {
+  width: 18px; height: 18px; fill: currentColor; stroke: none;
+  transition: transform .12s linear; flex: none;
+}
+#colregBadge .colreg-sub {
+  font-family: var(--font-mono); font-size: 9.5px; font-weight: 700;
+  letter-spacing: .6px; padding: 1px 4px; border-radius: 2px;
+  border: 1px solid currentColor; opacity: .9;
+}
+@keyframes colregPop { from { transform: translateX(-50%) scale(.8); opacity: 0; } to { transform: translateX(-50%) scale(1); opacity: 1; } }
+@keyframes colregPulse { from { transform: translateX(-50%) scale(1); } to { transform: translateX(-50%) scale(1.06); } }
+
 #floaters { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
 .floater {
   position: absolute; font: 800 24px var(--font-display);
@@ -456,6 +488,9 @@ body.compact #topbar { padding: 3px 8px; gap: 4px; top: max(6px, env(safe-area-i
 body.compact #topbar .brand, body.compact .stat small { display: none; }
 body.compact .stat { min-width: 0; padding: 0 7px; } body.compact .stat.wide { min-width: 54px; } body.compact .stat b { font-size: 14px; }
 body.compact #topbar .btn.icon { width: 36px; height: 36px; } body.compact #topbar .btn.icon svg.ic { width: 18px; height: 18px; }
+body.compact #toasts { top: calc(var(--barh, 40px) + max(6px, env(safe-area-inset-top)) + 36px); }
+body.compact #colregBadge { padding: 3px 8px; font-size: 12px; top: calc(var(--barh, 40px) + max(6px, env(safe-area-inset-top)) + 6px); }
+body.compact #colregBadge svg.arrow { width: 14px; height: 14px; }
 
 /* Screens & Modal Cards */
 .screen {
@@ -1193,6 +1228,7 @@ input[type=range] { width: 100%; height: 44px; accent-color: var(--c-teal); back
     </div>
   </div>
   <div id="toasts"></div>
+  <div id="colregBadge" class="glass" role="status" aria-live="polite"><svg class="ic arrow" id="colregArrow" viewBox="0 0 24 24"><path d="M12 3l5 6h-3.5v11h-3V9H7z"/></svg><span id="colregTxt">YOL VER</span><small id="colregSub" class="colreg-sub"></small></div>
   <div id="nextCard" class="glass"><small data-i="nextStop"></small><b id="ncName">—</b><div class="l2" id="ncL2"></div><div class="l2" id="ncL3"></div></div>
   <div id="camLbl" class="glass"></div>
   <canvas id="minimap" width="300" height="460"></canvas>
@@ -1424,7 +1460,7 @@ const STR = {
     endClear: 'Sefer tamamlandı', endFail: 'Sefer başarısız', endWreck: 'Vapur yara aldı', endWin: 'Tebrikler, kaptan!', endEndless: 'Sonsuz sefer bitti',
     subClear: 'İyi seyirler kaptan!', subFail: 'Bir yıldız bile yok: daha nazik yanaş, tarifeye uy.', subWreck: 'Gövde hasarı yüzde 100: sefer iptal.', subWin: '8 seferi bitirdin. Boğaz senin.', subEndless: 'Toplam {0} sefer, {1} yolcu',
     sPax: 'Taşınan yolcu', sPunct: 'Dakiklik', sComfort: 'Konfor', sLost: 'Kaybedilen yolcu', sHull: 'Gövde hasarı', sScore: 'Puan', sTotal: 'Toplam puan', sShifts: 'Sefer',
-    newRecord: 'Yeni rekor!', camChase: 'Takip kamerası', camBridge: 'Köprüüstü', camTop: 'Kuş bakışı',
+    newRecord: 'Yeni rekor!', camChase: 'Takip kamerası', camBridge: 'Köprüüstü', camTop: 'Kuş bakışı', camDock: 'Yanaşma kamerası', badgeGiveWay: 'YOL VER', toastGiveWay: 'Yol ver! Tehlike bölgesinde hızını 2 kn altına düşür', c_tanker: 'TANKER', c_ferry: 'VAPUR',
     hintSlow: 'Yavaşla', hintAlign: 'Paralel yanaş', hintCloser: 'Daha yakına', hintOk: 'Yanaşıyor…', hintStop: 'Dur ve bekle', hintFast: 'Çok hızlı!',
     dockDone: 'Yanaşma tamam', pierNames: { eminonu: 'Eminönü', karakoy: 'Karaköy', uskudar: 'Üsküdar', besiktas: 'Beşiktaş', kadikoy: 'Kadıköy', kanlica: 'Kanlıca' },
     hintLeave: '<b>W</b> ile kalk', unitKn: 'kn',
@@ -1480,7 +1516,7 @@ const STR = {
     endClear: 'Shift complete', endFail: 'Shift failed', endWreck: 'Ferry damaged', endWin: 'Congratulations, captain!', endEndless: 'Endless shift over',
     subClear: 'Fair winds, captain!', subFail: 'Not even one star: dock gentler, keep the timetable.', subWreck: 'Hull damage reached 100%: shift cancelled.', subWin: 'You finished all 8 shifts. The Bosphorus is yours.', subEndless: '{0} shifts, {1} passengers in total',
     sPax: 'Passengers carried', sPunct: 'Punctuality', sComfort: 'Comfort', sLost: 'Passengers lost', sHull: 'Hull damage', sScore: 'Score', sTotal: 'Total score', sShifts: 'Shifts',
-    newRecord: 'New record!', camChase: 'Chase camera', camBridge: 'Bridge', camTop: 'Top view',
+    newRecord: 'New record!', camChase: 'Chase camera', camBridge: 'Bridge', camTop: 'Top view', camDock: 'Docking camera', badgeGiveWay: 'GIVE WAY', toastGiveWay: 'Give way! Keep speed under 2 kn in the danger zone', c_tanker: 'TANKER', c_ferry: 'FERRY',
     hintSlow: 'Slow down', hintAlign: 'Come parallel', hintCloser: 'Closer', hintOk: 'Coming alongside…', hintStop: 'Stop and hold', hintFast: 'Too fast!',
     dockDone: 'Docked', pierNames: { eminonu: 'Eminönü', karakoy: 'Karaköy', uskudar: 'Üsküdar', besiktas: 'Beşiktaş', kadikoy: 'Kadıköy', kanlica: 'Kanlıca' },
     hintLeave: 'Cast off with <b>W</b>', unitKn: 'kn',
@@ -2641,6 +2677,8 @@ function undock() {
   SIM.docked = null; SIM.ropes = false; SIM.dockOk = 0;
   const s = SIM.stops[SIM.stopIdx]; if (s) { s.left = true; }
   SIM.stopIdx++;
+  CAM.userDockOverride = false;
+  CAM.autoDock = false;
   const n = nextStop();
   if (n) toast(t('nextStop') + ': ' + pierName(n.id), 'info');
 }
@@ -2922,6 +2960,60 @@ function stepTraffic(dt) {
     }
   }
 }
+// ---------------------------------------------------------------- COLREG right-of-way (CPA/TCPA to tankers & ferries)
+const COLREG = { giveWay: false, threat: null, targetKind: '', cpa: 1e9, tcpa: 0, dist: 1e9, bearing: 0, inDanger: false, penT: 0 };
+function stepColreg(dt) {
+  COLREG.giveWay = false; COLREG.threat = null; COLREG.targetKind = '';
+  COLREG.cpa = 1e9; COLREG.tcpa = 0; COLREG.dist = 1e9; COLREG.bearing = 0; COLREG.inDanger = false;
+  if (G.state !== 'play' || SIM.docked) return;
+  const P = player, ps = Math.sin(P.hd), pc = Math.cos(P.hd), pvx = P.vx, pvz = P.vz;
+  let bestPriority = 1e9;
+  for (const b of SIM.traffic) {
+    if (b.delay > 0 || (b.kind !== 'tanker' && b.kind !== 'ferry')) continue;
+    const dx = b.x - P.x, dz = b.z - P.z, dist = hyp(dx, dz);
+    if (dist > 280) continue;
+    const bvx = Math.sin(b.hd) * b.v, bvz = Math.cos(b.hd) * b.v;
+    const rvx = bvx - pvx, rvz = bvz - pvz, rv2 = rvx * rvx + rvz * rvz;
+    const tcpa = rv2 > 0.05 ? -(dx * rvx + dz * rvz) / rv2 : 0;
+    const cx = dx + rvx * Math.max(0, tcpa), cz = dz + rvz * Math.max(0, tcpa), cpa = hyp(cx, cz);
+    const isTanker = b.kind === 'tanker';
+    const cpaThreshold = isTanker ? 58 : 34, dangerDist = isTanker ? 85 : 48;
+    const closing = -(dx * rvx + dz * rvz) > -2;
+    const risk = (tcpa >= 0 && tcpa <= 24 && cpa < cpaThreshold) || (dist < dangerDist && closing);
+    if (!risk) continue;
+    const fwd = dx * ps + dz * pc, lat = dx * pc - dz * ps;
+    const relBearing = Math.atan2(lat, fwd), hdDiff = wrapAng(b.hd - P.hd);
+    let giveWay = false;
+    if (isTanker) {
+      giveWay = true; // Rule 9 TSS channel: deep-draft tanker has right of way
+    } else {
+      const isStarboardCrossing = relBearing > 0.08 && relBearing < 1.96;
+      const isHeadOn = Math.abs(relBearing) < 0.28 && Math.abs(wrapAng(hdDiff - Math.PI)) < 0.65;
+      const b_fwd = -dx * Math.sin(b.hd) - dz * Math.cos(b.hd);
+      const b_lat = -dx * Math.cos(b.hd) + dz * Math.sin(b.hd);
+      const isOvertaking = Math.abs(Math.atan2(b_lat, b_fwd)) > 1.96 && P.speed > b.v;
+      if (isStarboardCrossing || isHeadOn || isOvertaking) giveWay = true;
+    }
+    if (giveWay) {
+      const priority = tcpa > 0 ? tcpa + cpa * 0.2 : dist * 0.1;
+      if (priority < bestPriority) {
+        bestPriority = priority;
+        COLREG.giveWay = true; COLREG.threat = b; COLREG.targetKind = b.kind;
+        COLREG.cpa = cpa; COLREG.tcpa = tcpa; COLREG.dist = dist;
+        COLREG.bearing = relBearing * (180 / Math.PI);
+        COLREG.inDanger = dist < dangerDist || (tcpa >= 0 && tcpa < 10 && cpa < cpaThreshold);
+      }
+    }
+  }
+  if (COLREG.giveWay && COLREG.inDanger) {
+    const kn = P.speed * 1.944;
+    if (kn > 2.0) {
+      SIM.comfort = Math.max(0, SIM.comfort - 2.8 * dt);
+      COLREG.penT += dt;
+      if (COLREG.penT > 4.0) { COLREG.penT = 0; toast(t('toastGiveWay'), 'bad'); }
+    } else { COLREG.penT = 0; }
+  } else { COLREG.penT = 0; }
+}
 // ---------------------------------------------------------------- docking check (the target pier only)
 const DOCK = { near: false, dist: 0, gap: 0, along: 0, ang: 0, spd: 0, ok: false, hint: '' };
 function stepDocking(dt) {
@@ -3005,7 +3097,7 @@ function stepSim(dt) {
   if (SIM.ended) return;
   SIM.ff = SIM.docked && SIM.boardDone && !SIM.depAllowed && SIM.stopIdx < SIM.stops.length - 1 ? 8 : 1;
   SIM.t += dt * SIM.ff; SIM.hour = SIM.shift.hour + SIM.t * TS / 3600;
-  stepFerry(dt); stepTraffic(dt); stepFog(dt); stepDocking(dt); stepBoarding(dt); stepPiers(dt * SIM.ff); stepWalkers(dt);
+  stepFerry(dt); stepTraffic(dt); stepColreg(dt); stepFog(dt); stepDocking(dt); stepBoarding(dt); stepPiers(dt * SIM.ff); stepWalkers(dt);
   // weather drift: storm rain, thunder; fog that thickens a little over the shift
   if (SIM.storm) { SIM.rain += (1 - SIM.rain) * 0.1 * dt; SIM.thunderT -= dt; if (SIM.thunderT <= 0) { SIM.thunderT = rr(14, 40); AUD.thunder(); lightning = 1; } }
   SIM.swell += ((SIM.storm ? 1 : 0.15 + 0.25 * SIM.wind.a) - SIM.swell) * 0.05 * dt;
@@ -3662,8 +3754,8 @@ function updateSky(force) {
 }
 
 // ---------------------------------------------------------------- per-frame render sync
-let camMode = 0;   // 0 chase, 1 bridge, 2 top
-const CAM = { yaw: 0, pitch: 0.42, dist: 72, distUser: 72, cine: 0, idle: 0, px: 0, py: 0, pz: 0, drag: false, lx: 0, ly: 0, lookYaw: 0, lookPitch: 0 };
+let camMode = 0;   // 0 chase, 1 bridge, 2 top, 3 docking
+const CAM = { yaw: 0, pitch: 0.42, dist: 72, distUser: 72, cine: 0, idle: 0, px: 0, py: 0, pz: 0, drag: false, lx: 0, ly: 0, lookYaw: 0, lookPitch: 0, autoDock: false, userDockOverride: false, lastStopIdx: -1 };
 const _mat = new THREE.Matrix4();
 function ferryMatrix(x, z, hd, heel, pitch, out) {
   _o.position.set(x, waveY(x, z) * 0.9, z); _e.set(pitch, hd, heel, 'YXZ'); _o.quaternion.setFromEuler(_e); _o.scale.set(1, 1, 1); _o.updateMatrix(); return out.copy(_o.matrix);
@@ -3944,10 +4036,44 @@ function updateCamera(dt) {
     return;
   }
   CAM.idle += dt;
-  if (camMode === 0) {
+  const ns = nextStop(), Pr = (ns ? PIERS[ns.id] : null) || SIM.docked;
+  const pierDist = Pr ? hyp(Pr.bx - P.x, Pr.bz - P.z) : 999;
+  if (SIM.stopIdx !== CAM.lastStopIdx) {
+    CAM.lastStopIdx = SIM.stopIdx;
+    CAM.userDockOverride = false;
+    CAM.autoDock = false;
+  }
+  const near120 = Pr && (pierDist < 120 || DOCK.near || !!SIM.docked);
+  if (near120 && !CAM.userDockOverride && !CAM.autoDock) {
+    CAM.autoDock = true;
+  } else if (!near120 && CAM.autoDock) {
+    CAM.autoDock = false;
+  }
+  const isDockCam = (camMode === 3) || (CAM.autoDock && !CAM.userDockOverride);
+  if (isDockCam) {
+    // High docking camera: ~42m high overhead angle framing the ferry and pier berth
+    const dPier = Pr ? hyp(Pr.bx - P.x, Pr.bz - P.z) : 30;
+    const midX = Pr ? (P.x * 0.55 + Pr.bx * 0.45) : P.x;
+    const midZ = Pr ? (P.z * 0.55 + Pr.bz * 0.45) : P.z;
+    const lookY = boatY + 2.5;
+    const camH = clamp(36 + dPier * 0.08, 38, 48);
+    const nx = Pr ? Pr.nx : 1, nz = Pr ? Pr.nz : 0;
+    const offsetDist = clamp(32 + dPier * 0.12, 34, 50);
+    const tx = midX + nx * (offsetDist * 0.72) - s * (offsetDist * 0.42);
+    const tz = midZ + nz * (offsetDist * 0.72) - c * (offsetDist * 0.42);
+    const ty = boatY + camH;
+    const k = Math.min(1, dt * 3.5);
+    CAM.px += (tx - CAM.px) * k;
+    CAM.py += (ty - CAM.py) * k;
+    CAM.pz += (tz - CAM.pz) * k;
+    camera.position.set(CAM.px, Math.max(CAM.py, 10), CAM.pz);
+    camera.lookAt(midX, lookY, midZ);
+    camera.fov = 54;
+    camera.rotation.z = 0;
+  } else if (camMode === 0) {
     // cinematic docking: near the target pier the chase camera drifts out over the water, drops low and frames the
     // ferry against the pier; moored, it keeps a slow orbit. A drag on the scene overrides it for a few seconds.
-    const ns = nextStop(), Pr = ns ? PIERS[ns.id] : null, cine = !!Pr && (DOCK.near || !!SIM.docked) && !CAM.drag && CAM.idle > 2.5 && !CAM.cineOff;
+    const cine = !!Pr && (DOCK.near || !!SIM.docked) && !CAM.drag && CAM.idle > 2.5 && !CAM.cineOff;
     CAM.cine += ((cine ? 1 : 0) - CAM.cine) * Math.min(1, dt * 0.8);
     if (!CAM.drag && CAM.idle > 3) {
       let yawT = 0, pitchT = 0.42, distT = CAM.distUser;
@@ -3973,7 +4099,7 @@ function updateCamera(dt) {
     camera.rotation.z += P.heel * 0.7;
     camera.fov = 62;
   } else {
-    const ns = nextStop(), P2 = ns ? PIERS[ns.id] : null;
+    const P2 = ns ? PIERS[ns.id] : null;
     let d = 230; if (P2) d = clamp(hyp(P2.bx - P.x, P2.bz - P.z) * 1.1 + 80, 200, 520);
     const k = Math.min(1, dt * 3);
     CAM.px += (P.x + s * 20 - CAM.px) * k; CAM.py += (d - CAM.py) * k; CAM.pz += (P.z + c * 20 + 40 - CAM.pz) * k;
@@ -3981,18 +4107,23 @@ function updateCamera(dt) {
     camera.lookAt(P.x + s * 20, 0, P.z + c * 20);
     camera.fov = 55;
   }
+  if (el.camLbl && G.state === 'play') {
+    el.camLbl.textContent = t(['camChase', 'camBridge', 'camTop', 'camDock'][isDockCam ? 3 : camMode]);
+  }
   camera.updateProjectionMatrix();
 }
 function setCamMode(m) {
-  camMode = m % 3; CAM.idle = 0; CAM.lookYaw = 0; CAM.lookPitch = 0;
+  CAM.userDockOverride = true; CAM.autoDock = false;
+  camMode = m % 4; CAM.idle = 0; CAM.lookYaw = 0; CAM.lookPitch = 0;
   if (camMode === 0) { CAM.px = camera.position.x; CAM.py = camera.position.y; CAM.pz = camera.position.z; }
   if (camMode === 2) { CAM.px = player.x; CAM.py = 230; CAM.pz = player.z + 40; }
-  el.camLbl.textContent = t(['camChase', 'camBridge', 'camTop'][camMode]);
+  if (camMode === 3) { CAM.px = camera.position.x; CAM.py = camera.position.y; CAM.pz = camera.position.z; }
+  el.camLbl.textContent = t(['camChase', 'camBridge', 'camTop', 'camDock'][camMode]);
 }
 
 // ---------------------------------------------------------------- UI: elements, toasts, HUD
 const el = {};
-for (const id of ['hud', 'topbar', 'stShift', 'stClock', 'stPlan', 'stPax', 'comfBar', 'hullBar', 'stStars', 'bPanel', 'bCamH', 'bPause', 'bSound', 'bLang', 'toasts', 'nextCard', 'ncName', 'ncL2', 'ncL3', 'camLbl', 'minimap', 'lvThr', 'lvThrS', 'lvRud', 'speedo', 'spArc', 'spVal', 'spUnit', 'dock', 'dkDist', 'dkSpd', 'dkAng', 'dkHint', 'floaters', 'touch', 'tWheel', 'tWheelSvg', 'tThr', 'tHorn', 'tCam',
+for (const id of ['hud', 'topbar', 'stShift', 'stClock', 'stPlan', 'stPax', 'comfBar', 'hullBar', 'stStars', 'bPanel', 'bCamH', 'bPause', 'bSound', 'bLang', 'toasts', 'colregBadge', 'colregArrow', 'colregTxt', 'colregSub', 'nextCard', 'ncName', 'ncL2', 'ncL3', 'camLbl', 'minimap', 'lvThr', 'lvThrS', 'lvRud', 'speedo', 'spArc', 'spVal', 'spUnit', 'dock', 'dkDist', 'dkSpd', 'dkAng', 'dkHint', 'floaters', 'touch', 'tWheel', 'tWheelSvg', 'tThr', 'tHorn', 'tCam',
   'sTitle', 'sIntro', 'sPause', 'sSettings', 'sEnd', 'bPlay', 'playTxt', 'bCont', 'bEndless', 'bSettingsT', 'bLangT', 'langTxt', 'bestLine', 'cmap', 'inTitle', 'inDesc', 'inCond', 'inTT', 'inTarget', 'bStart', 'bFog', 'fogTxt', 'bIntroBack',
   'bResume', 'bRestart', 'bSettingsP', 'bMenuP', 'rMaster', 'rMusic', 'rSfx', 'oMaster', 'oMusic', 'oSfx', 'bTR', 'bEN', 'bQLow', 'bQHigh', 'bFull', 'bSetBack', 'enTitle', 'enSub', 'enStars', 'enStats', 'enRec', 'bNext', 'nextTxt', 'bRetry', 'bMenuE', 'dbg', 'hurt', 'bDaily', 'dailyLine', 'bA11y', 'bShare', 'aOther', 'enDaily', 'rankName', 'rankXpTxt', 'rankBar', 'missionsDateTag', 'missionsList']) el[id] = document.getElementById(id);
 function toast(msg, kind = 'info', ms = 2600) {
@@ -4014,7 +4145,7 @@ function applyLang() {
   el.langTxt.textContent = LANG === 'tr' ? 'TR / EN' : 'EN / TR';
   el.bTR.classList.toggle('sel', LANG === 'tr'); el.bEN.classList.toggle('sel', LANG === 'en');
   updateBestLine(); if (G.state === 'intro') renderIntro(); if (G.state === 'end' && G.lastResult) renderEnd(G.lastResult);
-  el.camLbl.textContent = t(['camChase', 'camBridge', 'camTop'][camMode]);
+  el.camLbl.textContent = t(['camChase', 'camBridge', 'camTop', 'camDock'][camMode]);
   renderMissionsUI();
   setTimeout(updateBarH, 0);
 }
@@ -4079,6 +4210,19 @@ function updateHUD(dt) {
     el.dkAng.textContent = Math.round(Math.abs(DOCK.ang) * 180 / Math.PI) + '°'; el.dkAng.className = Math.abs(DOCK.ang) < 0.36 ? 'ok' : '';
     el.dkHint.textContent = DOCK.ok ? t('hintOk') : t(DOCK.hint); el.dkHint.className = 'hint' + (DOCK.ok ? ' ok' : '');
   } else el.dock.classList.remove('show');
+  // colreg right-of-way alert badge
+  if (el.colregBadge) {
+    if (COLREG.giveWay && G.state === 'play' && !SIM.docked) {
+      el.colregBadge.classList.add('show');
+      const isWarn = COLREG.inDanger && (player.speed * 1.944 > 2.0);
+      el.colregBadge.classList.toggle('warning', isWarn);
+      if (el.colregTxt) el.colregTxt.textContent = t('badgeGiveWay');
+      if (el.colregArrow) el.colregArrow.style.transform = 'rotate(' + COLREG.bearing.toFixed(1) + 'deg)';
+      if (el.colregSub) el.colregSub.textContent = COLREG.targetKind === 'tanker' ? t('c_tanker') : t('c_ferry');
+    } else {
+      el.colregBadge.classList.remove('show');
+    }
+  }
   if (hurtA > 0) { hurtA = Math.max(0, hurtA - dt * 2); el.hurt.style.opacity = hurtA.toFixed(2); }
   if (touchOn) el.tWheelSvg.style.transform = 'rotate(' + (-player.rud * 120) + 'deg)';
 }
@@ -4583,6 +4727,12 @@ function botTick(dt) {
   // crossing traffic: closest point of approach within the next 18 s too close -> slow down or hold
   const cpa = closestApproach(P.x, P.z, P.vx, P.vz, 18, null);
   if (cpa.d < 30 + cpa.len / 2) vT = Math.min(vT, cpa.t < 8 ? 0.4 : 2.5);
+  // colreg give-way: slow down smoothly, never exceed 2 kn in the danger zone
+  if (COLREG.giveWay) {
+    if (COLREG.inDanger) vT = Math.min(vT, 0.8);
+    else if (COLREG.tcpa < 8) vT = Math.min(vT, 0.5);
+    else vT = Math.min(vT, 2.0);
+  }
   BOT.hornT -= dt; if (gap < 70 && BOT.hornT <= 0) { BOT.hornT = 6; input.horn = true; }
   const s = Math.sin(P.hd), c = Math.cos(P.hd), look = 25 + Math.abs(P.u) * 6;
   // something parked ahead for a while: go around it (a detour waypoint to the deeper side), unless we are alongside already
@@ -4648,7 +4798,7 @@ function debugOverlay() {
     'state ' + G.state + ' · shift ' + (SIM.shift ? SIM.shift.id : '-') + ' · t ' + SIM.t.toFixed(1) + ' · ' + fmtClock(SIM.hour) + ' · score ' + shiftScore() + '/' + SIM.target + '\n' +
     'pos ' + player.x.toFixed(0) + ',' + player.z.toFixed(0) + ' hd ' + (player.hd * 180 / Math.PI).toFixed(0) + ' u ' + player.u.toFixed(2) + ' spd ' + player.speed.toFixed(2) + ' thr ' + player.thr.toFixed(2) + ' rud ' + player.rud.toFixed(2) + '\n' +
     'next ' + (ns ? ns.id + ' (' + SIM.stopIdx + '/' + (SIM.stops.length - 1) + ')' : '-') + ' docked ' + (SIM.docked ? SIM.docked.id : '-') + ' gap ' + DOCK.gap.toFixed(1) + ' along ' + DOCK.along.toFixed(1) + ' ang ' + (DOCK.ang * 57.3).toFixed(0) + '\n' +
-    'aboard ' + SIM.aboardN + ' delivered ' + SIM.delivered + ' lost ' + SIM.lost + ' comfort ' + SIM.comfort.toFixed(0) + ' hull ' + player.hull.toFixed(0) + ' traffic ' + SIM.traffic.length + ' walkers ' + SIM.walkers.length + '\n' +
+    'colreg ' + (COLREG.giveWay ? (COLREG.targetKind + ' ' + (COLREG.inDanger ? 'DANGER' : 'give-way') + ' cpa:' + COLREG.cpa.toFixed(0) + 'm') : 'clear') + ' · aboard ' + SIM.aboardN + ' delivered ' + SIM.delivered + ' lost ' + SIM.lost + ' comfort ' + SIM.comfort.toFixed(0) + ' hull ' + player.hull.toFixed(0) + ' traffic ' + SIM.traffic.length + ' walkers ' + SIM.walkers.length + '\n' +
     'bot wp ' + BOT.wp.length + ' stuck ' + BOT.stuck.toFixed(1) + ' · assets ' + ASSETS.loaded.length + '/' + (ASSETS.loaded.length + ASSETS.failed.length) + '\n' +
     'results ' + G.log.map(r => r.shift + ':' + r.stars + '★/' + r.score).join(' ') + (G.done ? (G.failed ? ' · FAILED' : ' · DONE') : '') + '\n' +
     'errors ' + G.errors.length + (G.errors.length ? '\n' + G.errors.slice(-3).join('\n') : '');
@@ -4667,12 +4817,13 @@ window.vapurSim = function (seconds) {
   return window.vapur;
 };
 window.vapur = {
-  G, SIM, player, input, AUD, STR, WORLD, PIERS, SHIFTS, ASSETS, DOCK, BOT, CAM, scene, renderer, camera, FOG, fogEchoes, fogHornBlast, fogDockBonus, OBJ,
+  G, SIM, player, input, AUD, STR, WORLD, PIERS, SHIFTS, ASSETS, DOCK, BOT, CAM, COLREG, scene, renderer, camera, FOG, fogEchoes, fogHornBlast, fogDockBonus, OBJ,
   fog(on) { G.fogPick = !!on; },
   get state() { return G.state; }, get shift() { return SIM.shift && SIM.shift.id; }, get time() { return SIM.t; }, get hour() { return SIM.hour; },
   get score() { return shiftScore(); }, get target() { return SIM.target; }, get aboard() { return SIM.aboardN; }, get delivered() { return SIM.delivered; },
   get hull() { return player.hull; }, get comfort() { return SIM.comfort; }, get log() { return G.log; }, get done() { return G.done; }, get errors() { return G.errors; },
   get assets() { return { loaded: ASSETS.loaded.slice(), failed: ASSETS.failed.slice() }; },
+  get colreg() { return COLREG; },
   start(n) { G.mode = 'campaign'; G.shiftIdx = clamp((n || 1) - 1, 0, 7); G.selIdx = G.shiftIdx; G.retries = 0; G.totals = { score: 0, pax: 0, stars: [] }; beginShift(); },
   setCam: setCamMode, end: kind => { if (G.state === 'play') endShift(kind || 'clear'); },
   get gpu() { try { const gl = renderer.getContext(), e = gl.getExtension('WEBGL_debug_renderer_info'); return e ? gl.getParameter(e.UNMASKED_RENDERER_WEBGL) : gl.getParameter(gl.RENDERER); } catch (err) { return '?'; } },
