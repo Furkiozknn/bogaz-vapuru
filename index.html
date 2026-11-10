@@ -473,6 +473,10 @@ body.compact #topbar .btn.icon { width: 36px; height: 36px; } body.compact #topb
   box-shadow: var(--shadow-press-lg);
   position: relative;
 }
+.card::-webkit-scrollbar { width: 5px; }
+.card::-webkit-scrollbar-track { background: var(--c-cream-d); border-radius: 3px; }
+.card::-webkit-scrollbar-thumb { background: var(--c-teak); border-radius: 3px; }
+.card::-webkit-scrollbar-thumb:hover { background: var(--c-deep); }
 .ticket-header-strip {
   display: flex; justify-content: space-between; align-items: center;
   font-family: var(--font-mono); font-size: 10px; font-weight: 700;
@@ -535,6 +539,86 @@ body.compact #topbar .btn.icon { width: 36px; height: 36px; } body.compact #topb
 .cnode .stars-sm svg.on { fill: var(--c-gold-d); stroke: var(--c-deep); }
 .cnode.sel .stars-sm svg.on { fill: var(--c-deep); stroke: var(--c-deep); }
 .cnode.endless { width: 66px; }
+
+/* Captain Rank & Shift Missions Ledger */
+.missions-ledger {
+  margin: 12px 0 8px; padding: 10px 12px;
+  background: var(--c-cream-l); border: 1.5px solid var(--c-deep);
+  border-radius: var(--r); box-shadow: 2px 2px 0 var(--c-deep);
+  text-align: left;
+}
+.missions-head {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  padding-bottom: 7px; border-bottom: 1.5px dashed var(--c-teak);
+}
+.rank-badge { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.rank-badge svg.ic { width: 22px; height: 22px; color: var(--c-teal); flex: none; }
+.rank-info { display: flex; flex-direction: column; min-width: 0; }
+.rank-sub {
+  font-family: var(--font-mono); font-size: 9.5px; font-weight: 700;
+  color: var(--c-teal); text-transform: uppercase; letter-spacing: 0.8px; line-height: 1.2;
+}
+.rank-name {
+  font-family: var(--font-display); font-size: 19px; font-weight: 800;
+  color: var(--c-deep); letter-spacing: 0.6px; line-height: 1.15;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.rank-xp-wrap { display: flex; flex-direction: column; align-items: flex-end; min-width: 90px; flex: none; }
+.rank-xp-txt {
+  font-family: var(--font-mono); font-size: 10.5px; font-weight: 700;
+  color: var(--c-deep); font-variant-numeric: tabular-nums; line-height: 1.2; margin-bottom: 3px;
+}
+.rank-bar { width: 90px; height: 7px; margin-top: 0; }
+.rank-bar i { background: linear-gradient(90deg, var(--c-teal), var(--c-gold)); }
+
+.missions-subhead {
+  display: flex; align-items: center; justify-content: space-between;
+  margin: 8px 0 6px; font-family: var(--font-mono); font-size: 10px; font-weight: 700;
+  letter-spacing: 1px; text-transform: uppercase; color: var(--c-teak);
+}
+.missions-datetag { font-size: 9.5px; color: var(--c-deep-mid); letter-spacing: 0.4px; }
+
+.missions-list { display: flex; flex-direction: column; gap: 6px; }
+.mission-item {
+  display: grid; grid-template-columns: auto 1fr auto; align-items: center;
+  gap: 8px 10px; padding: 6px 8px; border-radius: 3px;
+  background: var(--c-cream); border: 1px solid rgba(15, 46, 51, 0.25);
+  transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+.mission-item:hover { border-color: var(--c-teal); }
+.mission-item.done { border-color: var(--c-green); background: rgba(46, 125, 107, 0.08); }
+.mission-item.done:hover { border-color: var(--c-green); }
+.mission-tag {
+  font-family: var(--font-mono); font-size: 9px; font-weight: 800;
+  letter-spacing: 0.6px; text-transform: uppercase; padding: 2px 5px;
+  border-radius: 2px; border: 1px solid currentColor; white-space: nowrap;
+}
+.mission-tag.daily { color: var(--c-teal); border-color: var(--c-teal); }
+.mission-tag.weekly { color: var(--c-violet); border-color: var(--c-violet); }
+.mission-body { min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+.mission-title-row { display: flex; align-items: baseline; justify-content: space-between; gap: 6px; }
+.mission-title {
+  font-family: var(--font-mono); font-size: 11.5px; font-weight: 700;
+  color: var(--c-deep); line-height: 1.25; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.mission-count {
+  font-family: var(--font-mono); font-size: 10.5px; font-weight: 700;
+  color: var(--c-deep-mid); font-variant-numeric: tabular-nums; flex: none;
+}
+.mission-bar { height: 6px; margin-top: 0; border: 1px solid var(--c-deep); }
+.mission-bar i { background: var(--c-gold); }
+.mission-item.done .mission-bar i { background: var(--c-green); }
+.mission-reward {
+  font-family: var(--font-mono); font-size: 10px; font-weight: 800;
+  color: var(--c-gold-d); letter-spacing: 0.5px; white-space: nowrap;
+  padding: 2px 6px; border-radius: 2px; border: 1px dashed var(--c-gold-d);
+}
+.mission-reward.done {
+  color: var(--c-green); border: 1.5px solid var(--c-green);
+  font-weight: 800; text-transform: uppercase;
+  background: rgba(46, 125, 107, 0.1);
+  transform: rotate(-1.5deg);
+}
 
 /* Timetable Ledger */
 .timetable {
@@ -635,10 +719,18 @@ input[type=range] { width: 100%; height: 44px; accent-color: var(--c-teal); back
   .btn.icon { width: 44px; min-width: 44px; min-height: 44px; }
   .card { padding: 18px 14px 16px; }
   #logoBig { width: 110px; height: 85px; }
+  .missions-ledger { padding: 8px; margin: 10px 0 6px; }
+  .rank-name { font-size: 16px; }
+  .rank-bar { width: 70px; }
+  .mission-item { gap: 6px 8px; padding: 5px 6px; }
+  .mission-title { font-size: 11px; }
+  .mission-tag { font-size: 8.5px; padding: 1px 4px; }
 }
 @media (max-height: 520px) {
   .card { padding: 12px 16px; } .card h1 { font-size: 26px; } #logoBig { width: 100px; height: 75px; }
   #minimap { width: 100px; height: 150px; }
+  .missions-ledger { margin: 8px 0 4px; padding: 6px 8px; }
+  .missions-list { gap: 4px; }
 }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .01s !important; transition-duration: 0s !important; }
@@ -1151,6 +1243,26 @@ input[type=range] { width: 100%; height: 44px; accent-color: var(--c-teal); back
           <button class="btn" id="bLangT"><svg class="ic"><use href="#i-globe"/></svg><span id="langTxt">TR / EN</span></button>
         </div>
       </div>
+      <div id="missionsBox" class="missions-ledger">
+        <div class="missions-head">
+          <div class="rank-badge">
+            <svg class="ic"><use href="#i-anchor"/></svg>
+            <div class="rank-info">
+              <span class="rank-sub" data-i="rankTitle">KAPTANLIK RÜTBESİ</span>
+              <b id="rankName" class="rank-name">Miço</b>
+            </div>
+          </div>
+          <div class="rank-xp-wrap">
+            <span id="rankXpTxt" class="rank-xp-txt">0 / 100 XP</span>
+            <div class="bar rank-bar" id="rankBar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"><i style="width:0%"></i></div>
+          </div>
+        </div>
+        <div class="missions-subhead">
+          <span data-i="missionsHead">GÜNLÜK VE HAFTALIK GÖREVLER</span>
+          <span id="missionsDateTag" class="missions-datetag"></span>
+        </div>
+        <div id="missionsList" class="missions-list"></div>
+      </div>
       <div class="best" id="bestLine"></div>
       <div class="best" id="dailyLine"></div>
       <div class="rope" aria-hidden="true" style="width:min(100%,200px);margin:12px auto 0"></div>
@@ -1261,7 +1373,7 @@ function mulberry(seed) {
   };
 }
 const Q = new URLSearchParams(location.search);
-const FLAG = { fog: Q.has('fog'), auto: Q.has('auto'), debug: Q.has('debug'), low: Q.has('low'), noaudio: Q.has('noaudio'), touch: Q.has('touch'), noassets: Q.has('noassets'), cal: Q.has('cal') };
+const FLAG = { fog: Q.has('fog'), auto: Q.has('auto'), debug: Q.has('debug'), low: Q.has('low'), noaudio: Q.has('noaudio'), touch: Q.has('touch'), noassets: Q.has('noassets'), cal: Q.has('cal'), nosave: Q.has('nosave') };
 const SIM_PRE = parseFloat(Q.get('sim')) || 0;
 const SEED = parseInt(Q.get('seed') || '11', 10);
 const START_SHIFT = parseInt(Q.get('shift') || '0', 10);
@@ -1277,13 +1389,13 @@ const fmtMS = s => { s = Math.max(0, Math.round(s)); return Math.floor(s / 60) +
 const STR = {
   tr: {
     subtitle: 'Boğaz\'da şehir hatları vapurunu sür, iskelelere yanaş, yolcu taşı.',
-    howto: 'W/S iki makine (ileri / tornistan), T/G iskele makinesi, Y/H sancak makinesi, A/D dümen (A iskele, D sancak), Boşluk düdük, C kamera. İskeleye yavaş ve paralel yanaş: halatlar atılınca yolcular iner biner. Tankerlerden ve diğer vapurlardan uzak dur, tarifeye uy.',
+    howto: 'W/S iki makine (ileri / tornistan), T/G iskele makinesi, Y/H sancak makinesi, A/D dümen (A iskele, D sancak), Boşluk düdük (kısa dokun veya basılı tut), C kamera. İskeleye yavaş ve paralel yanaş: halatlar atılınca yolcular iner biner. Tankerlerden ve diğer vapurlardan uzak dur, tarifeye uy.',
     howtoTouch: 'Sağdaki kolla gaz ver (yukarı ileri, aşağı tornistan), soldaki dümen simidini çevir. İskeleye yavaş ve paralel yanaş: halatlar atılınca yolcular iner biner. Tarifeye uy, tankerlerden uzak dur.',
     loading: 'Yükleniyor… {0}/{1}', play: 'Oyna', continue: 'Devam', endless: 'Sonsuz sefer', settings: 'Ayarlar',
     language: 'Dil', paused: 'Duraklatıldı', resume: 'Devam et', restart: 'Yeniden başla', menu: 'Ana menü',
     startShift: 'Sefere çık', master: 'Genel ses', music: 'Müzik', effects: 'Efektler', quality: 'Kalite',
     low: 'Düşük', high: 'Yüksek', fullscreen: 'Tam ekran', toggle: 'Aç / kapat', back: 'Geri',
-    keysHelp: 'P / Esc duraklat · M müzik · X efekt · L dil · C kamera · Boşluk düdük · W/S makineler · T/G iskele · Y/H sancak · A/D dümen',
+    keysHelp: 'P / Esc duraklat · M müzik · X efekt · L dil · C kamera · Boşluk düdük (dokun/tut) · W/S makineler · T/G iskele · Y/H sancak · A/D dümen',
     retry: 'Tekrar dene', next: 'Sonraki sefer', playAgain: 'Tekrar oyna', nextShift: 'Sonraki sefer',
     shift: 'Sefer', clock: 'Saat', passengers: 'Yolcu', comfort: 'Konfor', hull: 'Gövde', score: 'Puan', panel: 'Paneli küçült / büyüt (V)', pause: 'Duraklat', sound: 'Ses', camera: 'Kamera',
     nextStop: 'Sonraki iskele', distance: 'Mesafe', speed: 'Hız', angle: 'Açı', ahead: 'İLERİ', astern: 'TORN.',
@@ -1320,16 +1432,26 @@ const STR = {
     dailyLine: 'Günlük seri: {0} gün · en iyi: {1}', dailyDone: 'Bugünkü sefer tamam', a11y: 'Erişilebilirlik', a11yOpen: 'Aç',
     share: 'Paylaş', another: 'Başka oyun', shareStars: '{0}/3 yıldız · {1} puan', sharePax: '{0} yolcu taşındı',
     awFirst: 'İlk sefer tamam', awCampaign: '8 seferin hepsi', awAllStars: '24 yıldızın hepsi',
+    rankTitle: 'Kaptanlık Rütbesi', missionsHead: 'Vardiya Görevleri', dailyMission: 'Günlük', weeklyMission: 'Haftalık',
+    missionDoneStamp: 'TAMAM', missionReward: '+{0} XP', missionToastDone: 'Görev Tamamlandı: {0} (+{1} XP)', rankUpToast: 'Rütbe Atladın: {0}!',
+    r1: 'Miço', r2: 'Gemici', r3: 'Serdümen', r4: 'Lostromo', r5: 'Vardiya Zabiti', r6: 'İkinci Kaptan', r7: 'Süvari Kaptan', r8: 'Boğaz Başkaptanı',
+    m_master_docks_t: '{0} usta yanaşma yap', m_master_docks_d: 'İskelelere nazik ve paralel yanaşarak {0} usta yanaşma gerçekleştir.',
+    m_night_nohull_t: 'Hasarsız gece seferi', m_night_nohull_d: 'Gece seferini gövde hasarı almadan tamamla.',
+    m_pax_t: '{0} yolcu taşı', m_pax_d: 'Seferler boyunca toplam {0} yolcuyu iskelelerine ulaştır.',
+    m_clean_shift_t: '{0} hasarsız sefer tamamla', m_clean_shift_d: 'Gövde hasarı almadan {0} seferi başarıyla bitir.',
+    m_punctual_shift_t: '{0} dakik sefer (%85+)', m_punctual_shift_d: 'En az %85 dakiklik ile {0} sefer tamamla.',
+    m_stars_earned_t: '{0} yıldız topla', m_stars_earned_d: 'Tamamlanan seferlerden toplam {0} yıldız kazan.',
+    m_docks_t: '{0} iskeleye yanaş', m_docks_d: 'Boğaz iskelelerine toplam {0} kez başarıyla yanaş.',
   },
   en: {
     subtitle: 'Captain a city ferry on the Bosphorus: dock at the piers, carry passengers, keep the timetable.',
-    howto: 'W/S both engines (ahead / astern), T/G port engine, Y/H starboard engine, A/D rudder (A port, D starboard), Space horn, C camera. Come alongside slowly and parallel: when the ropes are thrown the passengers get off and on. Stay clear of tankers and other ferries, keep the timetable.',
+    howto: 'W/S both engines (ahead / astern), T/G port engine, Y/H starboard engine, A/D rudder (A port, D starboard), Space horn (short tap or hold), C camera. Come alongside slowly and parallel: when the ropes are thrown the passengers get off and on. Stay clear of tankers and other ferries, keep the timetable.',
     howtoTouch: 'Right lever is the throttle (up ahead, down astern), turn the wheel on the left. Come alongside slowly and parallel: when the ropes are thrown the passengers get off and on. Keep the timetable, stay clear of tankers.',
     loading: 'Loading… {0}/{1}', play: 'Play', continue: 'Continue', endless: 'Endless shift', settings: 'Settings',
     language: 'Language', paused: 'Paused', resume: 'Resume', restart: 'Restart', menu: 'Main menu',
     startShift: 'Start the shift', master: 'Master', music: 'Music', effects: 'Effects', quality: 'Quality',
     low: 'Low', high: 'High', fullscreen: 'Fullscreen', toggle: 'Toggle', back: 'Back',
-    keysHelp: 'P / Esc pause · M music · X effects · L language · C camera · Space horn · W/S engines · T/G port · Y/H starboard · A/D rudder',
+    keysHelp: 'P / Esc pause · M music · X effects · L language · C camera · Space horn (tap/hold) · W/S engines · T/G port · Y/H starboard · A/D rudder',
     retry: 'Retry', next: 'Next shift', playAgain: 'Play again', nextShift: 'Next shift',
     shift: 'Shift', clock: 'Clock', passengers: 'Pax', comfort: 'Comfort', hull: 'Hull', score: 'Score', panel: 'Compact / full panel (V)', pause: 'Pause', sound: 'Sound', camera: 'Camera',
     nextStop: 'Next pier', distance: 'Distance', speed: 'Speed', angle: 'Angle', ahead: 'AHEAD', astern: 'ASTERN',
@@ -1366,6 +1488,16 @@ const STR = {
     dailyLine: 'Daily streak: {0} · best: {1}', dailyDone: 'Today\'s shift is done', a11y: 'Accessibility', a11yOpen: 'Open',
     share: 'Share', another: 'Another game', shareStars: '{0}/3 stars · {1} points', sharePax: '{0} passengers carried',
     awFirst: 'First shift cleared', awCampaign: 'All 8 shifts', awAllStars: 'All 24 stars',
+    rankTitle: 'Captain Rank', missionsHead: 'Shift Missions', dailyMission: 'Daily', weeklyMission: 'Weekly',
+    missionDoneStamp: 'DONE', missionReward: '+{0} XP', missionToastDone: 'Mission Complete: {0} (+{1} XP)', rankUpToast: 'Rank Up: {0}!',
+    r1: 'Deck Apprentice', r2: 'Sailor', r3: 'Helmsman', r4: 'Boatswain', r5: 'Watch Officer', r6: 'Chief Mate', r7: 'Master Captain', r8: 'Senior Bosphorus Pilot',
+    m_master_docks_t: '{0} masterful dockings', m_master_docks_d: 'Execute {0} masterful dockings with gentle, parallel approaches.',
+    m_night_nohull_t: 'Night shift without damage', m_night_nohull_d: 'Complete a night shift without any hull damage.',
+    m_pax_t: 'Carry {0} passengers', m_pax_d: 'Deliver a total of {0} passengers to their destinations.',
+    m_clean_shift_t: 'Complete {0} undamaged shifts', m_clean_shift_d: 'Finish {0} shifts with zero hull damage.',
+    m_punctual_shift_t: '{0} punctual shifts (85%+)', m_punctual_shift_d: 'Complete {0} shifts with at least 85% punctuality.',
+    m_stars_earned_t: 'Earn {0} stars', m_stars_earned_d: 'Collect a total of {0} stars from completed shifts.',
+    m_docks_t: 'Dock at {0} piers', m_docks_d: 'Successfully dock at Bosphorus piers {0} times.',
   },
 };
 let LANG = 'tr';
@@ -1417,7 +1549,7 @@ function setCompact(on) {
   requestAnimationFrame(updateBarH);   // the next-stop card sits under the bar
 }
 function lsGet(k) { try { return JSON.parse(localStorage.getItem(k)); } catch (e) { return null; } }
-function lsSet(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) { /* ignore */ } }
+function lsSet(k, v) { if (FLAG.nosave) return; try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) { /* ignore */ } }
 (function loadSettings() {
   const s = lsGet(KEY_SET);
   if (s && typeof s === 'object') for (const k of Object.keys(settings)) if (s[k] !== undefined) settings[k] = s[k];
@@ -1432,11 +1564,257 @@ const best = Object.assign({ total: 0, stars: [0, 0, 0, 0, 0, 0, 0, 0], score: [
 let runSave = SAVED.run || null;
 const writeSave = () => lsSet(KEY_SAVE, { best, run: runSave });
 
+// ---------------------------------------------------------------- Captain Rank & Date-Seeded Missions (bogaz-vapuru.missions)
+const KEY_MISSIONS = 'bogaz-vapuru.missions';
+const RANKS = [
+  { level: 1, xpReq: 0,    titleKey: 'r1' },
+  { level: 2, xpReq: 100,  titleKey: 'r2' },
+  { level: 3, xpReq: 250,  titleKey: 'r3' },
+  { level: 4, xpReq: 450,  titleKey: 'r4' },
+  { level: 5, xpReq: 700,  titleKey: 'r5' },
+  { level: 6, xpReq: 1050, titleKey: 'r6' },
+  { level: 7, xpReq: 1500, titleKey: 'r7' },
+  { level: 8, xpReq: 2100, titleKey: 'r8' },
+];
+
+function getCaptainRank(xp = 0) {
+  let cur = RANKS[0], next = null;
+  for (let i = 0; i < RANKS.length; i++) {
+    if (xp >= RANKS[i].xpReq) {
+      cur = RANKS[i];
+      next = RANKS[i + 1] || null;
+    } else break;
+  }
+  const curXP = xp - cur.xpReq;
+  const neededXP = next ? (next.xpReq - cur.xpReq) : 0;
+  const pct = next ? clamp(curXP / Math.max(1, neededXP), 0, 1) : 1;
+  return {
+    level: cur.level,
+    titleKey: cur.titleKey,
+    title: t(cur.titleKey),
+    xp,
+    curXP,
+    neededXP,
+    pct,
+    isMax: !next,
+  };
+}
+
+const DAILY_POOL = [
+  { id: 'd_master_dock', type: 'daily', metric: 'master_docks', target: 3, reward: 50, titleKey: 'm_master_docks_t', descKey: 'm_master_docks_d' },
+  { id: 'd_night_nohull', type: 'daily', metric: 'night_nohull', target: 1, reward: 60, titleKey: 'm_night_nohull_t', descKey: 'm_night_nohull_d' },
+  { id: 'd_pax_200', type: 'daily', metric: 'pax', target: 200, reward: 50, titleKey: 'm_pax_t', descKey: 'm_pax_d' },
+  { id: 'd_clean_2', type: 'daily', metric: 'clean_shift', target: 2, reward: 50, titleKey: 'm_clean_shift_t', descKey: 'm_clean_shift_d' },
+  { id: 'd_punct_2', type: 'daily', metric: 'punctual_shift', target: 2, reward: 55, titleKey: 'm_punctual_shift_t', descKey: 'm_punctual_shift_d' },
+  { id: 'd_stars_5', type: 'daily', metric: 'stars_earned', target: 5, reward: 55, titleKey: 'm_stars_earned_t', descKey: 'm_stars_earned_d' },
+  { id: 'd_dock_5', type: 'daily', metric: 'docks', target: 5, reward: 45, titleKey: 'm_docks_t', descKey: 'm_docks_d' },
+];
+
+const WEEKLY_POOL = [
+  { id: 'w_pax_300', type: 'weekly', metric: 'pax', target: 300, reward: 120, titleKey: 'm_pax_t', descKey: 'm_pax_d' },
+  { id: 'w_master_8', type: 'weekly', metric: 'master_docks', target: 8, reward: 140, titleKey: 'm_master_docks_t', descKey: 'm_master_docks_d' },
+  { id: 'w_clean_4', type: 'weekly', metric: 'clean_shift', target: 4, reward: 130, titleKey: 'm_clean_shift_t', descKey: 'm_clean_shift_d' },
+  { id: 'w_stars_12', type: 'weekly', metric: 'stars_earned', target: 12, reward: 150, titleKey: 'm_stars_earned_t', descKey: 'm_stars_earned_d' },
+];
+
+function fnv1a(str) {
+  let h = 0x811c9dc5;
+  for (let i = 0; i < str.length; i++) {
+    h ^= str.charCodeAt(i);
+    h = Math.imul(h, 0x01000193) >>> 0;
+  }
+  return h >>> 0;
+}
+
+function getDayKey(d = new Date()) {
+  const q = Q.get('d');
+  if (/^\d{8}$/.test(q || '')) return +q;
+  return d.getUTCFullYear() * 10000 + (d.getUTCMonth() + 1) * 100 + d.getUTCDate();
+}
+
+function getWeekKey(d = new Date()) {
+  const q = Q.get('d');
+  const dt = /^\d{8}$/.test(q || '')
+    ? new Date(Date.UTC(+q.slice(0, 4), +q.slice(4, 6) - 1, +q.slice(6, 8)))
+    : new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()));
+  const dayNum = dt.getUTCDay() || 7;
+  dt.setUTCDate(dt.getUTCDate() + 4 - dayNum);
+  const yearStart = new Date(Date.UTC(dt.getUTCFullYear(), 0, 1));
+  const weekNo = Math.ceil((((dt - yearStart) / 86400000) + 1) / 7);
+  return dt.getUTCFullYear() * 100 + weekNo;
+}
+
+function getActiveMissions() {
+  const dayKey = getDayKey();
+  const weekKey = getWeekKey();
+  const rngD = mulberry(fnv1a('bv-missions-d:' + dayKey));
+  const i1 = Math.floor(rngD() * DAILY_POOL.length);
+  let i2 = Math.floor(rngD() * DAILY_POOL.length);
+  if (i2 === i1) i2 = (i1 + 1) % DAILY_POOL.length;
+  const rngW = mulberry(fnv1a('bv-missions-w:' + weekKey));
+  const iW = Math.floor(rngW() * WEEKLY_POOL.length);
+  return [DAILY_POOL[i1], DAILY_POOL[i2], WEEKLY_POOL[iW]];
+}
+
+let missionsState = null;
+
+function checkMissionsDate() {
+  const dayKey = getDayKey();
+  const weekKey = getWeekKey();
+  if (!missionsState || missionsState.dayKey !== dayKey || missionsState.weekKey !== weekKey) {
+    loadMissionsState();
+  }
+}
+
+function loadMissionsState() {
+  const dayKey = getDayKey();
+  const weekKey = getWeekKey();
+  const raw = lsGet(KEY_MISSIONS) || {};
+  missionsState = {
+    xp: typeof raw.xp === 'number' ? raw.xp : 0,
+    dayKey: raw.dayKey || dayKey,
+    weekKey: raw.weekKey || weekKey,
+    progress: (raw.progress && typeof raw.progress === 'object') ? raw.progress : {},
+    claimed: (raw.claimed && typeof raw.claimed === 'object') ? raw.claimed : {},
+  };
+  if (missionsState.dayKey !== dayKey) {
+    missionsState.dayKey = dayKey;
+    for (const m of DAILY_POOL) delete missionsState.progress[m.id];
+    for (const k of Object.keys(missionsState.claimed)) {
+      if (k.startsWith('d_') && !k.endsWith(':' + dayKey)) delete missionsState.claimed[k];
+    }
+  }
+  if (missionsState.weekKey !== weekKey) {
+    missionsState.weekKey = weekKey;
+    for (const m of WEEKLY_POOL) delete missionsState.progress[m.id];
+    for (const k of Object.keys(missionsState.claimed)) {
+      if (k.startsWith('w_') && !k.endsWith(':' + weekKey)) delete missionsState.claimed[k];
+    }
+  }
+  saveMissionsState();
+  return missionsState;
+}
+
+function saveMissionsState() {
+  if (FLAG.nosave || !missionsState) return;
+  lsSet(KEY_MISSIONS, missionsState);
+}
+
+function recordMissionProgress(metric, amount = 1) {
+  checkMissionsDate();
+  const active = getActiveMissions();
+  let changed = false;
+  for (const m of active) {
+    if (m.metric !== metric) continue;
+    const claimKey = m.id + ':' + (m.type === 'daily' ? missionsState.dayKey : missionsState.weekKey);
+    if (missionsState.claimed[claimKey]) continue;
+    const cur = missionsState.progress[m.id] || 0;
+    const next = Math.min(m.target, cur + amount);
+    if (next !== cur) {
+      missionsState.progress[m.id] = next;
+      changed = true;
+      if (next >= m.target) {
+        missionsState.claimed[claimKey] = true;
+        addCaptainXP(m.reward, true);
+        const title = t(m.titleKey, m.target);
+        toast(t('missionToastDone', title, m.reward), 'good', 4000);
+        if (AUD && AUD.ready && AUD.star) AUD.star();
+      }
+    }
+  }
+  if (changed) {
+    saveMissionsState();
+    renderMissionsUI();
+  }
+}
+
+function addCaptainXP(amount, isMission = false) {
+  checkMissionsDate();
+  const prevRank = getCaptainRank(missionsState.xp);
+  missionsState.xp += amount;
+  const newRank = getCaptainRank(missionsState.xp);
+  if (newRank.level > prevRank.level) {
+    const rankTitle = t(newRank.titleKey);
+    toast(t('rankUpToast', rankTitle), 'good', 5000);
+    if (AUD && AUD.ready && AUD.star) AUD.star();
+  }
+  saveMissionsState();
+  renderMissionsUI();
+}
+
+const MONTHS_TR = ['Oca', 'Şub', 'Mar', 'Nis', 'May', 'Haz', 'Tem', 'Ağu', 'Eyl', 'Eki', 'Kas', 'Ara'];
+const MONTHS_EN = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+function formatMissionDate(dayKey, weekKey) {
+  const d = dayKey % 100, m = (Math.floor(dayKey / 100) % 100) - 1, w = weekKey % 100;
+  if (LANG === 'tr') return d + ' ' + (MONTHS_TR[m] || '') + ' · Hafta ' + w;
+  return (MONTHS_EN[m] || '') + ' ' + d + ' · Week ' + w;
+}
+
+function renderMissionsUI() {
+  const mList = el.missionsList || document.getElementById('missionsList');
+  if (!mList) return;
+  checkMissionsDate();
+  const rank = getCaptainRank(missionsState.xp);
+  const rName = el.rankName || document.getElementById('rankName');
+  if (rName) rName.textContent = rank.title;
+  const rXp = el.rankXpTxt || document.getElementById('rankXpTxt');
+  if (rXp) {
+    rXp.textContent = rank.isMax ? rank.xp + ' XP (MAX)' : rank.curXP + ' / ' + rank.neededXP + ' XP';
+  }
+  const rBar = el.rankBar || document.getElementById('rankBar');
+  if (rBar) {
+    const barFill = rBar.querySelector('i') || rBar.firstElementChild;
+    if (barFill) barFill.style.width = (rank.pct * 100).toFixed(1) + '%';
+    rBar.setAttribute('aria-valuenow', Math.round(rank.pct * 100));
+    rBar.setAttribute('aria-label', rank.title + ' (' + (rank.isMax ? rank.xp + ' XP' : rank.curXP + ' / ' + rank.neededXP + ' XP') + ')');
+  }
+  const mDate = el.missionsDateTag || document.getElementById('missionsDateTag');
+  if (mDate) {
+    mDate.textContent = formatMissionDate(missionsState.dayKey, missionsState.weekKey);
+  }
+
+  const active = getActiveMissions();
+  mList.innerHTML = '';
+  for (const m of active) {
+    const claimKey = m.id + ':' + (m.type === 'daily' ? missionsState.dayKey : missionsState.weekKey);
+    const isDone = !!missionsState.claimed[claimKey] || ((missionsState.progress[m.id] || 0) >= m.target);
+    const cur = isDone ? m.target : (missionsState.progress[m.id] || 0);
+    const pct = clamp(cur / m.target, 0, 1) * 100;
+    const title = t(m.titleKey, m.target);
+    const desc = t(m.descKey, m.target);
+    const typeLabel = t(m.type === 'daily' ? 'dailyMission' : 'weeklyMission');
+
+    const row = document.createElement('div');
+    row.className = 'mission-item' + (isDone ? ' done' : '');
+    row.setAttribute('role', 'article');
+    row.setAttribute('tabindex', '0');
+    row.setAttribute('title', desc);
+    row.setAttribute('aria-label', typeLabel + ': ' + title + ' (' + cur + '/' + m.target + ') — ' + desc);
+
+    row.innerHTML =
+      '<span class="mission-tag ' + m.type + '">' + typeLabel + '</span>' +
+      '<div class="mission-body">' +
+        '<div class="mission-title-row">' +
+          '<span class="mission-title" title="' + desc + '">' + title + '</span>' +
+          '<b class="mission-count">' + cur + '/' + m.target + '</b>' +
+        '</div>' +
+        '<div class="bar mission-bar" role="progressbar" aria-valuenow="' + Math.round(pct) + '" aria-valuemin="0" aria-valuemax="100">' +
+          '<i style="width:' + pct.toFixed(1) + '%"></i>' +
+        '</div>' +
+      '</div>' +
+      '<span class="mission-reward' + (isDone ? ' done' : '') + '">' +
+        (isDone ? t('missionDoneStamp') : t('missionReward', m.reward)) +
+      '</span>';
+
+    mList.appendChild(row);
+  }
+}
+
 // ---------------------------------------------------------------- audio (everything synthesised with Web Audio)
 settings.musicOn = settings.musicOn !== false; settings.sfxOn = settings.sfxOn !== false; settings.mute = !!settings.mute;
 const AUD = (() => {
   let ctx = null, master, musicBus, sfxBus, noiseBuf, comp;
-  let eng = null, sea = null, wind = null, rain = null, hornNodes = null, timer = 0, nextT = 0, step = 0;
+  let eng = null, engP = null, engS = null, sea = null, wind = null, rain = null, hornNodes = null, timer = 0, nextT = 0, step = 0;
   // Hüseyni-like scale on A (A B C D E F# G): degrees -> semitones
   const SC = [0, 2, 3, 5, 7, 9, 10];
   const degSemi = d => { const o = Math.floor(d / 7), i = ((d % 7) + 7) % 7; return SC[i] + 12 * o; };
@@ -1463,12 +1841,17 @@ const AUD = (() => {
     musicBus.connect(master); sfxBus.connect(master); master.connect(comp); comp.connect(ctx.destination);
     const len = ctx.sampleRate * 2; noiseBuf = ctx.createBuffer(1, len, ctx.sampleRate);
     const d = noiseBuf.getChannelData(0); for (let i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
-    // engine: slow diesel thrum = low saw + sub sine through a lowpass, amplitude-modulated by an LFO (the "thump")
-    const o1 = ctx.createOscillator(), o2 = ctx.createOscillator(), lp = ctx.createBiquadFilter(), g = ctx.createGain(), am = ctx.createGain(), lfo = ctx.createOscillator(), lg = ctx.createGain();
-    o1.type = 'sawtooth'; o2.type = 'sine'; lp.type = 'lowpass'; lp.frequency.value = 220; g.gain.value = 0; am.gain.value = 0.7;
-    lfo.type = 'sine'; lfo.frequency.value = 6; lg.gain.value = 0.3; lfo.connect(lg); lg.connect(am.gain);
-    o1.connect(lp); o2.connect(lp); lp.connect(am); am.connect(g); g.connect(sfxBus); o1.start(); o2.start(); lfo.start();
-    eng = { o1, o2, lp, g, lfo };
+    // engine voices: twin diesels (port & starboard), thrum follows each engine's RPM
+    function mkEng(pan) {
+      const o1 = ctx.createOscillator(), o2 = ctx.createOscillator(), lp = ctx.createBiquadFilter(), g = ctx.createGain(), am = ctx.createGain(), lfo = ctx.createOscillator(), lg = ctx.createGain();
+      o1.type = 'sawtooth'; o2.type = 'sine'; lp.type = 'lowpass'; lp.frequency.value = 220; g.gain.value = 0; am.gain.value = 0.7;
+      lfo.type = 'sine'; lfo.frequency.value = 5.5; lg.gain.value = 0.3; lfo.connect(lg); lg.connect(am.gain);
+      o1.connect(lp); o2.connect(lp); lp.connect(am); am.connect(g);
+      const out = panBus(pan); g.connect(out);
+      o1.start(); o2.start(); lfo.start();
+      return { o1, o2, lp, g, lfo };
+    }
+    engP = mkEng(-0.2); engS = mkEng(0.2); eng = engP;
     // sea: filtered noise with a slow swell
     const ss = ctx.createBufferSource(); ss.buffer = noiseBuf; ss.loop = true;
     const sf = ctx.createBiquadFilter(); sf.type = 'lowpass'; sf.frequency.value = 520; sf.Q.value = 0.4;
@@ -1575,33 +1958,82 @@ const AUD = (() => {
     loadSamples(files) { Object.assign(raw, files); decodeAll(); },
     get ready() { return !!ctx; },
     get state() { return ctx ? ctx.state + ' t=' + ctx.currentTime.toFixed(2) + ' steps=' + step : 'none'; },
-    /** thr: |throttle| 0..1, sp: speed m/s, swell 0..1, windA 0..1, rainA 0..1, active: in play */
-    update(thr, sp, swell, windA, rainA, active) {
+    get eng() { return eng; }, get engP() { return engP; }, get engS() { return engS; },
+    /** thrP: |port throttle| 0..1, thrS: |starboard throttle| 0..1, sp: speed m/s, swell 0..1, windA 0..1, rainA 0..1, active: in play */
+    update(thrP, thrS, sp, swell, windA, rainA, active) {
       if (!ctx) return;
+      if (active === undefined) {
+        // Compatibility with legacy 6-argument calls: (thr, sp, swell, windA, rainA, active)
+        active = windA; rainA = swell; windA = sp; swell = thrS; sp = thrP; thrS = thrP;
+      }
       const tt = ctx.currentTime;
-      const rpm = 0.25 + 0.75 * thr;
-      eng.o1.frequency.setTargetAtTime(28 + rpm * 34, tt, 0.25); eng.o2.frequency.setTargetAtTime(14 + rpm * 17, tt, 0.25);
-      eng.lfo.frequency.setTargetAtTime(3.5 + rpm * 7, tt, 0.25);
-      eng.lp.frequency.setTargetAtTime(140 + rpm * 260, tt, 0.2);
-      eng.g.gain.setTargetAtTime(active ? 0.06 + 0.16 * thr : 0, tt, 0.15);
+      // Port engine: thrum pitch & LFO follow port engine RPM
+      const rpmP = 0.22 + 0.78 * Math.min(1, Math.abs(thrP));
+      engP.o1.frequency.setTargetAtTime(26 + rpmP * 34, tt, 0.22);
+      engP.o2.frequency.setTargetAtTime(13 + rpmP * 17, tt, 0.22);
+      engP.lfo.frequency.setTargetAtTime(3.2 + rpmP * 6.5, tt, 0.22);
+      engP.lp.frequency.setTargetAtTime(130 + rpmP * 240, tt, 0.20);
+      engP.g.gain.setTargetAtTime(active ? (0.035 + 0.085 * Math.abs(thrP)) : 0, tt, 0.15);
+
+      // Starboard engine: thrum pitch & LFO follow starboard engine RPM
+      const rpmS = 0.22 + 0.78 * Math.min(1, Math.abs(thrS));
+      engS.o1.frequency.setTargetAtTime(26 + rpmS * 34, tt, 0.22);
+      engS.o2.frequency.setTargetAtTime(13 + rpmS * 17, tt, 0.22);
+      engS.lfo.frequency.setTargetAtTime(3.2 + rpmS * 6.5, tt, 0.22);
+      engS.lp.frequency.setTargetAtTime(130 + rpmS * 240, tt, 0.20);
+      engS.g.gain.setTargetAtTime(active ? (0.035 + 0.085 * Math.abs(thrS)) : 0, tt, 0.15);
+
       sea.g.gain.setTargetAtTime((active ? 0.045 : 0.03) + 0.1 * swell + 0.02 * Math.min(1, sp / 10), tt, 0.4);
       wind.g.gain.setTargetAtTime(windA * 0.12, tt, 0.6);
       rain.g.gain.setTargetAtTime(rainA * 0.14, tt, 0.5);
     },
+    // two horn types: short tap (< 0.26s Space press = crisp 0.35s toot) and long hold (prolonged deep steam whistle)
     hornStart() {
-      if (!ctx || hornNodes) return;
-      const g = ctx.createGain(), lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 900;
-      const a = ctx.createOscillator(), b = ctx.createOscillator(), c = ctx.createOscillator(); a.type = b.type = 'sawtooth'; c.type = 'square';
-      a.frequency.value = 110; b.frequency.value = 138.6; c.frequency.value = 55;
-      a.connect(lp); b.connect(lp); c.connect(lp); lp.connect(g); g.connect(sfxBus);
-      g.gain.setValueAtTime(0.0001, ctx.currentTime); g.gain.exponentialRampToValueAtTime(0.3, ctx.currentTime + 0.12);
-      a.start(); b.start(); c.start(); hornNodes = { a, b, c, g };
+      if (!ctx) return;
+      if (hornNodes) {
+        try {
+          const tt = ctx.currentTime;
+          hornNodes.g.gain.cancelScheduledValues(tt);
+          hornNodes.g.gain.setValueAtTime(0.0001, tt);
+          hornNodes.a.stop(tt + 0.02); hornNodes.b.stop(tt + 0.02); hornNodes.c.stop(tt + 0.02); hornNodes.d.stop(tt + 0.02);
+        } catch (e) {}
+        hornNodes = null;
+      }
+      const g = ctx.createGain(), lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 1050;
+      const a = ctx.createOscillator(), b = ctx.createOscillator(), c = ctx.createOscillator(), d = ctx.createOscillator();
+      a.type = b.type = d.type = 'sawtooth'; c.type = 'square';
+      a.frequency.value = 110; b.frequency.value = 138.6; c.frequency.value = 55; d.frequency.value = 220;
+      a.connect(lp); b.connect(lp); c.connect(lp); d.connect(lp); lp.connect(g); g.connect(sfxBus);
+      const tt = ctx.currentTime;
+      g.gain.setValueAtTime(0.0001, tt);
+      g.gain.exponentialRampToValueAtTime(0.3, tt + 0.03);
+      a.start(tt); b.start(tt); c.start(tt); d.start(tt);
+      hornNodes = { a, b, c, d, g, lp, startTime: tt, stopped: false };
     },
     hornStop() {
-      if (!ctx || !hornNodes) return; const h = hornNodes; hornNodes = null; const tt = ctx.currentTime;
-      h.g.gain.cancelScheduledValues(tt); h.g.gain.setValueAtTime(h.g.gain.value, tt); h.g.gain.exponentialRampToValueAtTime(0.0001, tt + 0.25);
-      h.a.stop(tt + 0.3); h.b.stop(tt + 0.3); h.c.stop(tt + 0.3);
+      if (!ctx || !hornNodes || hornNodes.stopped) return;
+      const h = hornNodes; h.stopped = true;
+      const tt = ctx.currentTime, dur = tt - h.startTime;
+      if (dur < 0.26) {
+        // Short tap horn: completes a crisp 0.35s toot
+        const tEnd = h.startTime + 0.33, tFade = tEnd + 0.08;
+        h.g.gain.cancelScheduledValues(tt);
+        h.g.gain.setValueAtTime(h.g.gain.value, tt);
+        h.g.gain.setValueAtTime(0.3, Math.max(tt, tEnd));
+        h.g.gain.exponentialRampToValueAtTime(0.0001, tFade);
+        h.a.stop(tFade + 0.02); h.b.stop(tFade + 0.02); h.c.stop(tFade + 0.02); h.d.stop(tFade + 0.02);
+        setTimeout(() => { if (hornNodes === h) hornNodes = null; }, Math.max(10, (tFade - tt + 0.05) * 1000));
+      } else {
+        // Long hold horn: prolonged reverberant release
+        h.g.gain.cancelScheduledValues(tt);
+        h.g.gain.setValueAtTime(h.g.gain.value, tt);
+        h.g.gain.exponentialRampToValueAtTime(0.0001, tt + 0.32);
+        h.a.stop(tt + 0.35); h.b.stop(tt + 0.35); h.c.stop(tt + 0.35); h.d.stop(tt + 0.35);
+        hornNodes = null;
+      }
     },
+    hornShort() { api.hornStart(); setTimeout(() => api.hornStop(), 80); },
+    hornLong() { api.hornStart(); },
     hornFar(vol = 0.08, f = 95) { // another ship's horn, distant
       if (!ctx) return; const t0 = ctx.currentTime; tone(sfxBus, 'sawtooth', f, f * 0.97, t0, 1.4, vol, 700); tone(sfxBus, 'sawtooth', f * 1.26, f * 1.22, t0, 1.4, vol * 0.7, 700);
     },
@@ -2184,6 +2616,8 @@ function dockAt(P, idx, initial = false) {
   if (!initial) {
     const dq = clamp(1 - DOCK.spd / 1.2, 0, 1) * 0.6 + clamp(1 - Math.abs(DOCK.ang) / 0.36, 0, 1) * 0.4, db = Math.round(dq * 30);
     SIM.dockBonus = (SIM.dockBonus || 0) + db; if (db > 0) { floater('+' + db, false); toast(t(dq > 0.8 ? 'toastDockPro' : 'toastDockOk', db), dq > 0.8 ? 'good' : 'info'); }
+    if (dq > 0.8) recordMissionProgress('master_docks', 1);
+    recordMissionProgress('docks', 1);
     if (SIM.fogRun) { const fb = fogDockBonus(dq); SIM.dockBonus += fb; SIM.fogBonus += fb; FOG.docks++; toast(t('toastFogDock', fb), 'good'); }
     s.late = Math.max(0, SIM.t - s.arr); s.punct = s.late <= 20 ? SCORE_K.punct : Math.max(0, SCORE_K.punct - (s.late - 20) * 1.0); s.done = true;
     SIM.punct.push(s.punct);
@@ -2192,6 +2626,7 @@ function dockAt(P, idx, initial = false) {
   }
   // queue: everyone bound for this stop gets off, then the waiting crowd boards (if there is a next stop)
   const off = SIM.aboard[idx] || 0; delete SIM.aboard[idx]; SIM.aboardN -= off; SIM.delivered += off;
+  if (off > 0) recordMissionProgress('pax', off);
   for (let i = 0; i < off; i++) SIM.boardQ.push({ dir: 'off' });
   SIM.offN = off;
   if (idx < SIM.stops.length - 1) {
@@ -2605,6 +3040,8 @@ function applyQuality() {
   sun.castShadow = !lowQ();
   scene.traverse(o => { if (o.material) o.material.needsUpdate = true; });
   if (OBJ.rain) OBJ.rain.max = lowQ() ? 500 : 1100;
+  if (OBJ.wakeRibbon) OBJ.wakeRibbon.visible = !lowQ();
+  if (OBJ.bowWave) OBJ.bowWave.visible = !lowQ();
   resize();
   attachPerf();
 }
@@ -2904,8 +3341,8 @@ function buildWater() {
         ' float a1=sin(dot(p,d1)*0.11+t*1.1), a2=sin(dot(p,d2)*0.17+t*1.5), a3=sin(dot(p,d3)*0.31+t*2.3);\n' +
         ' h = uAmp*(a1*0.5+a2*0.32+a3*0.18);\n' +
         ' vec2 g = uAmp*(cos(dot(p,d1)*0.11+t*1.1)*0.11*0.5*d1 + cos(dot(p,d2)*0.17+t*1.5)*0.17*0.32*d2 + cos(dot(p,d3)*0.31+t*2.3)*0.31*0.18*d3);\n' +
-        ' nrm = normalize(vec3(-g.x, 1.0, -g.y)); return h; }')
-      .replace('#include <beginnormal_vertex>', 'vec3 wn; float wh = wave(position.xz, wn) * clamp(aDepth*4.0, 0.15, 1.0); vec3 objectNormal = wn;')
+        ' nrm = normalize(vec3(-g.x * 0.42, 1.0, -g.y * 0.42)); return h; }')
+      .replace('#include <beginnormal_vertex>', 'vec3 wn; float wh = wave(position.xz, wn) * clamp(aDepth*4.0, 0.15, 1.0); vec3 objectNormal = normalize(mix(vec3(0.0, 1.0, 0.0), wn, clamp(aDepth*2.6, 0.2, 0.72)));')
       .replace('#include <begin_vertex>', 'vec3 transformed = vec3(position.x, position.y + wh, position.z); vDepth = aDepth; vWP = transformed;');
     sh.fragmentShader = sh.fragmentShader
       .replace('#include <common>', '#include <common>\nuniform float uTime, uCur, uSpec, uGlit, uStreak; uniform vec3 uShallow, uSkyRef, uSunV, uSunC; varying float vDepth; varying vec3 vWP;')
@@ -3021,6 +3458,89 @@ function buildScene() {
   OBJ.fogLights = new Particles(48, true, true); FOGMATS.pop(); OBJ.fogLights.obj.material.uniforms.fogNear.value = 1e8; OBJ.fogLights.obj.material.uniforms.fogFar.value = 1e9;
   OBJ.fogLights.obj.renderOrder = 9; scene.add(OBJ.fogLights.obj);
   OBJ.wake = new Particles(lowQ() ? 480 : 960, true, false); scene.add(OBJ.wake.obj);
+  // wake foam ribbon (draw call 1: continuous trail behind twin screws that widens and fades with age)
+  const WAKE_SEGS = 32;
+  const wakeGeo = new THREE.BufferGeometry();
+  const wakePos = new Float32Array((WAKE_SEGS + 1) * 2 * 3);
+  const wakeUv = new Float32Array((WAKE_SEGS + 1) * 2 * 2);
+  const wakeAlpha = new Float32Array((WAKE_SEGS + 1) * 2);
+  const wakeIdx = [];
+  for (let i = 0; i < WAKE_SEGS; i++) {
+    const i0 = i * 2, i1 = i * 2 + 1, i2 = (i + 1) * 2, i3 = (i + 1) * 2 + 1;
+    wakeIdx.push(i0, i1, i2, i1, i3, i2);
+  }
+  wakeGeo.setAttribute('position', new THREE.BufferAttribute(wakePos, 3));
+  wakeGeo.setAttribute('uv', new THREE.BufferAttribute(wakeUv, 2));
+  wakeGeo.setAttribute('aAlpha', new THREE.BufferAttribute(wakeAlpha, 1));
+  wakeGeo.setIndex(wakeIdx);
+  wakeGeo.boundingSphere = new THREE.Sphere(new THREE.Vector3(), 1e5);
+  const wakeMat = new THREE.ShaderMaterial({
+    uniforms: { fogColor: { value: new THREE.Color() }, fogNear: { value: 1 }, fogFar: { value: 2000 }, uTime: waterU.uTime },
+    vertexShader: 'attribute float aAlpha; varying float vAlpha; varying vec2 vUv; varying float vFog;\n' +
+      'void main(){ vAlpha=aAlpha; vUv=uv; vec4 mv=modelViewMatrix*vec4(position,1.0); gl_Position=projectionMatrix*mv; vFog=-mv.z; }',
+    fragmentShader: 'uniform vec3 fogColor; uniform float fogNear, fogFar, uTime; varying float vAlpha; varying vec2 vUv; varying float vFog;\n' +
+      'void main(){\n' +
+      ' float edge = abs(vUv.x - 0.5) * 2.0;\n' +
+      ' float lace = sin(vUv.y * 32.0 - uTime * 2.2) * cos(vUv.x * 16.0);\n' +
+      ' float foam = smoothstep(0.98, 0.15, edge) * (0.65 + 0.35 * lace);\n' +
+      ' float a = vAlpha * foam;\n' +
+      ' if(a < 0.01) discard;\n' +
+      ' float f = smoothstep(fogNear, fogFar, vFog);\n' +
+      ' vec3 col = mix(vec3(0.92, 0.97, 1.0), fogColor, f * 0.8);\n' +
+      ' gl_FragColor = vec4(col, a * (1.0 - f * 0.6));\n' +
+      '#include <colorspace_fragment>\n' +
+      '}',
+    transparent: true, depthWrite: false, side: THREE.DoubleSide,
+  });
+  FOGMATS.push(wakeMat);
+  OBJ.wakeRibbon = new THREE.Mesh(wakeGeo, wakeMat);
+  OBJ.wakeRibbon.renderOrder = 2;
+  OBJ.wakeRibbon.frustumCulled = false;
+  OBJ.wakeRibbon.visible = !lowQ();
+  scene.add(OBJ.wakeRibbon);
+
+  // bow wave mesh (draw call 2: curling V-shaped foam flanking the bow stem that flares with speed)
+  const bowGeo = new THREE.BufferGeometry();
+  const bowPos = new Float32Array(24 * 3);
+  const bowUv = new Float32Array(24 * 2);
+  const bowAlpha = new Float32Array(24);
+  const bowIdx = [];
+  for (let i = 0; i < 5; i++) {
+    const i0 = i * 2, i1 = i * 2 + 1, i2 = (i + 1) * 2, i3 = (i + 1) * 2 + 1;
+    bowIdx.push(i0, i1, i2, i1, i3, i2);
+  }
+  for (let i = 6; i < 11; i++) {
+    const i0 = i * 2, i1 = i * 2 + 1, i2 = (i + 1) * 2, i3 = (i + 1) * 2 + 1;
+    bowIdx.push(i0, i1, i2, i1, i3, i2);
+  }
+  bowGeo.setAttribute('position', new THREE.BufferAttribute(bowPos, 3));
+  bowGeo.setAttribute('uv', new THREE.BufferAttribute(bowUv, 2));
+  bowGeo.setAttribute('aAlpha', new THREE.BufferAttribute(bowAlpha, 1));
+  bowGeo.setIndex(bowIdx);
+  bowGeo.boundingSphere = new THREE.Sphere(new THREE.Vector3(), 1e5);
+  const bowMat = new THREE.ShaderMaterial({
+    uniforms: { fogColor: { value: new THREE.Color() }, fogNear: { value: 1 }, fogFar: { value: 2000 }, uTime: waterU.uTime, uSpeed: { value: 0 }, uNight: { value: 0 } },
+    vertexShader: 'attribute float aAlpha; varying float vAlpha; varying vec2 vUv; varying float vFog;\n' +
+      'void main(){ vAlpha=aAlpha; vUv=uv; vec4 mv=modelViewMatrix*vec4(position,1.0); gl_Position=projectionMatrix*mv; vFog=-mv.z; }',
+    fragmentShader: 'uniform vec3 fogColor; uniform float fogNear, fogFar, uSpeed, uNight, uTime; varying float vAlpha; varying vec2 vUv; varying float vFog;\n' +
+      'void main(){\n' +
+      ' float spFactor = clamp(uSpeed / 10.0, 0.0, 1.0);\n' +
+      ' if(spFactor < 0.04 || vAlpha < 0.01) discard;\n' +
+      ' float lace = sin(vUv.x * 24.0 + uTime * 6.0) * cos(vUv.y * 18.0 - uTime * 4.0);\n' +
+      ' float a = vAlpha * (0.65 + 0.35 * lace) * spFactor;\n' +
+      ' float f = smoothstep(fogNear, fogFar, vFog);\n' +
+      ' vec3 col = mix(vec3(0.95, 0.98, 1.0) * (1.0 - uNight * 0.72), fogColor, f * 0.8);\n' +
+      ' gl_FragColor = vec4(col, a * (1.0 - f * 0.6));\n' +
+      '#include <colorspace_fragment>\n' +
+      '}',
+    transparent: true, depthWrite: false, side: THREE.DoubleSide,
+  });
+  FOGMATS.push(bowMat);
+  OBJ.bowWave = new THREE.Mesh(bowGeo, bowMat);
+  OBJ.bowWave.renderOrder = 2;
+  OBJ.bowWave.frustumCulled = false;
+  OBJ.bowWave.visible = !lowQ();
+  scene.add(OBJ.bowWave);
   OBJ.smoke = new Particles(160, true, false); scene.add(OBJ.smoke.obj);
   OBJ.rain = new Particles(1100, true, false, true); scene.add(OBJ.rain.obj); OBJ.rain.max = lowQ() ? 500 : 1100;
   // berth marker and the next-pier beacon
@@ -3187,27 +3707,164 @@ function syncGulls(dt) {
   }
   m.instanceMatrix.needsUpdate = true;
 }
+const WAKE_PTS = [];
+function syncWakeRibbon(dt) {
+  if (!OBJ.wakeRibbon || !OBJ.wakeRibbon.visible) return;
+  const P = player, sp = player.speed;
+  const s = Math.sin(P.hd), c = Math.cos(P.hd);
+  const sternX = P.x - s * 17.5, sternZ = P.z - c * 17.5;
+  const fk = 1 - 0.72 * SIM.night - 0.3 * (SIM.storm ? 1 : 0);
+  const alpha0 = clamp((sp - 0.3) / 5.5, 0, 0.55) * fk;
+
+  if (WAKE_PTS.length === 0 || hyp(sternX - WAKE_PTS[0].x, sternZ - WAKE_PTS[0].z) > 1.6) {
+    WAKE_PTS.unshift({ x: sternX, z: sternZ, nx: c, nz: -s, age: 0, alpha: alpha0, speed: sp });
+    if (WAKE_PTS.length > 33) WAKE_PTS.pop();
+  } else if (WAKE_PTS.length > 0) {
+    WAKE_PTS[0].x = sternX; WAKE_PTS[0].z = sternZ; WAKE_PTS[0].nx = c; WAKE_PTS[0].nz = -s;
+    WAKE_PTS[0].alpha = alpha0; WAKE_PTS[0].speed = sp;
+  }
+  const pos = OBJ.wakeRibbon.geometry.attributes.position.array;
+  const uv = OBJ.wakeRibbon.geometry.attributes.uv.array;
+  const alp = OBJ.wakeRibbon.geometry.attributes.aAlpha.array;
+
+  for (let i = 0; i <= 32; i++) {
+    const pt = WAKE_PTS[i] || (WAKE_PTS.length ? WAKE_PTS[WAKE_PTS.length - 1] : { x: sternX, z: sternZ, nx: c, nz: -s, age: 10, alpha: 0, speed: 0 });
+    if (i > 0) pt.age += dt;
+    const w = (4.2 + pt.age * (1.1 + pt.speed * 0.12)) * clamp(pt.speed / 2.5, 0.5, 1.5);
+    const fade = Math.max(0, 1 - pt.age / 11.0);
+    const aVal = pt.alpha * fade;
+    const wy = waveY(pt.x, pt.z) + 0.16;
+
+    const iL = i * 2;
+    pos[iL * 3] = pt.x + pt.nx * w; pos[iL * 3 + 1] = wy; pos[iL * 3 + 2] = pt.z + pt.nz * w;
+    uv[iL * 2] = 0; uv[iL * 2 + 1] = i / 32;
+    alp[iL] = aVal;
+
+    const iR = i * 2 + 1;
+    pos[iR * 3] = pt.x - pt.nx * w; pos[iR * 3 + 1] = wy; pos[iR * 3 + 2] = pt.z - pt.nz * w;
+    uv[iR * 2] = 1; uv[iR * 2 + 1] = i / 32;
+    alp[iR] = aVal;
+  }
+  OBJ.wakeRibbon.geometry.attributes.position.needsUpdate = true;
+  OBJ.wakeRibbon.geometry.attributes.uv.needsUpdate = true;
+  OBJ.wakeRibbon.geometry.attributes.aAlpha.needsUpdate = true;
+}
+
+const BOW_STATIONS = [
+  { along: 18.0, beam: 0.6, flare: 1.2, a: 0.75 },
+  { along: 15.5, beam: 2.6, flare: 2.2, a: 0.8 },
+  { along: 12.0, beam: 4.0, flare: 3.6, a: 0.65 },
+  { along: 7.0,  beam: 4.5, flare: 5.0, a: 0.45 },
+  { along: 1.0,  beam: 4.7, flare: 5.8, a: 0.25 },
+  { along: -5.0, beam: 4.7, flare: 6.2, a: 0.0 },
+];
+function syncBowWave(dt) {
+  if (!OBJ.bowWave || !OBJ.bowWave.visible) return;
+  const P = player, sp = player.speed;
+  const s = Math.sin(P.hd), c = Math.cos(P.hd);
+  const bowMat = OBJ.bowWave.material;
+  bowMat.uniforms.uSpeed.value = sp;
+  bowMat.uniforms.uNight.value = SIM.night;
+
+  const alp = OBJ.bowWave.geometry.attributes.aAlpha.array;
+  if (sp < 0.4) {
+    alp.fill(0);
+    OBJ.bowWave.geometry.attributes.aAlpha.needsUpdate = true;
+    return;
+  }
+  const pos = OBJ.bowWave.geometry.attributes.position.array;
+  const uv = OBJ.bowWave.geometry.attributes.uv.array;
+  const fk = 1 - 0.72 * SIM.night - 0.3 * (SIM.storm ? 1 : 0);
+  const spScale = clamp((sp - 0.3) / 8.0, 0, 1.2);
+
+  for (let i = 0; i < 6; i++) {
+    const st = BOW_STATIONS[i];
+    const along = st.along, beam = st.beam, flare = st.flare * spScale;
+    const inX = P.x + s * along - c * beam, inZ = P.z + c * along + s * beam;
+    const outX = P.x + s * (along - 1.2 * spScale) - c * (beam + flare), outZ = P.z + c * (along - 1.2 * spScale) + s * (beam + flare);
+    const wy = waveY(inX, inZ) + 0.18 + 0.15 * spScale;
+    const aVal = st.a * spScale * fk;
+
+    const i0 = i * 2, i1 = i * 2 + 1;
+    pos[i0 * 3] = inX; pos[i0 * 3 + 1] = wy; pos[i0 * 3 + 2] = inZ;
+    uv[i0 * 2] = 0; uv[i0 * 2 + 1] = i / 5;
+    alp[i0] = aVal;
+
+    pos[i1 * 3] = outX; pos[i1 * 3 + 1] = wy + 0.08 * spScale; pos[i1 * 3 + 2] = outZ;
+    uv[i1 * 2] = 1; uv[i1 * 2 + 1] = i / 5;
+    alp[i1] = aVal;
+  }
+  for (let i = 0; i < 6; i++) {
+    const st = BOW_STATIONS[i];
+    const along = st.along, beam = st.beam, flare = st.flare * spScale;
+    const inX = P.x + s * along + c * beam, inZ = P.z + c * along - s * beam;
+    const outX = P.x + s * (along - 1.2 * spScale) + c * (beam + flare), outZ = P.z + c * (along - 1.2 * spScale) - s * (beam + flare);
+    const wy = waveY(inX, inZ) + 0.18 + 0.15 * spScale;
+    const aVal = st.a * spScale * fk;
+
+    const i0 = (6 + i) * 2, i1 = (6 + i) * 2 + 1;
+    pos[i0 * 3] = inX; pos[i0 * 3 + 1] = wy; pos[i0 * 3 + 2] = inZ;
+    uv[i0 * 2] = 0; uv[i0 * 2 + 1] = i / 5;
+    alp[i0] = aVal;
+
+    pos[i1 * 3] = outX; pos[i1 * 3 + 1] = wy + 0.08 * spScale; pos[i1 * 3 + 2] = outZ;
+    uv[i1 * 2] = 1; uv[i1 * 2 + 1] = i / 5;
+    alp[i1] = aVal;
+  }
+  OBJ.bowWave.geometry.attributes.position.needsUpdate = true;
+  OBJ.bowWave.geometry.attributes.uv.needsUpdate = true;
+  OBJ.bowWave.geometry.attributes.aAlpha.needsUpdate = true;
+}
+
 function syncParticles(dt) {
   const P = player, s = Math.sin(P.hd), c = Math.cos(P.hd);
   const sp = Math.abs(P.u);
-  // wake: foam at the stern and along the bow when moving
+  // wake: foam at the stern and along the bow when moving, scaling with speed and engines
   if (G.state === 'play' && !SIM.docked) {
-    P.wakeT += dt * (7 + sp * 6);
-    const fk = 1 - 0.72 * SIM.night - 0.3 * (SIM.storm ? 1 : 0);   // foam is lit by the sky: dim at night
-    const wk = (...a) => OBJ.wake.dim(OBJ.wake.spawn(...a), fk);
-    while (P.wakeT > 1) {
-      P.wakeT -= 1;
-      const side = rr(-1, 1), k = Math.min(1, 0.3 + sp / 6 + Math.abs(P.thr) * 0.4);
-      // stern wash: a bright churn close to the propeller and a wide, long-lived foam carpet behind it
-      wk(P.x - s * 17 + c * side * 3, 0.3, P.z - c * 17 - s * side * 3, -P.vx * 0.2 + rr(-1, 1), 0, -P.vz * 0.2 + rr(-1, 1), 2.5 + sp * 0.25, 2.5, 7 + sp * 0.8, 0xf4fbff, 0.34 * k);
-      wk(P.x - s * 19 + c * side * 4, 0.25, P.z - c * 19 - s * side * 4, -P.vx * 0.1 + rr(-0.6, 0.6), 0, -P.vz * 0.1 + rr(-0.6, 0.6), 6 + sp * 0.6, 4, 12 + sp, 0xcfe6ef, 0.1 * k);
-      if (sp > 2) {
-        // bow wave: a V of foam peeling off both sides, with spray thrown up at speed
-        const sd = rr(0, 1) < 0.5 ? -1 : 1;
-        wk(P.x + s * 14 + c * sd * 4.5, 0.3, P.z + c * 14 - s * sd * 4.5, c * sd * (1.5 + sp * 0.2) + P.vx * 0.5, 0, -s * sd * (1.5 + sp * 0.2) + P.vz * 0.5, 2.2, 1.2, 4 + sp * 0.3, 0xffffff, 0.26);
-        if (sp > 5 && rr(0, 1) < 0.5) wk(P.x + s * 16 + c * sd * 3.5, 1.2, P.z + c * 16 - s * sd * 3.5, c * sd * 2.5 + P.vx * 0.6, 3 + sp * 0.25, -s * sd * 2.5 + P.vz * 0.6, 1.1, 0.8, 1.8, 0xffffff, 0.45, 9);
+    const moving = sp > 0.25 || Math.abs(P.thrP || 0) > 0.1 || Math.abs(P.thrS || 0) > 0.1;
+    if (moving) {
+      P.wakeT += dt * (5 + sp * 7 + Math.abs(P.thr) * 4);
+      const fk = 1 - 0.72 * SIM.night - 0.3 * (SIM.storm ? 1 : 0);   // foam is lit by the sky: dim at night
+      const wk = (...a) => OBJ.wake.dim(OBJ.wake.spawn(...a), fk);
+      while (P.wakeT > 1) {
+        P.wakeT -= 1;
+        // Twin screw propeller wash: port & starboard churn
+        const kP = Math.min(1, 0.25 + sp / 6 + Math.abs(P.thrP || 0) * 0.5);
+        const kS = Math.min(1, 0.25 + sp / 6 + Math.abs(P.thrS || 0) * 0.5);
+        const washLen = 17 + sp * 0.5;
+        if (Math.abs(P.thrP || 0) > 0.1 || sp > 0.5) {
+          const sternDir = (P.thrP || 0) < -0.1 ? 1 : -1;
+          wk(P.x + s * sternDir * 16.5 - c * 2.2 + rr(-0.5, 0.5), 0.3, P.z + c * sternDir * 16.5 + s * 2.2 + rr(-0.5, 0.5),
+             -P.vx * 0.25 + rr(-0.7, 0.7), 0.2, -P.vz * 0.25 + rr(-0.7, 0.7), 2.2 + sp * 0.25, 2.2, 6 + sp * 0.7, 0xf4fbff, 0.32 * kP);
+        }
+        if (Math.abs(P.thrS || 0) > 0.1 || sp > 0.5) {
+          const sternDir = (P.thrS || 0) < -0.1 ? 1 : -1;
+          wk(P.x + s * sternDir * 16.5 + c * 2.2 + rr(-0.5, 0.5), 0.3, P.z + c * sternDir * 16.5 - s * 2.2 + rr(-0.5, 0.5),
+             -P.vx * 0.25 + rr(-0.7, 0.7), 0.2, -P.vz * 0.25 + rr(-0.7, 0.7), 2.2 + sp * 0.25, 2.2, 6 + sp * 0.7, 0xf4fbff, 0.32 * kS);
+        }
+        // Wide churning foam carpet behind twin screws
+        const side = rr(-1, 1);
+        wk(P.x - s * washLen + c * side * (3.5 + sp * 0.3), 0.25, P.z - c * washLen - s * side * (3.5 + sp * 0.3),
+           -P.vx * 0.1 + rr(-0.5, 0.5), 0, -P.vz * 0.1 + rr(-0.5, 0.5), 5 + sp * 0.5, 3.5, 10 + sp * 1.2, 0xd8edf5, 0.12 * Math.max(kP, kS));
+        // Bow wave foam & spray: scales dynamically with speed
+        if (sp > 1.8) {
+          const sd = rr(0, 1) < 0.5 ? -1 : 1;
+          const bowSpdScale = clamp(sp / 10, 0.3, 1.2);
+          wk(P.x + s * 14.5 + c * sd * (3.8 + sp * 0.22), 0.3, P.z + c * 14.5 - s * sd * (3.8 + sp * 0.22),
+             c * sd * (1.2 + sp * 0.3) + P.vx * 0.45, 0.1, -s * sd * (1.2 + sp * 0.3) + P.vz * 0.45,
+             2.0 + sp * 0.2, 1.2 * bowSpdScale, (3.5 + sp * 0.4) * bowSpdScale, 0xffffff, 0.28 * bowSpdScale);
+          if (sp > 4.5 && rr(0, 1) < 0.6) {
+            wk(P.x + s * 16.5 + c * sd * 3.2, 1.0, P.z + c * 16.5 - s * sd * 3.2,
+               c * sd * (2.2 + sp * 0.2) + P.vx * 0.55, 2.5 + sp * 0.3, -s * sd * (2.2 + sp * 0.2) + P.vz * 0.55,
+               1.0 + sp * 0.1, 0.8, 1.6 + sp * 0.15, 0xffffff, 0.45, 9);
+          }
+        }
+        // Foam collar along the hull scaling with speed
+        if (sp > 1.0) {
+          const sd = rr(0, 1) < 0.5 ? -1 : 1, az = rr(-13, 12);
+          wk(P.x + s * az + c * sd * 4.8, 0.3, P.z + c * az - s * sd * 4.8, P.vx * 0.25, 0, P.vz * 0.25, 1.4, 0.9, 2.8, 0xeaf6fa, 0.2 * Math.min(1, sp / 5));
+        }
       }
-      if (sp > 1) { const sd = rr(0, 1) < 0.5 ? -1 : 1, az = rr(-14, 12); wk(P.x + s * az + c * sd * 4.9, 0.3, P.z + c * az - s * sd * 4.9, P.vx * 0.3, 0, P.vz * 0.3, 1.4, 1.0, 3.0, 0xeaf6fa, 0.2 * k); }   // foam collar along the hull
     }
     // funnel smoke
     P.smokeT += dt * (3 + Math.abs(P.thr) * 10);
@@ -3219,6 +3876,8 @@ function syncParticles(dt) {
     for (let i = 0; i < n; i++) OBJ.rain.spawn(camera.position.x + rr(-60, 60), camera.position.y + rr(10, 50), camera.position.z + rr(-60, 60), SIM.wind.x * 3, -28, SIM.wind.z * 3, 1.6, 0.9, 0.9, 0xd8e8f0, 0.55);
   }
   OBJ.wake.update(dt); OBJ.smoke.update(dt); OBJ.rain.update(dt);
+  if (OBJ.wakeRibbon && OBJ.wakeRibbon.visible) syncWakeRibbon(dt);
+  if (OBJ.bowWave && OBJ.bowWave.visible) syncBowWave(dt);
   // boat lights: nav lights and mast lights on every boat at night
   const L = OBJ.boatLights, dark = Math.max(SIM.night, SIM.fog * 0.6, SIM.storm * 0.4, SIM.dusk * 0.5);
   L.cur = 0; L.life.fill(0);
@@ -3335,7 +3994,7 @@ function setCamMode(m) {
 const el = {};
 for (const id of ['hud', 'topbar', 'stShift', 'stClock', 'stPlan', 'stPax', 'comfBar', 'hullBar', 'stStars', 'bPanel', 'bCamH', 'bPause', 'bSound', 'bLang', 'toasts', 'nextCard', 'ncName', 'ncL2', 'ncL3', 'camLbl', 'minimap', 'lvThr', 'lvThrS', 'lvRud', 'speedo', 'spArc', 'spVal', 'spUnit', 'dock', 'dkDist', 'dkSpd', 'dkAng', 'dkHint', 'floaters', 'touch', 'tWheel', 'tWheelSvg', 'tThr', 'tHorn', 'tCam',
   'sTitle', 'sIntro', 'sPause', 'sSettings', 'sEnd', 'bPlay', 'playTxt', 'bCont', 'bEndless', 'bSettingsT', 'bLangT', 'langTxt', 'bestLine', 'cmap', 'inTitle', 'inDesc', 'inCond', 'inTT', 'inTarget', 'bStart', 'bFog', 'fogTxt', 'bIntroBack',
-  'bResume', 'bRestart', 'bSettingsP', 'bMenuP', 'rMaster', 'rMusic', 'rSfx', 'oMaster', 'oMusic', 'oSfx', 'bTR', 'bEN', 'bQLow', 'bQHigh', 'bFull', 'bSetBack', 'enTitle', 'enSub', 'enStars', 'enStats', 'enRec', 'bNext', 'nextTxt', 'bRetry', 'bMenuE', 'dbg', 'hurt', 'bDaily', 'dailyLine', 'bA11y', 'bShare', 'aOther', 'enDaily']) el[id] = document.getElementById(id);
+  'bResume', 'bRestart', 'bSettingsP', 'bMenuP', 'rMaster', 'rMusic', 'rSfx', 'oMaster', 'oMusic', 'oSfx', 'bTR', 'bEN', 'bQLow', 'bQHigh', 'bFull', 'bSetBack', 'enTitle', 'enSub', 'enStars', 'enStats', 'enRec', 'bNext', 'nextTxt', 'bRetry', 'bMenuE', 'dbg', 'hurt', 'bDaily', 'dailyLine', 'bA11y', 'bShare', 'aOther', 'enDaily', 'rankName', 'rankXpTxt', 'rankBar', 'missionsDateTag', 'missionsList']) el[id] = document.getElementById(id);
 function toast(msg, kind = 'info', ms = 2600) {
   const d = document.createElement('div'); d.className = 'toast ' + kind; d.textContent = msg; el.toasts.appendChild(d);
   while (el.toasts.children.length > 4) el.toasts.firstChild.remove();
@@ -3356,6 +4015,7 @@ function applyLang() {
   el.bTR.classList.toggle('sel', LANG === 'tr'); el.bEN.classList.toggle('sel', LANG === 'en');
   updateBestLine(); if (G.state === 'intro') renderIntro(); if (G.state === 'end' && G.lastResult) renderEnd(G.lastResult);
   el.camLbl.textContent = t(['camChase', 'camBridge', 'camTop'][camMode]);
+  renderMissionsUI();
   setTimeout(updateBarH, 0);
 }
 function updateBestLine() {
@@ -3677,11 +4337,22 @@ function beginShift() {
 function pauseGame() { if (G.state !== 'play') return; G.state = 'paused'; show('sPause'); el.bResume.focus(); AUD.hornStop(); }
 function resumeGame() { if (G.state !== 'paused') return; G.state = 'play'; show(null); lastT = performance.now(); }
 function retryCurrent() { G.retries++; beginShift(); }
-function goMenu() { G.state = 'title'; SIM.shift = null; SIM.stops = []; show('sTitle'); showcase(); updateBestLine(); el.bPlay.focus(); }
+function goMenu() { G.state = 'title'; SIM.shift = null; SIM.stops = []; show('sTitle'); showcase(); updateBestLine(); renderMissionsUI(); el.bPlay.focus(); }
 function finishShiftUI(res) {
   G.state = 'end';
   const idx = G.shiftIdx;
   let rec = false;
+  if (res.stars > 0) {
+    recordMissionProgress('stars_earned', res.stars);
+    if (res.hull <= 0) {
+      recordMissionProgress('clean_shift', 1);
+      const isNight = SIM.shift && (sunElevation(SIM.shift.hour) < -0.08 || SIM.shift.hour >= 20 || SIM.shift.hour <= 5 || SIM.shift.id === 5);
+      if (isNight) recordMissionProgress('night_nohull', 1);
+    }
+    if (res.punct >= 85) recordMissionProgress('punctual_shift', 1);
+    if (res.comfort >= 90) recordMissionProgress('high_comfort', 1);
+    addCaptainXP(res.stars * 15, false);
+  }
   if (G.mode === 'campaign') {
     if (res.stars > best.stars[idx]) { best.stars[idx] = res.stars; rec = true; }
     if (res.score > best.score[idx]) { best.score[idx] = res.score; rec = true; }
@@ -3962,7 +4633,7 @@ function frame(now) {
   }
   const active = G.state === 'play';
   if (active && input.horn && !player.horn) { player.horn = true; AUD.hornStart(); } else if ((!input.horn || !active) && player.horn) { player.horn = false; AUD.hornStop(); }
-  AUD.update(Math.abs(player.thr), player.speed, SIM.swell, SIM.wind.a * (SIM.storm ? 1 : 0.4), SIM.rain, active);
+  AUD.update(Math.abs(player.thrP || 0), Math.abs(player.thrS || 0), player.speed, SIM.swell, SIM.wind.a * (SIM.storm ? 1 : 0.4), SIM.rain, active);
   if (active) { ambT -= dt; if (ambT <= 0) { ambT = 12 + Math.random() * 20; if (Math.random() < 0.4) AUD.hornFar(0.04); } }
   syncRender(G.state === 'paused' ? 0 : dt);
   if (active || G.state === 'paused') { updateHUD(dt); if ((frameN++ & 1) === 0) drawMinimap(); }
@@ -4006,6 +4677,8 @@ window.vapur = {
   setCam: setCamMode, end: kind => { if (G.state === 'play') endShift(kind || 'clear'); },
   get gpu() { try { const gl = renderer.getContext(), e = gl.getExtension('WEBGL_debug_renderer_info'); return e ? gl.getParameter(e.UNMASKED_RENDERER_WEBGL) : gl.getParameter(gl.RENDERER); } catch (err) { return '?'; } },
   stats() { return { calls: renderer.info.render.calls, tris: renderer.info.render.triangles, fps: fpsS, traffic: SIM.traffic.length }; },
+  get missions() { return missionsState || loadMissionsState(); },
+  get rank() { return getCaptainRank((missionsState || loadMissionsState()).xp); },
 };
 
 // ---------------------------------------------------------------- boot
@@ -4024,7 +4697,7 @@ async function boot() {
   await step(() => { buildScene(); applyQuality(); });
   await step(() => { buildMinimapBase(); });
   G.state = 'title'; el.bPlay.disabled = false; el.playTxt.setAttribute('data-i', 'play'); el.playTxt.textContent = t('play'); window.__vapurReady = true; if (!lsGet(KEY_SET)) saveSettings();
-  showcase(); applyLang(); updateBestLine();
+  showcase(); applyLang(); updateBestLine(); renderMissionsUI();
   if (FLAG.auto || SIM_PRE > 0) {
     if (Q.get('mode') === 'endless') startEndless(); else if (Q.get('mode') === 'daily' && window.Arena) startDaily(); else startCampaign(false);
     beginShift();
