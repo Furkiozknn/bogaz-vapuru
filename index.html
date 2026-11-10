@@ -257,7 +257,7 @@ a.btn { text-decoration: none; }
   position: absolute;
   left: max(10px, env(safe-area-inset-left));
   top: calc(var(--barh, 56px) + max(10px, env(safe-area-inset-top)) + 10px);
-  padding: 10px 16px 10px; min-width: 190px; line-height: 1.25;
+  padding: 21px 16px 10px; min-width: 190px; line-height: 1.25;   /* top room for the BİLET / VOUCHER label (it overlapped the caption) */
   border-radius: var(--r); background: var(--c-cream);
   border: var(--border-press); box-shadow: var(--shadow-press);
   pointer-events: auto;
@@ -436,7 +436,7 @@ body.touch #speedo { width: 72px; height: 72px; border-width: 3px; }
 body.touch #speedo b { font-size: 19px; } body.touch #speedo small { font-size: 8px; }
 body.touch #levers { display: none; }
 body.touch #camLbl { display: none; }
-body.touch #nextCard { min-width: 0; padding: 6px 12px; } body.touch #nextCard b { font-size: 19px; }
+body.touch #nextCard { min-width: 0; padding: 18px 12px 6px; } body.touch #nextCard::before { top: 4px; } body.touch #nextCard b { font-size: 19px; }
 body.touch #dock { bottom: calc(max(14px, env(safe-area-inset-bottom)) + 124px); min-width: 200px; padding: 6px 10px; }
 body.touch #dock .g b { font-size: 17px; }
 /* compact panel (V key / panel button): the ferry and the water get the screen */
@@ -736,11 +736,12 @@ input[type=range] { width: 100%; height: 44px; accent-color: var(--c-teal); back
   *, *::before, *::after { animation-duration: .01s !important; transition-duration: 0s !important; }
 }
 </style>
-<script>/*ARENA-KIT:BEGIN v1.0.1 sha256:bc575c398c95*/
+<script>/*ARENA-KIT:BEGIN v1.1.0 sha256:3bea83137e26*/
 /* ARENA-KIT v1 — shared layer for the 21 Claude Game Arena games.
  *
  * Injected inline into each game's index.html (between begin/end marker comments) by
- * arena-kit/inject.py, so every game stays a single file. Plain script, no imports, no network.
+ * arena-kit/inject.py, so every game stays a single file. Plain script, no imports; the kit itself opens no
+ * connection (v1.1 play events are handed to the page's existing GoatCounter counter, if it is there).
  * Everything is optional: a game that never calls Arena.* behaves exactly as before.
  *
  *   Arena.perf.attach(renderer)        dynamic pixel ratio for weak GPUs (Intel UHD)
@@ -751,6 +752,10 @@ input[type=range] { width: 100%; height: 44px; accent-color: var(--c-teal); back
  *   Arena.share({...})                 Web Share / clipboard text + optional PNG card
  *   Arena.profile(), Arena.award(id)   cross-game passport (shared origin localStorage)
  *   Arena.settings / openSettings()    accessibility panel (text size, contrast, motion, vibration, auto-pause)
+ *   Arena.complete({mount, feedback})  v1.1: "completed" event + one-tap 👍/👎 (once a day per game), inline in `mount`
+ *   Arena.track(name)                  v1.1: one GoatCounter event "<game>/<name>" per page load; automatic:
+ *                                      "start" (first real input) and "return" (played this game on an earlier day)
+ *                                      Nothing is sent or shown on quiet runs; no cookies, no ids, no new service.
  *
  * Storage: every key starts with "arena." and is versioned; every access is wrapped in try/catch
  * (private mode, quota, portals). Pure logic lives in Arena._core so it can be tested in Node.
@@ -758,7 +763,7 @@ input[type=range] { width: 100%; height: 44px; accent-color: var(--c-teal); back
 (function (root) {
   'use strict';
   if (root.Arena && root.Arena.version) return; // injected twice (e.g. iframe) -> keep the first
-  var VERSION = '1.0.1';
+  var VERSION = '1.1.0';
   var hasDOM = typeof document !== 'undefined';
 
   /* ---------- core (pure, Node-testable) ---------- */
@@ -778,6 +783,12 @@ input[type=range] { width: 100%; height: 44px; accent-color: var(--c-teal); back
     var y = Math.floor(key / 10000), m = Math.floor(key / 100) % 100, d = key % 100;
     return core.dayKey(new Date(Date.UTC(y, m - 1, d) - 86400000));
   };
+  // v1.1: a player is "returning" if this game was last played on an earlier day (old profiles: any earlier play)
+  core.isReturn = function (lastDay, plays, lastAnyAt, today) {
+    if (lastDay) return lastDay < today;
+    return !!(plays > 0 && lastAnyAt && core.dayKey(new Date(lastAnyAt)) < today);
+  };
+  core.eventName = function (name) { return String(name || '').replace(/[^a-z0-9-]/gi, '').slice(0, 24).toLowerCase(); };
   core.hash = function (str) { // FNV-1a 32-bit
     var h = 0x811c9dc5;
     for (var i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 0x01000193) >>> 0; }
@@ -846,10 +857,12 @@ input[type=range] { width: 100%; height: 44px; accent-color: var(--c-teal); back
   var STR = {
     tr: { again: 'Bir daha', another: 'Başka bir oyun dene', close: 'Kapat', settings: 'Erişilebilirlik',
       textSize: 'Yazı boyutu', contrast: 'Yüksek karşıtlık', motion: 'Hareketi azalt', vibration: 'Titreşim',
-      autoPause: 'Sekme değişince duraklat', copied: 'Panoya kopyalandı', streak: 'Seri', days: 'gün', share: 'Paylaş' },
+      autoPause: 'Sekme değişince duraklat', copied: 'Panoya kopyalandı', streak: 'Seri', days: 'gün', share: 'Paylaş',
+      fbAsk: 'Beğendin mi?', like: 'Beğendim', dislike: 'Beğenmedim', thanks: 'Teşekkürler!' },
     en: { again: 'Play again', another: 'Try another game', close: 'Close', settings: 'Accessibility',
       textSize: 'Text size', contrast: 'High contrast', motion: 'Reduce motion', vibration: 'Vibration',
-      autoPause: 'Pause when the tab is hidden', copied: 'Copied to clipboard', streak: 'Streak', days: 'days', share: 'Share' },
+      autoPause: 'Pause when the tab is hidden', copied: 'Copied to clipboard', streak: 'Streak', days: 'days', share: 'Share',
+      fbAsk: 'Did you enjoy it?', like: 'I liked it', dislike: 'I did not like it', thanks: 'Thanks!' },
   };
   var lang = 'en';
   try { lang = /^tr/i.test((hasDOM && document.documentElement.lang) || (root.navigator && navigator.language) || '') ? 'tr' : 'en'; } catch (e) {}
@@ -866,9 +879,13 @@ input[type=range] { width: 100%; height: 44px; accent-color: var(--c-teal); back
     gameId = (meta && meta.content) || (GAMES.indexOf(seg) >= 0 ? seg : 'unknown');
   } catch (e) {}
   function profile() { return get('profile.v1', { plays: {}, badges: {}, last: null, first: null }); }
+  var returning = false;
   function touchProfile() {
-    var p = profile(), now = Date.now();
+    var p = profile(), now = Date.now(), today = core.dayKey();
+    p.lastDay = p.lastDay || {};
+    returning = core.isReturn(p.lastDay[gameId], p.plays[gameId] || 0, p.last && p.last.at, today);
     p.plays[gameId] = (p.plays[gameId] || 0) + 1; p.last = { game: gameId, at: now }; p.first = p.first || now;
+    p.lastDay[gameId] = today;
     set('profile.v1', p); return p;
   }
   function award(id, label) {
@@ -921,6 +938,13 @@ input[type=range] { width: 100%; height: 44px; accent-color: var(--c-teal); back
     'width:40px;height:40px;border-radius:50%;border:0;background:rgba(14,13,11,.7);color:#f6f1e6;font:20px/40px system-ui;cursor:pointer;opacity:.7}' +
     '.arena-gear:hover,.arena-gear:focus-visible{opacity:1}' +
     'html[data-arena-contrast] body{filter:contrast(1.25) saturate(1.1)}' +
+    '.arena-fb{position:fixed;left:50%;top:calc(10px + env(safe-area-inset-top));transform:translateX(-50%);z-index:2147483000;white-space:nowrap;' +
+    'display:flex;align-items:center;gap:8px;padding:6px 6px 6px 14px;border-radius:999px;background:rgba(14,13,11,.9);color:#f6f1e6;' +
+    'font:600 calc(15px*var(--arena-text-scale,1))/1.2 system-ui,sans-serif;box-shadow:0 6px 20px rgba(0,0,0,.35)}' +
+    '.arena-fb button{min-width:44px;min-height:44px;border:0;border-radius:50%;background:#2b2722;color:#f6f1e6;font:22px/1 system-ui;cursor:pointer}' +
+    '.arena-fb button.arena-fb-x{font-size:16px;background:transparent}' +
+    '.arena-fb.arena-fb-inline{position:static;transform:none;margin:12px auto 0;width:max-content;max-width:100%;box-shadow:none}' +
+    '.arena-fb button:focus-visible{outline:3px solid #3fd4dc;outline-offset:2px}' +
     'html[data-arena-reduced-motion] *{animation-duration:.001s!important;animation-iteration-count:1!important;transition-duration:.001s!important}';
   var styled = false;
   function style() {
@@ -989,6 +1013,55 @@ input[type=range] { width: 100%; height: 44px; accent-color: var(--c-teal); back
     var close = modal(el('div', { class: 'arena-card' }, kids));
     again.addEventListener('click', function () { close(); if (o.onAgain) o.onAgain(); });
     return close;
+  }
+
+  /* ---------- play events (v1.1) ---------- */
+  // Handed to the page's own GoatCounter (`window.goatcounter.count`, already on 20 of 21 pages). The kit opens no
+  // connection itself; without the counter (or on ?auto / ?nosave / ?demo) the events are simply dropped.
+  var sent = {}, pending = [];
+  function gcSend(path, title) {
+    var gc = root.goatcounter;
+    if (!gc || typeof gc.count !== 'function') return false;
+    try { gc.count({ path: path, title: title || path, event: true }); } catch (e) {}
+    return true;
+  }
+  function flush(tries) {
+    pending = pending.filter(function (e) { return !gcSend(e[0], e[1]); });
+    if (pending.length && tries < 20) setTimeout(function () { flush(tries + 1); }, 500); // count.js loads async
+  }
+  function track(name, title) {
+    name = core.eventName(name);
+    if (quiet || !hasDOM || !name || sent[name]) return false;
+    sent[name] = 1;
+    var path = gameId + '/' + name;
+    if (!gcSend(path, title)) { pending.push([path, title]); if (pending.length === 1) flush(0); }
+    return true;
+  }
+  var fbEl = null;
+  function complete(o) {
+    o = o || {};
+    track('complete');
+    if (quiet || !hasDOM || !document.body || o.feedback === false || fbEl) return;
+    var asked = get('feedback.v1', {}), today = core.dayKey();
+    if (asked[gameId] === today) return;
+    style();
+    var up = el('button', { type: 'button', 'aria-label': t('like'), title: t('like'), text: '👍' });
+    var down = el('button', { type: 'button', 'aria-label': t('dislike'), title: t('dislike'), text: '👎' });
+    var x = el('button', { type: 'button', class: 'arena-fb-x', 'aria-label': t('close'), title: t('close'), text: '✕' });
+    var label = el('span', { text: t('fbAsk') });
+    var mount = o.mount && o.mount.appendChild ? o.mount : null;   // inline in the game's own end screen if given
+    fbEl = el('div', { class: mount ? 'arena-fb arena-fb-inline' : 'arena-fb', role: 'group', 'aria-label': t('fbAsk') }, [label, up, down, x]);
+    function done() { if (fbEl && fbEl.parentNode) fbEl.parentNode.removeChild(fbEl); fbEl = null; }
+    function vote(v) {
+      track(v); var a = get('feedback.v1', {}); a[gameId] = today; set('feedback.v1', a);
+      [up, down, x].forEach(function (b) { b.remove(); }); label.textContent = t('thanks'); announce(t('thanks'));
+      setTimeout(done, 1500);
+    }
+    up.addEventListener('click', function () { vote('like'); });
+    down.addEventListener('click', function () { vote('dislike'); });
+    x.addEventListener('click', done);
+    (mount || document.body).appendChild(fbEl);
+    if (!mount) setTimeout(done, o.ms || 20000);   // floating panel fades out; an inline one stays with the end screen
   }
 
   function daily(game, opts) {
@@ -1087,7 +1160,16 @@ input[type=range] { width: 100%; height: 44px; accent-color: var(--c-teal); back
       if (!settings.autoPause) return;
       emit(document.hidden ? 'pause' : 'resume');
     });
-    var boot = function () { applySettings(); touchProfile(); };
+    var boot = function () {
+      applySettings(); touchProfile();
+      if (quiet) return;
+      var first = function (e) {
+        if (e && e.isTrusted === false) return;
+        ['pointerdown', 'keydown', 'touchstart'].forEach(function (n) { document.removeEventListener(n, first, true); });
+        track('start'); if (returning) track('return');
+      };
+      ['pointerdown', 'keydown', 'touchstart'].forEach(function (n) { document.addEventListener(n, first, true); });
+    };
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot); else boot();
   }
 
@@ -1095,6 +1177,7 @@ input[type=range] { width: 100%; height: 44px; accent-color: var(--c-teal); back
     version: VERSION, quiet: quiet, game: gameId, games: GAMES.slice(), lang: function (l) { if (l) lang = l === 'tr' ? 'tr' : 'en'; return lang; },
     perf: perf, hint: hint, toast: toast, endCard: endCard, daily: daily, share: share, shareCard: shareCard,
     profile: profile, award: award, settings: settings, openSettings: openSettings, mountSettingsButton: mountSettingsButton,
+    track: track, complete: complete,
     on: function (name, fn) { (listeners[name] = listeners[name] || []).push(fn); },
     _core: core, _store: { get: get, set: set },
   };
@@ -1192,7 +1275,7 @@ input[type=range] { width: 100%; height: 44px; accent-color: var(--c-teal); back
       <button class="btn icon" id="bLang" data-t="language" aria-label="Language"><svg class="ic"><use href="#i-globe"/></svg></button>
     </div>
   </div>
-  <div id="toasts"></div>
+  <div id="toasts" role="status" aria-live="polite"></div>
   <div id="nextCard" class="glass"><small data-i="nextStop"></small><b id="ncName">—</b><div class="l2" id="ncL2"></div><div class="l2" id="ncL3"></div></div>
   <div id="camLbl" class="glass"></div>
   <canvas id="minimap" width="300" height="460"></canvas>
@@ -1396,6 +1479,7 @@ const STR = {
     startShift: 'Sefere çık', master: 'Genel ses', music: 'Müzik', effects: 'Efektler', quality: 'Kalite',
     low: 'Düşük', high: 'Yüksek', fullscreen: 'Tam ekran', toggle: 'Aç / kapat', back: 'Geri',
     keysHelp: 'P / Esc duraklat · M müzik · X efekt · L dil · C kamera · Boşluk düdük (dokun/tut) · W/S makineler · T/G iskele · Y/H sancak · A/D dümen',
+    keysHelpTouch: 'Sağdaki kol gaz (yukarı ileri, aşağı tornistan; sol ya da sağ kenarı tek makine) · soldaki simit dümen · korna düğmesi düdük · kamera düğmesi görünüm · üst çubuk duraklat, ses, dil',
     retry: 'Tekrar dene', next: 'Sonraki sefer', playAgain: 'Tekrar oyna', nextShift: 'Sonraki sefer',
     shift: 'Sefer', clock: 'Saat', passengers: 'Yolcu', comfort: 'Konfor', hull: 'Gövde', score: 'Puan', panel: 'Paneli küçült / büyüt (V)', pause: 'Duraklat', sound: 'Ses', camera: 'Kamera',
     nextStop: 'Sonraki iskele', distance: 'Mesafe', speed: 'Hız', angle: 'Açı', ahead: 'İLERİ', astern: 'TORN.',
@@ -1408,8 +1492,9 @@ const STR = {
     d3: 'Güneş batarken beş iskele. Akşam kalabalığı, hava kararınca ışıklar yanıyor.',
     d4: 'Sabah sisi Boğaz\'ı örtmüş: bugün sis seferi. Radar kör; düdük çal, yankıyı dinle, iskele fenerlerini izle.',
     fogOn: 'Sis seferi: açık', fogOff: 'Sis seferi: kapalı', c_fogrun: 'Sis seferi · radar kör',
+    fogDescTouch: 'Sis seferi: yoğun sis, radar kör. Korna düğmesiyle düdük çal: yankı iskeleden (çan sesiyle) ve kıyıdan döner; ne kadar geç dönerse o kadar uzak, sesin yönü kulaklıkta sağdan ya da soldan gelir. İskele fenerleri sisi deler, sıradaki iskele kehribar renkte yanıp söner. Diğer tekneler yaklaşınca düdük çalar. Siste her yanaşma prim kazandırır.',
     fogDesc: 'Sis seferi: yoğun sis, radar kör. Boşluk ile düdük çal: yankı iskeleden (çan sesiyle) ve kıyıdan döner; ne kadar geç dönerse o kadar uzak, sesin yönü kulaklıkta sağdan ya da soldan gelir. İskele fenerleri sisi deler, sıradaki iskele kehribar renkte yanıp söner. Diğer tekneler yaklaşınca düdük çalar. Siste her yanaşma prim kazandırır.',
-    toastFogRun: 'Sis seferi! Radar kör. Boşluk ile düdük çal, yankıyı dinle.', toastFogDock: 'Siste yanaşma primi +{0}', sFogBonus: 'Sis primi', mmFog: 'SİS · RADAR KÖR',
+    toastFogRun: 'Sis seferi! Radar kör. Boşluk ile düdük çal, yankıyı dinle.', toastFogRunTouch: 'Sis seferi! Radar kör. Korna düğmesiyle düdük çal, yankıyı dinle.', toastFogDock: 'Siste yanaşma primi +{0}', sFogBonus: 'Sis primi', mmFog: 'SİS · RADAR KÖR',
     d5: 'Gece seferi. İskele fenerleri ve köprü ışıkları yol gösterir; tankerler karanlıkta gelir.',
     d6: 'Karadeniz\'den güçlü akıntı. Ortada vapur sürüklenir; yanaşırken akıntıya karşı dur.',
     d7: 'Fırtına: rüzgâr, dalga, yağmur. Yolcuların konforu için hızı düşür.',
@@ -1427,7 +1512,7 @@ const STR = {
     newRecord: 'Yeni rekor!', camChase: 'Takip kamerası', camBridge: 'Köprüüstü', camTop: 'Kuş bakışı',
     hintSlow: 'Yavaşla', hintAlign: 'Paralel yanaş', hintCloser: 'Daha yakına', hintOk: 'Yanaşıyor…', hintStop: 'Dur ve bekle', hintFast: 'Çok hızlı!',
     dockDone: 'Yanaşma tamam', pierNames: { eminonu: 'Eminönü', karakoy: 'Karaköy', uskudar: 'Üsküdar', besiktas: 'Beşiktaş', kadikoy: 'Kadıköy', kanlica: 'Kanlıca' },
-    hintLeave: '<b>W</b> ile kalk', unitKn: 'kn',
+    hintLeave: '<b>W</b> ile kalk', hintLeaveTouch: '<b>Kolu yukarı it</b>, kalk', unitKn: 'kn',
     daily: 'Günün Meydan Okuması', sD: 'Günün Meydan Okuması', dD: 'Bugünün seferi herkes için aynı: aynı rota, aynı hava, aynı trafik. Bitir, seriyi sürdür.',
     dailyLine: 'Günlük seri: {0} gün · en iyi: {1}', dailyDone: 'Bugünkü sefer tamam', a11y: 'Erişilebilirlik', a11yOpen: 'Aç',
     share: 'Paylaş', another: 'Başka oyun', shareStars: '{0}/3 yıldız · {1} puan', sharePax: '{0} yolcu taşındı',
@@ -1452,6 +1537,7 @@ const STR = {
     startShift: 'Start the shift', master: 'Master', music: 'Music', effects: 'Effects', quality: 'Quality',
     low: 'Low', high: 'High', fullscreen: 'Fullscreen', toggle: 'Toggle', back: 'Back',
     keysHelp: 'P / Esc pause · M music · X effects · L language · C camera · Space horn (tap/hold) · W/S engines · T/G port · Y/H starboard · A/D rudder',
+    keysHelpTouch: 'Right lever is the throttle (up ahead, down astern; its left or right edge drives one engine) · wheel on the left steers · horn button sounds the horn · camera button changes the view · top bar: pause, sound, language',
     retry: 'Retry', next: 'Next shift', playAgain: 'Play again', nextShift: 'Next shift',
     shift: 'Shift', clock: 'Clock', passengers: 'Pax', comfort: 'Comfort', hull: 'Hull', score: 'Score', panel: 'Compact / full panel (V)', pause: 'Pause', sound: 'Sound', camera: 'Camera',
     nextStop: 'Next pier', distance: 'Distance', speed: 'Speed', angle: 'Angle', ahead: 'AHEAD', astern: 'ASTERN',
@@ -1464,8 +1550,9 @@ const STR = {
     d3: 'Five piers while the sun sets. Evening crowds, and the lights come on at dusk.',
     d4: 'Morning fog covers the strait: today is a fog run. The radar is blind; sound the horn, listen for the echo, follow the pier lanterns.',
     fogOn: 'Fog run: on', fogOff: 'Fog run: off', c_fogrun: 'Fog run · radar blind',
+    fogDescTouch: 'Fog run: dense fog, the radar is blind. Sound the horn with the horn button: the echo comes back from the piers (with a bell) and from the shore; the later it returns, the farther away, and in headphones it comes from the left or the right. Pier lanterns shine through the fog, the next pier blinks amber. Other boats sound their horns when they get close. Every docking in fog earns a bonus.',
     fogDesc: 'Fog run: dense fog, the radar is blind. Sound the horn with Space: the echo comes back from the piers (with a bell) and from the shore; the later it returns, the farther away, and in headphones it comes from the left or the right. Pier lanterns shine through the fog, the next pier blinks amber. Other boats sound their horns when they get close. Every docking in fog earns a bonus.',
-    toastFogRun: 'Fog run! The radar is blind. Sound the horn with Space and listen for the echo.', toastFogDock: 'Fog docking bonus +{0}', sFogBonus: 'Fog bonus', mmFog: 'FOG · RADAR BLIND',
+    toastFogRun: 'Fog run! The radar is blind. Sound the horn with Space and listen for the echo.', toastFogRunTouch: 'Fog run! The radar is blind. Sound the horn with the horn button and listen for the echo.', toastFogDock: 'Fog docking bonus +{0}', sFogBonus: 'Fog bonus', mmFog: 'FOG · RADAR BLIND',
     d5: 'Night shift. Pier lanterns and bridge lights guide you; tankers come out of the dark.',
     d6: 'A strong current from the Black Sea. The ferry drifts mid-strait; hold against it when docking.',
     d7: 'Storm: wind, waves, rain. Slow down for the passengers\' comfort.',
@@ -1483,7 +1570,7 @@ const STR = {
     newRecord: 'New record!', camChase: 'Chase camera', camBridge: 'Bridge', camTop: 'Top view',
     hintSlow: 'Slow down', hintAlign: 'Come parallel', hintCloser: 'Closer', hintOk: 'Coming alongside…', hintStop: 'Stop and hold', hintFast: 'Too fast!',
     dockDone: 'Docked', pierNames: { eminonu: 'Eminönü', karakoy: 'Karaköy', uskudar: 'Üsküdar', besiktas: 'Beşiktaş', kadikoy: 'Kadıköy', kanlica: 'Kanlıca' },
-    hintLeave: 'Cast off with <b>W</b>', unitKn: 'kn',
+    hintLeave: 'Cast off with <b>W</b>', hintLeaveTouch: '<b>Push the lever up</b> to cast off', unitKn: 'kn',
     daily: 'Daily challenge', sD: 'Daily challenge', dD: 'Today\'s shift is the same for everyone: same route, same weather, same traffic. Finish it to keep your streak.',
     dailyLine: 'Daily streak: {0} · best: {1}', dailyDone: 'Today\'s shift is done', a11y: 'Accessibility', a11yOpen: 'Open',
     share: 'Share', another: 'Another game', shareStars: '{0}/3 stars · {1} points', sharePax: '{0} passengers carried',
@@ -3010,11 +3097,12 @@ function stepSim(dt) {
   if (SIM.storm) { SIM.rain += (1 - SIM.rain) * 0.1 * dt; SIM.thunderT -= dt; if (SIM.thunderT <= 0) { SIM.thunderT = rr(14, 40); AUD.thunder(); lightning = 1; } }
   SIM.swell += ((SIM.storm ? 1 : 0.15 + 0.25 * SIM.wind.a) - SIM.swell) * 0.05 * dt;
   SIM.gullT -= dt; if (SIM.gullT <= 0) { SIM.gullT = rr(4, 11); AUD.gull(); }
-  if (SIM.t > 1 && !SIM.toasted.fog && SIM.fog >= 1) { SIM.toasted.fog = true; if (SIM.fogRun) toast(t('toastFogRun'), 'info', 5200); else toast(t('toastFog'), 'info'); }
+  if (SIM.t > 1 && !SIM.toasted.fog && SIM.fog >= 1) { SIM.toasted.fog = true; if (SIM.fogRun) toast(tT('toastFogRun'), 'info', 5200); else toast(t('toastFog'), 'info'); }
   if (SIM.t > 1 && !SIM.toasted.storm && SIM.storm) { SIM.toasted.storm = true; toast(t('toastStorm'), 'info'); }
   if (!SIM.toasted.night && SIM.night > 0.5) { SIM.toasted.night = true; toast(t('toastNight'), 'info'); }
 }
 let lightning = 0;
+const calm = () => !!(window.Arena && Arena.settings && Arena.settings.reducedMotion);   // kit "reduce motion": read live, visuals only (the sim never sees it)
 function shiftScore() { return Math.round((SIM.dockBonus || 0) + SIM.delivered * SCORE_K.pax + SIM.punct.reduce((a, b) => a + b, 0) + SIM.comfort * SCORE_K.comfort + SIM.lost * SCORE_K.lost); }
 function starsFor(score, target) { const r = score / Math.max(1, target); return r >= SCORE_K.stars[2] ? 3 : r >= SCORE_K.stars[1] ? 2 : r >= SCORE_K.stars[0] ? 1 : 0; }
 function endShift(kind) {
@@ -3613,6 +3701,7 @@ function updateSky(force) {
   const h = SIM.hour;
   if (!force && Math.abs(h - lastSkyHour) < 0.004 && lightning === 0) return;
   lastSkyHour = h;
+  const flash = calm() ? 0 : lightning;   // reduce motion: thunder is heard, the scene does not flash
   const el = sunElevation(h), day = sstep(-0.08, 0.25, el), dusk = (1 - sstep(0.0, 0.3, Math.abs(el))) * sstep(-0.35, -0.05, el), night = 1 - sstep(-0.2, 0.05, el);
   SIM.night = night; SIM.dusk = dusk;
   const az = Math.PI * (h - 6.4) / 12.9;    // east at sunrise, west at sunset
@@ -3631,9 +3720,9 @@ function updateSky(force) {
   skyU.uBand.value = dusk * (1 - storm) * (1 - fogA);
   // lights
   sun.color.setHex(0xffe9cc).lerp(SKY.tmp.setHex(0xffc27a), gold).lerp(SKY.tmp.setHex(0xff8a4a), dusk).lerp(SKY.tmp.setHex(0x7f93c8), night);
-  sun.intensity = (0.25 + 2.0 * Math.pow(Math.max(el, 0), 0.6)) * (1 + 0.3 * gold) * (1 - 0.5 * storm) * (1 - 0.35 * fogA) * (1 - 0.8 * night) + 0.7 * night + lightning * 3;
+  sun.intensity = (0.25 + 2.0 * Math.pow(Math.max(el, 0), 0.6)) * (1 + 0.3 * gold) * (1 - 0.5 * storm) * (1 - 0.35 * fogA) * (1 - 0.8 * night) + 0.7 * night + flash * 3;
   hemi.color.copy(SKY.mid).lerp(SKY.tmp.setHex(0xffffff), 0.35); hemi.groundColor.setHex(0x5a6a52).lerp(SKY.tmp.setHex(0x7a5a46), gold * 0.5).lerp(SKY.tmp.setHex(0x16283a), night);
-  hemi.intensity = 0.95 * (1 - 0.35 * night) * (1 - 0.3 * storm) + lightning * 1.5;
+  hemi.intensity = 0.95 * (1 - 0.35 * night) * (1 - 0.3 * storm) + flash * 1.5;
   // fog
   SKY.tmp2.copy(SKY.hor).lerp(SKY.mid, 0.35);
   scene.fog.color.copy(SKY.tmp2);
@@ -3894,13 +3983,13 @@ function syncParticles(dt) {
 function syncFogLights() {
   const F = OBJ.fogLights; F.cur = 0; F.life.fill(0);
   if (SIM.fogRun && G.state !== 'title') {
-    const tm = waterU.uTime.value, ns = nextStop();
+    const tm = waterU.uTime.value, ns = nextStop(), still = calm();
     const lamp = (x, y, z, hex, core, halo, a) => { F.spawn(x, y, z, 0, 0, 0, 1, halo, halo, hex, 0.22 * a); F.spawn(x, y, z, 0, 0, 0, 1, core, core, hex, a); };
     for (const id of Object.keys(PIERS)) {
-      const P = PIERS[id], next = ns && ns.id === id && !SIM.docked, fl = next && (tm % 2) < 0.7;   // the next pier burns amber and flashes every 2 s
+      const P = PIERS[id], next = ns && ns.id === id && !SIM.docked, fl = next && !still && (tm % 2) < 0.7;   // the next pier burns amber and flashes every 2 s (steady under reduce motion)
       for (const dz of [-P.len / 2 + 2, P.len / 2 - 2]) { const w = pierLocal(P, P.w / 2 - 2.5, dz); lamp(w[0], 10.2, w[1], next ? 0xffa526 : P.lampC, fl ? 4.2 : next ? 2.8 : 2.4, fl ? 20 : next ? 11 : 9, 1); }
     }
-    if ((tm % 3) < 0.5) lamp(WORLD.maiden.x + 5, 25.5, WORLD.maiden.z, 0xffffff, 4, 20, 1);   // the lighthouse: one flash every 3 s
+    if (still || (tm % 3) < 0.5) lamp(WORLD.maiden.x + 5, 25.5, WORLD.maiden.z, 0xffffff, 4, 20, 1);   // the lighthouse: one flash every 3 s
   }
   F.flush();
 }
@@ -3947,8 +4036,8 @@ function updateCamera(dt) {
   if (camMode === 0) {
     // cinematic docking: near the target pier the chase camera drifts out over the water, drops low and frames the
     // ferry against the pier; moored, it keeps a slow orbit. A drag on the scene overrides it for a few seconds.
-    const ns = nextStop(), Pr = ns ? PIERS[ns.id] : null, cine = !!Pr && (DOCK.near || !!SIM.docked) && !CAM.drag && CAM.idle > 2.5 && !CAM.cineOff;
-    CAM.cine += ((cine ? 1 : 0) - CAM.cine) * Math.min(1, dt * 0.8);
+    const ns = nextStop(), Pr = ns ? PIERS[ns.id] : null, still = calm(), cine = !still && !!Pr && (DOCK.near || !!SIM.docked) && !CAM.drag && CAM.idle > 2.5 && !CAM.cineOff;   // reduce motion: no cinematic docking drift/orbit
+    CAM.cine = still ? 0 : CAM.cine + ((cine ? 1 : 0) - CAM.cine) * Math.min(1, dt * 0.8);
     if (!CAM.drag && CAM.idle > 3) {
       let yawT = 0, pitchT = 0.42, distT = CAM.distUser;
       if (cine) {
@@ -3964,13 +4053,13 @@ function updateCamera(dt) {
     CAM.px += (tx - CAM.px) * k; CAM.py += (ty - CAM.py) * k; CAM.pz += (tz - CAM.pz) * k;
     camera.position.set(CAM.px, Math.max(CAM.py, 3), CAM.pz);
     camera.lookAt(P.x + s * 8 * (1 - CAM.cine), boatY + 5, P.z + c * 8 * (1 - CAM.cine));
-    camera.fov = 55 + 5 * Math.min(1, P.speed / 12) * (1 - CAM.cine);   // a touch wider at speed
+    camera.fov = 55 + (still ? 0 : 5 * Math.min(1, P.speed / 12) * (1 - CAM.cine));   // a touch wider at speed
   } else if (camMode === 1) {
     ferryLocalToWorld([0, 7.9, 8.6], _p3);
     camera.position.set(_p3[0], _p3[1], _p3[2]);
     const ly = P.hd + CAM.lookYaw, lp = CAM.lookPitch;
     camera.lookAt(_p3[0] + Math.sin(ly) * Math.cos(lp) * 50, _p3[1] + Math.sin(lp) * 50 - 1, _p3[2] + Math.cos(ly) * Math.cos(lp) * 50);
-    camera.rotation.z += P.heel * 0.7;
+    if (!calm()) camera.rotation.z += P.heel * 0.7;   // reduce motion: the bridge view does not roll with the heel
     camera.fov = 62;
   } else {
     const ns = nextStop(), P2 = ns ? PIERS[ns.id] : null;
@@ -4005,11 +4094,13 @@ function floater(txt, neg) {
   d.style.left = '50%'; d.style.top = '42%'; el.floaters.appendChild(d); setTimeout(() => d.remove(), 1500);
 }
 let hurtA = 0;
-function hurtFlash(a) { hurtA = Math.max(hurtA, a); el.hurt.style.opacity = hurtA.toFixed(2); }
+function hurtFlash(a) { if (calm()) a = Math.min(a, 0.18); hurtA = Math.max(hurtA, a);   // reduce motion: a faint edge glow, no red flash
+  el.hurt.style.opacity = hurtA.toFixed(2); }
+function tT(k) { return touchOn && STR.en[k + 'Touch'] ? t(k + 'Touch') : t(k); }   // touch controls on: the text names the on-screen control, not a key
 function applyLang() {
   document.documentElement.lang = LANG;
   if (window.Arena) Arena.lang(LANG);
-  $$('[data-i]').forEach(e => { const k = e.getAttribute('data-i'); if (k === 'howto') e.innerHTML = t(document.body.classList.contains('touch') ? 'howtoTouch' : 'howto'); else if (k !== 'loading') e.textContent = t(k); });
+  $$('[data-i]').forEach(e => { const k = e.getAttribute('data-i'); if (k === 'howto') e.innerHTML = tT('howto'); else if (k !== 'loading') e.textContent = k === 'keysHelp' ? tT(k) : t(k); });
   $$('[data-t]').forEach(e => { e.title = t(e.getAttribute('data-t')); e.setAttribute('aria-label', t(e.getAttribute('data-t'))); });
   el.langTxt.textContent = LANG === 'tr' ? 'TR / EN' : 'EN / TR';
   el.bTR.classList.toggle('sel', LANG === 'tr'); el.bEN.classList.toggle('sel', LANG === 'en');
@@ -4056,7 +4147,7 @@ function updateHUD(dt) {
       const w = ns.dep - SIM.t;
       el.ncL2.textContent = !SIM.boardDone ? t('boarding') : (w > 0 ? t('waitDep', fmtMS(w)) : t('canLeave'));
       el.ncL2.className = 'l2';
-      el.ncL3.innerHTML = SIM.depAllowed && SIM.stopIdx < SIM.stops.length - 1 ? t('hintLeave') : '';
+      el.ncL3.innerHTML = SIM.depAllowed && SIM.stopIdx < SIM.stops.length - 1 ? tT('hintLeave') : '';
     } else {
       const d = hyp(P.bx - player.x, P.bz - player.z), late = SIM.t - ns.arr;
       el.ncL2.textContent = Math.round(d) + ' m · ' + t('waiting', Math.floor(P.wait));
@@ -4312,7 +4403,7 @@ function renderIntro() {
   e.addEventListener('click', () => { AUD.click(); startEndless(); }); el.cmap.appendChild(e);
   el.inTitle.textContent = sh.endless ? t('sE', sh.endless) : t('s' + sh.id);
   const fogRun = isFogRun(sh), forced = FLAG.fog || sh.fog >= 1;
-  el.inDesc.textContent = (sh.endless ? t('dE') : t('d' + sh.id)) + (fogRun ? ' ' + t('fogDesc') : '');
+  el.inDesc.textContent = (sh.endless ? t('dE') : t('d' + sh.id)) + (fogRun ? ' ' + tT('fogDesc') : '');
   el.inCond.innerHTML = condChips(sh) + (fogRun ? '<span>' + t('c_fogrun') + '</span>' : '');
   el.fogTxt.textContent = t(fogRun ? 'fogOn' : 'fogOff'); el.bFog.disabled = forced; el.bFog.setAttribute('aria-pressed', String(fogRun)); el.bFog.classList.toggle('sel', fogRun);
   // timetable preview
@@ -4373,6 +4464,7 @@ function finishShiftUI(res) {
   }
   res.rec = rec;
   renderEnd(res); show('sEnd');
+  if (window.Arena && Arena.complete) Arena.complete({ mount: $('#sEnd .col') });   // arena-kit v1.1: bogaz-vapuru/complete + one-tap 👍/👎 (nothing on ?auto)
   if (res.stars >= 2) AUD.star(); else if (res.stars === 1) AUD.good(); else AUD.bad();
   el.bNext.focus();
 }
@@ -4446,6 +4538,7 @@ document.addEventListener('visibilitychange', () => { if (document.hidden && G.s
 // arena-kit: the game already pauses (and suspends audio) when the tab is hidden; the kit event does the same, and on
 // 'resume' the pause menu stays up so the captain resumes by hand. The game has no reduced-motion flag of its own to map.
 if (window.Arena) Arena.on('pause', () => { if (G.state === 'play') pauseGame(); });
+if (window.Arena) Arena.on('settings', () => { if (calm()) { lightning = 0; lastSkyHour = -99; hurtA = 0; el.hurt.style.opacity = 0; CAM.cine = 0; } });   // "reduce motion" switched on mid-shift: stop a running flash now
 
 // ---------------------------------------------------------------- assets: none are shipped (every sound is synthesised), the hook stays for ?noassets and window.vapur.assets
 const ASSETS = { loaded: [], failed: [], snd: 0, enabled: !FLAG.noassets, started: false };
