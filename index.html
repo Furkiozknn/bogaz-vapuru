@@ -585,7 +585,9 @@ body.compact #topbar .btn.icon { width: 36px; height: 36px; } body.compact #topb
   background: var(--c-cream); border: 1px solid rgba(15, 46, 51, 0.25);
   transition: border-color 0.15s ease, background-color 0.15s ease;
 }
+.mission-item:hover { border-color: var(--c-teal); }
 .mission-item.done { border-color: var(--c-green); background: rgba(46, 125, 107, 0.08); }
+.mission-item.done:hover { border-color: var(--c-green); }
 .mission-tag {
   font-family: var(--font-mono); font-size: 9px; font-weight: 800;
   letter-spacing: 0.6px; text-transform: uppercase; padding: 2px 5px;
@@ -1252,7 +1254,7 @@ input[type=range] { width: 100%; height: 44px; accent-color: var(--c-teal); back
           </div>
           <div class="rank-xp-wrap">
             <span id="rankXpTxt" class="rank-xp-txt">0 / 100 XP</span>
-            <div class="bar rank-bar" id="rankBar"><i style="width:0%"></i></div>
+            <div class="bar rank-bar" id="rankBar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"><i style="width:0%"></i></div>
           </div>
         </div>
         <div class="missions-subhead">
@@ -1656,6 +1658,14 @@ function getActiveMissions() {
 
 let missionsState = null;
 
+function checkMissionsDate() {
+  const dayKey = getDayKey();
+  const weekKey = getWeekKey();
+  if (!missionsState || missionsState.dayKey !== dayKey || missionsState.weekKey !== weekKey) {
+    loadMissionsState();
+  }
+}
+
 function loadMissionsState() {
   const dayKey = getDayKey();
   const weekKey = getWeekKey();
@@ -1670,10 +1680,16 @@ function loadMissionsState() {
   if (missionsState.dayKey !== dayKey) {
     missionsState.dayKey = dayKey;
     for (const m of DAILY_POOL) delete missionsState.progress[m.id];
+    for (const k of Object.keys(missionsState.claimed)) {
+      if (k.startsWith('d_') && !k.endsWith(':' + dayKey)) delete missionsState.claimed[k];
+    }
   }
   if (missionsState.weekKey !== weekKey) {
     missionsState.weekKey = weekKey;
     for (const m of WEEKLY_POOL) delete missionsState.progress[m.id];
+    for (const k of Object.keys(missionsState.claimed)) {
+      if (k.startsWith('w_') && !k.endsWith(':' + weekKey)) delete missionsState.claimed[k];
+    }
   }
   saveMissionsState();
   return missionsState;
@@ -1685,7 +1701,7 @@ function saveMissionsState() {
 }
 
 function recordMissionProgress(metric, amount = 1) {
-  if (!missionsState) loadMissionsState();
+  checkMissionsDate();
   const active = getActiveMissions();
   let changed = false;
   for (const m of active) {
@@ -1713,7 +1729,7 @@ function recordMissionProgress(metric, amount = 1) {
 }
 
 function addCaptainXP(amount, isMission = false) {
-  if (!missionsState) loadMissionsState();
+  checkMissionsDate();
   const prevRank = getCaptainRank(missionsState.xp);
   missionsState.xp += amount;
   const newRank = getCaptainRank(missionsState.xp);
@@ -1737,7 +1753,7 @@ function formatMissionDate(dayKey, weekKey) {
 function renderMissionsUI() {
   const mList = el.missionsList || document.getElementById('missionsList');
   if (!mList) return;
-  if (!missionsState) loadMissionsState();
+  checkMissionsDate();
   const rank = getCaptainRank(missionsState.xp);
   const rName = el.rankName || document.getElementById('rankName');
   if (rName) rName.textContent = rank.title;
@@ -1749,6 +1765,8 @@ function renderMissionsUI() {
   if (rBar) {
     const barFill = rBar.querySelector('i') || rBar.firstElementChild;
     if (barFill) barFill.style.width = (rank.pct * 100).toFixed(1) + '%';
+    rBar.setAttribute('aria-valuenow', Math.round(rank.pct * 100));
+    rBar.setAttribute('aria-label', rank.title + ' (' + (rank.isMax ? rank.xp + ' XP' : rank.curXP + ' / ' + rank.neededXP + ' XP') + ')');
   }
   const mDate = el.missionsDateTag || document.getElementById('missionsDateTag');
   if (mDate) {
@@ -1763,18 +1781,21 @@ function renderMissionsUI() {
     const cur = isDone ? m.target : (missionsState.progress[m.id] || 0);
     const pct = clamp(cur / m.target, 0, 1) * 100;
     const title = t(m.titleKey, m.target);
+    const desc = t(m.descKey, m.target);
     const typeLabel = t(m.type === 'daily' ? 'dailyMission' : 'weeklyMission');
 
     const row = document.createElement('div');
     row.className = 'mission-item' + (isDone ? ' done' : '');
     row.setAttribute('role', 'article');
-    row.setAttribute('aria-label', typeLabel + ': ' + title + ' (' + cur + '/' + m.target + ')');
+    row.setAttribute('tabindex', '0');
+    row.setAttribute('title', desc);
+    row.setAttribute('aria-label', typeLabel + ': ' + title + ' (' + cur + '/' + m.target + ') — ' + desc);
 
     row.innerHTML =
       '<span class="mission-tag ' + m.type + '">' + typeLabel + '</span>' +
       '<div class="mission-body">' +
         '<div class="mission-title-row">' +
-          '<span class="mission-title" title="' + title + '">' + title + '</span>' +
+          '<span class="mission-title" title="' + desc + '">' + title + '</span>' +
           '<b class="mission-count">' + cur + '/' + m.target + '</b>' +
         '</div>' +
         '<div class="bar mission-bar" role="progressbar" aria-valuenow="' + Math.round(pct) + '" aria-valuemin="0" aria-valuemax="100">' +
