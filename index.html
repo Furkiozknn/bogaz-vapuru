@@ -319,6 +319,21 @@ a.btn { text-decoration: none; }
   content: ""; position: absolute; left: 50%; top: 8px; bottom: 14px;
   width: 3px; margin-left: -1.5px; background: var(--c-deep-faint);
 }
+.lever.thr::before { top: 18px; }
+.lever .rpm-lbl {
+  position: absolute; left: 1px; right: 1px; top: 2px; height: 14px;
+  font-family: var(--font-mono); font-size: 8.5px; font-weight: 800;
+  text-align: center; line-height: 14px; color: var(--c-deep);
+  background: var(--c-cream-d); border-radius: 2px;
+  border-bottom: 1px solid rgba(15, 46, 51, 0.2);
+  letter-spacing: -0.3px; white-space: nowrap; overflow: hidden;
+  font-variant-numeric: tabular-nums; z-index: 2; pointer-events: none;
+}
+.lever.thr-p .rpm-lbl { color: #8a241e; }
+.lever.thr-s .rpm-lbl { color: #1e6348; }
+.lever .rpm-lbl.astern { background: rgba(193, 68, 46, 0.18); color: var(--c-red); }
+.lever .rpm-lbl.ahead { background: rgba(46, 125, 107, 0.18); color: var(--c-green); }
+.lever .rpm-lbl.gear-pause { background: rgba(232, 161, 58, 0.3); color: var(--c-gold-d); }
 .lever i {
   position: absolute; left: 4px; right: 4px; border-radius: 3px;
   background: var(--c-teal); border: 1.5px solid var(--c-deep);
@@ -357,6 +372,30 @@ a.btn { text-decoration: none; }
   font-family: var(--font-mono); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;
 }
 #dock .hint.ok { color: var(--c-green); font-weight: 800; }
+#bMoor {
+  display: none; margin: 6px auto 0; padding: 6px 16px; min-height: 42px;
+  font-size: 13px; font-weight: 800; letter-spacing: 0.8px;
+  align-items: center; justify-content: center; gap: 6px;
+}
+#dock.ok #bMoor { display: inline-flex; animation: colregPulse .65s infinite alternate ease-in-out; }
+
+/* Mooring line tension on Next Stop Card */
+.rope-wrap {
+  margin: 5px 0 3px; padding: 4px 6px; border-radius: 3px;
+  background: var(--c-cream-l); border: 1px dashed var(--c-teak); text-align: left;
+}
+.rope-lbl-row {
+  display: flex; justify-content: space-between; align-items: center;
+  font-family: var(--font-mono); font-size: 9px; font-weight: 700;
+  color: var(--c-teal); text-transform: uppercase; letter-spacing: 0.5px;
+}
+.rope-lbl-row small { display: flex; align-items: center; gap: 4px; }
+.rope-lbl-row b { font-size: 11px; color: var(--c-deep); font-variant-numeric: tabular-nums; font-family: var(--font-mono); }
+.bar.tension { height: 6px; margin-top: 3px; }
+.bar.tension i {
+  background: linear-gradient(90deg, var(--c-teal), var(--c-gold) 55%, var(--c-red));
+  transition: width .15s ease-out;
+}
 
 #camLbl {
   position: absolute; right: max(10px, env(safe-area-inset-right));
@@ -419,9 +458,24 @@ body.touch #touch { display: block; }
   box-shadow: var(--shadow-press-lg); pointer-events: auto; touch-action: none;
 }
 #tThr::before {
-  content: ""; position: absolute; left: 50%; top: 24px; bottom: 24px;
+  content: ""; position: absolute; left: 50%; top: 38px; bottom: 22px;
   width: 4px; margin-left: -2px; border-radius: 2px; background: var(--c-deep-faint);
 }
+.t-thr-rpm {
+  position: absolute; left: 4px; right: 4px; top: 3px; height: 16px;
+  display: flex; gap: 3px; justify-content: space-between; z-index: 2; pointer-events: none;
+}
+.t-thr-rpm .rpm-tag {
+  flex: 1; height: 16px; line-height: 16px; text-align: center;
+  font-family: var(--font-mono); font-size: 8.5px; font-weight: 800;
+  border-radius: 2px; border: 1px solid var(--c-deep);
+  font-variant-numeric: tabular-nums; white-space: nowrap; overflow: hidden;
+}
+.t-thr-rpm .rpm-tag.p { background: #fcdbd8; color: #8a241e; }
+.t-thr-rpm .rpm-tag.s { background: #d7f0e3; color: #1e6348; }
+.t-thr-rpm .rpm-tag.astern { border-color: var(--c-red); }
+.t-thr-rpm .rpm-tag.ahead { border-color: var(--c-green); }
+.t-thr-rpm .rpm-tag.gear-pause { background: rgba(232, 161, 58, 0.3); color: var(--c-gold-d); }
 #tThr u { position: absolute; left: 10px; right: 10px; top: 50%; height: 2px; background: var(--c-deep); }
 #tThr i {
   position: absolute; left: 11px; width: 52px; height: 52px; top: 50%; margin-top: -26px;
@@ -479,6 +533,12 @@ body.compact #gauges { transform: scale(.72); transform-origin: 100% 100%; }
 body.compact.touch #gauges { transform: scale(.85); transform-origin: 100% 0; }
 body.compact #tWheel { width: 112px; height: 112px; } body.compact #tWheel svg { width: 94px; height: 94px; }
 body.compact #tThr { width: 62px; height: 160px; } body.compact #tThr i { width: 25px; height: 42px; margin-top: -21px; }
+body.compact #tThr::before { top: 30px; bottom: 18px; }
+body.compact .t-thr-rpm { top: 2px; height: 14px; }
+body.compact .t-thr-rpm .rpm-tag { height: 14px; line-height: 14px; font-size: 8px; }
+body.compact #tThr small[data-i="ahead"] { top: 18px !important; }
+body.compact #bMoor { min-height: 36px; padding: 4px 10px; font-size: 11px; }
+body.compact .rope-wrap { margin: 2px 0; padding: 2px 4px; }
 body.compact .tb { width: 48px; height: 42px; }
 body.compact #tHorn, body.compact #tCam { right: calc(max(16px, env(safe-area-inset-right)) + 70px); }
 body.compact #tCam { bottom: calc(max(16px, env(safe-area-inset-bottom)) + 50px); }
@@ -1312,13 +1372,13 @@ input[type=range] { width: 100%; height: 44px; accent-color: var(--c-teal); back
   </div>
   <div id="toasts" role="status" aria-live="polite"></div>
   <div id="colregBadge" class="glass" role="status" aria-live="polite"><svg class="ic arrow" id="colregArrow" viewBox="0 0 24 24"><path d="M12 3l5 6h-3.5v11h-3V9H7z"/></svg><span id="colregTxt">YOL VER</span><small id="colregSub" class="colreg-sub"></small></div>
-  <div id="nextCard" class="glass"><small data-i="nextStop"></small><b id="ncName">—</b><div class="l2" id="ncL2"></div><div class="l2" id="ncL3"></div></div>
+  <div id="nextCard" class="glass"><small data-i="nextStop"></small><b id="ncName">—</b><div class="l2" id="ncL2"></div><div id="ncRope" class="rope-wrap hidden"><div class="rope-lbl-row"><small><svg class="ic" style="width:11px;height:11px"><use href="#i-anchor"/></svg><span data-i="ropeTension"></span></small><b id="ncRopeVal">0%</b></div><div class="bar tension" id="ncRopeBar"><i></i></div></div><div class="l2" id="ncL3"></div></div>
   <div id="camLbl" class="glass"></div>
   <canvas id="minimap" width="300" height="460"></canvas>
   <div id="gauges">
     <div id="levers">
-      <div class="lever thr" title="iskele makine / port engine"><i id="lvThr"></i><small>İ T/G</small></div>
-      <div class="lever thr" title="sancak makine / starboard engine"><i id="lvThrS"></i><small>S Y/H</small></div>
+      <div class="lever thr thr-p" title="iskele makine / port engine"><span class="rpm-lbl" id="rpmP">0</span><i id="lvThr"></i><small>İ T/G</small></div>
+      <div class="lever thr thr-s" title="sancak makine / starboard engine"><span class="rpm-lbl" id="rpmS">0</span><i id="lvThrS"></i><small>S Y/H</small></div>
       <div class="lever rud" title="rudder"><i id="lvRud"></i><small>A/D</small></div>
     </div>
     <div id="speedo"><svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="42" stroke="rgba(15,46,51,.15)" stroke-dasharray="198 264"/><circle class="ticks" cx="50" cy="50" r="35" stroke-dasharray="1.5 9.5"/><circle id="spArc" cx="50" cy="50" r="42" stroke-dasharray="0 264"/></svg><div><b id="spVal">0</b><small id="spUnit">kn</small></div></div>
@@ -1330,11 +1390,12 @@ input[type=range] { width: 100%; height: 44px; accent-color: var(--c-teal); back
       <div class="g"><small data-i="angle"></small><b id="dkAng">—</b></div>
     </div>
     <div class="hint" id="dkHint"></div>
+    <button class="btn primary" id="bMoor" type="button" data-t="moorBtn" aria-label="Halat At"><svg class="ic"><use href="#i-anchor"/></svg><span id="bMoorTxt" data-i="moorBtn"></span></button>
   </div>
   <div id="floaters"></div>
   <div id="touch">
     <div id="tWheel" class="glass" role="slider" aria-label="Rudder"><svg viewBox="0 0 100 100" id="tWheelSvg"><use href="#i-wheel"/></svg></div>
-    <div id="tThr" class="glass" role="slider" aria-label="Throttle"><small style="top:4px" data-i="ahead"></small><u></u><i class="p"><svg class="ic" style="width:22px;height:22px;transform:rotate(-90deg)"><use href="#i-play"/></svg></i><i class="s"><svg class="ic" style="width:22px;height:22px;transform:rotate(-90deg)"><use href="#i-play"/></svg></i><small style="bottom:4px" data-i="astern"></small></div>
+    <div id="tThr" class="glass" role="slider" aria-label="Throttle"><div id="tThrRpm" class="t-thr-rpm"><span id="tRpmP" class="rpm-tag p">0</span><span id="tRpmS" class="rpm-tag s">0</span></div><small style="top:22px" data-i="ahead"></small><u></u><i class="p"><svg class="ic" style="width:22px;height:22px;transform:rotate(-90deg)"><use href="#i-play"/></svg></i><i class="s"><svg class="ic" style="width:22px;height:22px;transform:rotate(-90deg)"><use href="#i-play"/></svg></i><small style="bottom:4px" data-i="astern"></small></div>
     <div id="tHorn" class="tb glass" aria-label="Horn"><svg class="ic" style="width:26px;height:26px"><use href="#i-horn"/></svg></div>
     <div id="tCam" class="tb glass" aria-label="Camera"><svg class="ic" style="width:26px;height:26px"><use href="#i-cam"/></svg></div>
   </div>
@@ -1514,11 +1575,13 @@ const STR = {
     language: 'Dil', paused: 'Duraklatıldı', resume: 'Devam et', restart: 'Yeniden başla', menu: 'Ana menü',
     startShift: 'Sefere çık', master: 'Genel ses', music: 'Müzik', effects: 'Efektler', quality: 'Kalite',
     low: 'Düşük', high: 'Yüksek', fullscreen: 'Tam ekran', toggle: 'Aç / kapat', back: 'Geri',
-    keysHelp: 'P / Esc duraklat · M müzik · X efekt · L dil · C kamera · Boşluk düdük (dokun/tut) · W/S makineler · T/G iskele · Y/H sancak · A/D dümen',
-    keysHelpTouch: 'Sağdaki kol gaz (yukarı ileri, aşağı tornistan; sol ya da sağ kenarı tek makine) · soldaki simit dümen · korna düğmesi düdük · kamera düğmesi görünüm · üst çubuk duraklat, ses, dil',
+    keysHelp: 'P / Esc duraklat · M müzik · X efekt · L dil · C kamera · Boşluk düdük (dokun/tut) · W/S makineler · T/G iskele · Y/H sancak · A/D dümen · E halat at',
+    keysHelpTouch: 'Sağdaki kol gaz (yukarı ileri, aşağı tornistan; sol ya da sağ kenarı tek makine) · soldaki simit dümen · korna düğmesi düdük · kamera düğmesi görünüm · HALAT AT düğmesi yanaşma · üst çubuk duraklat, ses, dil',
     retry: 'Tekrar dene', next: 'Sonraki sefer', playAgain: 'Tekrar oyna', nextShift: 'Sonraki sefer',
     shift: 'Sefer', clock: 'Saat', passengers: 'Yolcu', comfort: 'Konfor', hull: 'Gövde', score: 'Puan', panel: 'Paneli küçült / büyüt (V)', pause: 'Duraklat', sound: 'Ses', camera: 'Kamera',
     nextStop: 'Sonraki iskele', distance: 'Mesafe', speed: 'Hız', angle: 'Açı', ahead: 'İLERİ', astern: 'TORN.',
+    moorBtn: 'HALAT AT', hintMoor: 'HALAT AT (E)', hintMoorTouch: 'HALAT AT', toastMoorFail: 'Yanaşma pozisyonu uygun değil! Hız ve açıyı ayarla.',
+    sDockBonus: 'Yanaşma puanı', ropeTension: 'Halat gerilimi', dirAhead: 'İ', dirAstern: 'T', gearPause: 'BEKL.',
     waiting: '{0} bekliyor', planned: 'plan {0}', lateBy: '{0} geç', earlyBy: '{0} erken', depart: 'kalkış {0}', waitDep: 'kalkışa {0}', boarding: 'yolcu alınıyor…', canLeave: 'kalkabilirsin!',
     campaign: 'Sefer planı', endlessShort: 'Sonsuz',
     bestLine: 'En iyi: {0} puan · {1}/24 yıldız · Sonsuz: {2} sefer', bestNone: 'Henüz rekor yok.',
@@ -1572,11 +1635,13 @@ const STR = {
     language: 'Language', paused: 'Paused', resume: 'Resume', restart: 'Restart', menu: 'Main menu',
     startShift: 'Start the shift', master: 'Master', music: 'Music', effects: 'Effects', quality: 'Quality',
     low: 'Low', high: 'High', fullscreen: 'Fullscreen', toggle: 'Toggle', back: 'Back',
-    keysHelp: 'P / Esc pause · M music · X effects · L language · C camera · Space horn (tap/hold) · W/S engines · T/G port · Y/H starboard · A/D rudder',
-    keysHelpTouch: 'Right lever is the throttle (up ahead, down astern; its left or right edge drives one engine) · wheel on the left steers · horn button sounds the horn · camera button changes the view · top bar: pause, sound, language',
+    keysHelp: 'P / Esc pause · M music · X effects · L language · C camera · Space horn (tap/hold) · W/S engines · T/G port · Y/H starboard · A/D rudder · E throw lines',
+    keysHelpTouch: 'Right lever is the throttle (up ahead, down astern; its left or right edge drives one engine) · wheel on the left steers · horn button sounds the horn · camera button changes the view · THROW LINES button to moor · top bar: pause, sound, language',
     retry: 'Retry', next: 'Next shift', playAgain: 'Play again', nextShift: 'Next shift',
     shift: 'Shift', clock: 'Clock', passengers: 'Pax', comfort: 'Comfort', hull: 'Hull', score: 'Score', panel: 'Compact / full panel (V)', pause: 'Pause', sound: 'Sound', camera: 'Camera',
     nextStop: 'Next pier', distance: 'Distance', speed: 'Speed', angle: 'Angle', ahead: 'AHEAD', astern: 'ASTERN',
+    moorBtn: 'THROW LINES', hintMoor: 'THROW LINES (E)', hintMoorTouch: 'THROW LINES', toastMoorFail: 'Not in docking position! Check speed and angle.',
+    sDockBonus: 'Docking score', ropeTension: 'Rope tension', dirAhead: 'A', dirAstern: 'AS', gearPause: 'GEAR',
     waiting: '{0} waiting', planned: 'due {0}', lateBy: '{0} late', earlyBy: '{0} early', depart: 'depart {0}', waitDep: 'departs in {0}', boarding: 'boarding…', canLeave: 'you may leave!',
     campaign: 'Shift plan', endlessShort: 'Endless',
     bestLine: 'Best: {0} points · {1}/24 stars · Endless: {2} shifts', bestNone: 'No record yet.',
@@ -2658,9 +2723,9 @@ const SIM = {
   t: 0, hour: 15, shift: null, stops: [], stopIdx: 0, cur: 0.3, wind: { x: 0, z: 0, a: 0, dir: 0, gust: 0 }, fog: 0, storm: 0, rain: 0, swell: 0, night: 0, dusk: 0,
   traffic: [], aboard: {}, aboardN: 0, delivered: 0, lost: 0, comfort: 100, punct: [], score: 0, target: 1000, potential: 0,
   docked: null, dockT: 0, dockOk: 0, boardQ: [], boardT: 0, boardDone: false, offN: 0, onN: 0, ropes: false, depAllowed: false, leaveToast: false, lateToast: false, wrongT: 0,
-  walkers: [], heelT: 0, lastThrSign: 0, bumpCd: 0, toasted: {}, thunderT: 0, hornT: 0, ended: false, lostT: 0, gullT: 4,
+  walkers: [], heelT: 0, lastThrSign: 0, bumpCd: 0, toasted: {}, thunderT: 0, hornT: 0, ended: false, lostT: 0, gullT: 4, ropeTension: 0,
 };
-const player = { x: 0, z: 0, hd: 0, u: 0, v: 0, r: 0, thr: 0, rud: 0, hull: 0, vx: 0, vz: 0, speed: 0, heel: 0, pitch: 0, wakeT: 0, smokeT: 0, horn: false };
+const player = { x: 0, z: 0, hd: 0, u: 0, v: 0, r: 0, thr: 0, thrP: 0, thrS: 0, gearDirP: 0, gearDirS: 0, gearPauseP: 0, gearPauseS: 0, rpmP: 0, rpmS: 0, rud: 0, hull: 0, vx: 0, vz: 0, speed: 0, heel: 0, pitch: 0, wakeT: 0, smokeT: 0, horn: false };
 const input = {
   thrP: 0, thrS: 0, rudder: 0, horn: false,   // port / starboard engine telegraphs -1..1; rudder > 0 turns to port
   get throttle() { return (this.thrP + this.thrS) / 2; },
@@ -2705,7 +2770,7 @@ function startShiftSim(sh) {
   SIM.shift = sh; SIM.t = 0; SIM.hour = sh.hour; SIM.cur = sh.current; SIM.fog = sh.fog; SIM.storm = sh.storm; SIM.rain = 0; SIM.swell = sh.storm ? 1 : 0.2;
   SIM.wind.a = sh.wind; SIM.wind.dir = rr(0, TAU); SIM.wind.gust = 0;
   SIM.aboard = {}; SIM.aboardN = 0; SIM.delivered = 0; SIM.lost = 0; SIM.comfort = 100; SIM.punct = []; SIM.score = 0; SIM.stopIdx = 1;
-  SIM.docked = null; SIM.dockT = 0; SIM.dockOk = 0; SIM.boardQ = []; SIM.boardDone = false; SIM.ropes = false; SIM.depAllowed = false; SIM.walkers = []; SIM.toasted = {}; SIM.ended = false; SIM.dockBonus = 0; SIM.fogRun = false; SIM.fogBonus = 0;
+  SIM.docked = null; SIM.dockT = 0; SIM.dockOk = 0; SIM.boardQ = []; SIM.boardDone = false; SIM.ropes = false; SIM.depAllowed = false; SIM.walkers = []; SIM.toasted = {}; SIM.ended = false; SIM.dockBonus = 0; SIM.fogRun = false; SIM.fogBonus = 0; SIM.ropeTension = 0;
   SIM.lastThrSign = 0; SIM.bumpCd = 0; SIM.heelT = 0; SIM.hornT = 0; SIM.lostT = 0; SIM.wrongT = 0; SIM.thunderT = 20;
   for (const id of Object.keys(PIERS)) { const P = PIERS[id]; P.wait = 0; P.wait0 = 0; P.cap = 90; P.lostToast = false; }
   planShift(sh);
@@ -2716,7 +2781,9 @@ function startShiftSim(sh) {
   const P0 = PIERS[SIM.stops[0].id], P1 = PIERS[(SIM.stops[1] || SIM.stops[0]).id];
   player.x = P0.bx; player.z = P0.bz;
   player.hd = ((P1.bx - P0.bx) * P0.tx + (P1.bz - P0.bz) * P0.tz) >= 0 ? P0.hd : wrapAng(P0.hd + Math.PI);   // moored facing the next pier
-  player.u = player.v = player.r = player.thr = player.thrP = player.thrS = player.rud = 0; player.hull = 0; player.vx = player.vz = 0; player.heel = 0;
+  player.u = player.v = player.r = player.thr = player.thrP = player.thrS = player.rud = 0;
+  player.gearDirP = player.gearDirS = player.gearPauseP = player.gearPauseS = player.rpmP = player.rpmS = 0;
+  player.hull = 0; player.vx = player.vz = 0; player.heel = 0;
   input.throttle = 0; input.rudder = 0;
   P0.wait = Math.round(14 + sh.pax * 22);
   SIM.stopIdx = 0; dockAt(P0, 0, true);
@@ -2732,7 +2799,9 @@ function destFor(fromIdx) {   // destination stop index for a passenger boarding
 function dockAt(P, idx, initial = false) {
   const s = SIM.stops[idx];
   SIM.docked = P; SIM.dockT = 0; SIM.ropes = true; SIM.boardDone = false; SIM.depAllowed = false; SIM.leaveToast = false; SIM.boardQ = []; SIM.boardT = 0; SIM.offN = 0; SIM.onN = 0;
-  player.u = player.v = player.r = 0; player.thr = player.thrP = player.thrS = 0; input.throttle = 0;
+  player.u = player.v = player.r = 0; player.thr = player.thrP = player.thrS = 0;
+  player.gearDirP = player.gearDirS = player.gearPauseP = player.gearPauseS = player.rpmP = player.rpmS = 0;
+  input.throttle = 0;
   // snap alongside
   player.x = P.bx; player.z = P.bz;
   const a = wrapAng(player.hd - P.hd); player.hd = Math.abs(a) < Math.PI / 2 ? P.hd : P.hd + Math.PI;
@@ -2761,7 +2830,7 @@ function dockAt(P, idx, initial = false) {
   if (off) { SIM.score += off * SCORE_K.pax; floater('+' + off * SCORE_K.pax, false); }
 }
 function undock() {
-  SIM.docked = null; SIM.ropes = false; SIM.dockOk = 0;
+  SIM.docked = null; SIM.ropes = false; SIM.dockOk = 0; SIM.ropeTension = 0;
   const s = SIM.stops[SIM.stopIdx]; if (s) { s.left = true; }
   SIM.stopIdx++;
   CAM.userDockOverride = false;
@@ -2813,11 +2882,47 @@ function circleAt(k, out) { const [a, r] = HULL_C[k]; out.x = player.x + Math.si
 const _c1 = { x: 0, z: 0, r: 0 }, _g = { x: 0, z: 0 };
 function stepFerry(dt) {
   const P = player;
-  // telegraph and rudder respond with lag
-  P.thrP = (P.thrP || 0) + clamp(input.thrP - (P.thrP || 0), -0.7 * dt, 0.7 * dt);
-  P.thrS = (P.thrS || 0) + clamp(input.thrS - (P.thrS || 0), -0.7 * dt, 0.7 * dt);
+  // telegraph response with short gear-change pause (0.75s) when reversing direction across neutral
+  const reqP = input.thrP > 0.05 ? 1 : (input.thrP < -0.05 ? -1 : 0);
+  if (reqP !== 0 && P.gearDirP !== 0 && reqP !== P.gearDirP) {
+    P.gearPauseP = 0.75;
+    P.gearDirP = reqP;
+  } else if (reqP !== 0 && P.gearDirP === 0) {
+    P.gearDirP = reqP;
+  } else if (reqP === 0 && Math.abs(P.thrP || 0) < 0.04) {
+    P.gearDirP = 0;
+  }
+
+  const reqS = input.thrS > 0.05 ? 1 : (input.thrS < -0.05 ? -1 : 0);
+  if (reqS !== 0 && P.gearDirS !== 0 && reqS !== P.gearDirS) {
+    P.gearPauseS = 0.75;
+    P.gearDirS = reqS;
+  } else if (reqS !== 0 && P.gearDirS === 0) {
+    P.gearDirS = reqS;
+  } else if (reqS === 0 && Math.abs(P.thrS || 0) < 0.04) {
+    P.gearDirS = 0;
+  }
+
+  if (P.gearPauseP > 0) {
+    P.gearPauseP -= dt;
+    P.thrP = (P.thrP || 0) + clamp(0 - (P.thrP || 0), -1.8 * dt, 1.8 * dt);
+  } else {
+    P.thrP = (P.thrP || 0) + clamp(input.thrP - (P.thrP || 0), -0.7 * dt, 0.7 * dt);
+  }
+
+  if (P.gearPauseS > 0) {
+    P.gearPauseS -= dt;
+    P.thrS = (P.thrS || 0) + clamp(0 - (P.thrS || 0), -1.8 * dt, 1.8 * dt);
+  } else {
+    P.thrS = (P.thrS || 0) + clamp(input.thrS - (P.thrS || 0), -0.7 * dt, 0.7 * dt);
+  }
+
   P.thr = (P.thrP + P.thrS) / 2;
   P.rud += clamp(input.rudder - P.rud, -1.6 * dt, 1.6 * dt);
+
+  // per-engine RPM readouts (max ~380 RPM)
+  P.rpmP = (P.gearPauseP > 0 || Math.abs(P.thrP) < 0.03) ? 0 : Math.round(Math.abs(P.thrP) * 380);
+  P.rpmS = (P.gearPauseS > 0 || Math.abs(P.thrS) < 0.03) ? 0 : Math.round(Math.abs(P.thrS) * 380);
   if (SIM.docked) { P.u = P.v = P.r = 0; P.vx = P.vz = 0; P.speed = 0; P.heel *= 0.95; return; }
   const maxV = FERRY.maxV, k = 0.62 / (maxV * maxV);
   const thrust = P.thr > 0 ? P.thr * 0.62 : P.thr * 0.42;
@@ -3115,10 +3220,24 @@ function stepDocking(dt) {
   DOCK.near = dist < 110;
   const okGap = gap > -0.6 && gap < 4.5, okAlong = Math.abs(along) < 12, okAng = Math.abs(ang) < 0.36, okSpd = player.speed < 0.9;
   DOCK.ok = okGap && okAlong && okAng && okSpd;
-  if (DOCK.ok) { SIM.dockOk += dt; if (SIM.dockOk > 0.5) { dockAt(P, SIM.stopIdx); toast(t('toastDocked', pierName(P.id)), 'good'); return; } } else SIM.dockOk = 0;
-  DOCK.hint = !okSpd && dist < 40 ? (player.speed > 2.5 ? 'hintFast' : 'hintSlow') : !okAng && dist < 50 ? 'hintAlign' : !(okGap && okAlong) ? 'hintCloser' : 'hintStop';
+  if (FLAG.auto) {
+    if (DOCK.ok) { SIM.dockOk += dt; if (SIM.dockOk > 0.5) { dockAt(P, SIM.stopIdx); toast(t('toastDocked', pierName(P.id)), 'good'); return; } } else SIM.dockOk = 0;
+  }
+  DOCK.hint = !okSpd && dist < 40 ? (player.speed > 2.5 ? 'hintFast' : 'hintSlow') : !okAng && dist < 50 ? 'hintAlign' : !(okGap && okAlong) ? 'hintCloser' : (DOCK.ok ? (touchOn ? 'hintMoorTouch' : 'hintMoor') : 'hintStop');
   // wrong pier reminder: slow and close to another pier
   if (player.speed < 1.5) for (const id of Object.keys(PIERS)) { if (id === ns.id) continue; const Q2 = PIERS[id]; if (hyp(player.x - Q2.bx, player.z - Q2.bz) < 25) { SIM.wrongT += dt; if (SIM.wrongT > 2.5) { SIM.wrongT = -20; toast(t('toastWrongPier', pierName(ns.id)), 'info'); } } }
+}
+function throwMooringLines() {
+  if (G.state !== 'play' || SIM.docked) return;
+  const ns = nextStop();
+  if (!ns) return;
+  const P = PIERS[ns.id];
+  if (DOCK.ok) {
+    dockAt(P, SIM.stopIdx);
+    toast(t('toastDocked', pierName(P.id)), 'good');
+  } else if (DOCK.near) {
+    toast(t('toastMoorFail'), 'bad');
+  }
 }
 // ---------------------------------------------------------------- Sis seferi (fog run): navigate by sound and light
 // On a fog run the radar is blind and the view ends at about 200 m. The horn (Space) is the fog horn: its echo comes back
@@ -3202,7 +3321,7 @@ function endShift(kind) {
   const score = kind === 'wreck' ? Math.round(shiftScore() * 0.5) : shiftScore();
   const stars = kind === 'wreck' ? 0 : starsFor(score, SIM.target);
   const punctAvg = SIM.punct.length ? SIM.punct.reduce((a, b) => a + b, 0) / SIM.punct.length : 0;
-  const res = { kind: stars > 0 ? kind : 'fail', score, stars, target: SIM.target, pax: SIM.delivered, lost: SIM.lost, comfort: Math.round(SIM.comfort), hull: Math.round(player.hull), punct: Math.round(punctAvg), shift: SIM.shift.id, fog: SIM.fogRun ? SIM.fogBonus : null };
+  const res = { kind: stars > 0 ? kind : 'fail', score, stars, target: SIM.target, pax: SIM.delivered, lost: SIM.lost, comfort: Math.round(SIM.comfort), hull: Math.round(player.hull), punct: Math.round(punctAvg), shift: SIM.shift.id, fog: SIM.fogRun ? SIM.fogBonus : null, dockBonus: Math.round(SIM.dockBonus || 0) };
   G.lastResult = res; G.log.push({ shift: SIM.shift.id, stars, score });
   finishShiftUI(res);
 }
@@ -3727,7 +3846,7 @@ function buildScene() {
   OBJ.berth = new THREE.Mesh(new THREE.PlaneGeometry(FERRY.beam + 6, FERRY.len + 6).rotateX(-Math.PI / 2), matBerth); OBJ.berth.position.y = 0.4; OBJ.berth.renderOrder = 3; scene.add(OBJ.berth);
   OBJ.beacon = new THREE.Mesh(new THREE.ConeGeometry(4, 9, 6), new THREE.MeshLambertMaterial({ color: 0xf2b84a, emissive: 0xb0601a })); OBJ.beacon.rotation.x = Math.PI; scene.add(OBJ.beacon);
   // ropes
-  const rg = new THREE.BufferGeometry(); rg.setAttribute('position', new THREE.BufferAttribute(new Float32Array(4 * 3), 3));
+  const rg = new THREE.BufferGeometry(); rg.setAttribute('position', new THREE.BufferAttribute(new Float32Array(8 * 3), 3));
   OBJ.ropes = new THREE.LineSegments(rg, matRope); OBJ.ropes.frustumCulled = false; OBJ.ropes.visible = false; scene.add(OBJ.ropes);
   // passenger slots on the ferry decks (local coordinates)
   OBJ.deckSlots = [];
@@ -4099,14 +4218,24 @@ function syncMarkers(dt) {
     // cleats near the bow and the stern on the pier side
     const sideSign = ((P.ex - player.x) * c - (P.ez - player.z) * s) > 0 ? 1 : -1;
     const cl = [[sideSign * 4.2, 3.0, 13], [sideSign * 4.2, 3.0, -13]];
+    const tension = clamp(SIM.ropeTension || 0.2, 0.1, 1.0);
+    const sag = (1 - tension) * 0.65;
     for (let i = 0; i < 2; i++) {
-      const w = ferryLocalToWorld(cl[i], _p3), bl = P.boll[i];
+      const w = ferryLocalToWorld(cl[i], _p3);
       // the nearer bollard for each cleat
       let bi = 0, bd = 1e9; P.boll.forEach((b, j) => { const d = hyp(b[0] - w[0], b[1] - w[2]); if (d < bd) { bd = d; bi = j; } });
       const bb = P.boll[bi];
-      a.setXYZ(i * 2, w[0], w[1], w[2]); a.setXYZ(i * 2 + 1, bb[0], 3.4, bb[1]);
+      const midX = (w[0] + bb[0]) * 0.5, midY = (w[1] + 3.4) * 0.5 - sag, midZ = (w[2] + bb[1]) * 0.5;
+      const baseIdx = i * 4;
+      a.setXYZ(baseIdx, w[0], w[1], w[2]);
+      a.setXYZ(baseIdx + 1, midX, midY, midZ);
+      a.setXYZ(baseIdx + 2, midX, midY, midZ);
+      a.setXYZ(baseIdx + 3, bb[0], 3.4, bb[1]);
     }
     a.needsUpdate = true;
+    if (matRope && matRope.color) {
+      matRope.color.setRGB(lerp(0.54, 0.76, tension), lerp(0.42, 0.27, tension), lerp(0.24, 0.18, tension));
+    }
   }
 }
 // ---------------------------------------------------------------- camera
@@ -4212,7 +4341,7 @@ function setCamMode(m) {
 
 // ---------------------------------------------------------------- UI: elements, toasts, HUD
 const el = {};
-for (const id of ['hud', 'topbar', 'stShift', 'stClock', 'stPlan', 'stPax', 'comfBar', 'hullBar', 'stStars', 'bPanel', 'bCamH', 'bPause', 'bSound', 'bLang', 'toasts', 'colregBadge', 'colregArrow', 'colregTxt', 'colregSub', 'nextCard', 'ncName', 'ncL2', 'ncL3', 'camLbl', 'minimap', 'lvThr', 'lvThrS', 'lvRud', 'speedo', 'spArc', 'spVal', 'spUnit', 'dock', 'dkDist', 'dkSpd', 'dkAng', 'dkHint', 'floaters', 'touch', 'tWheel', 'tWheelSvg', 'tThr', 'tHorn', 'tCam',
+for (const id of ['hud', 'topbar', 'stShift', 'stClock', 'stPlan', 'stPax', 'comfBar', 'hullBar', 'stStars', 'bPanel', 'bCamH', 'bPause', 'bSound', 'bLang', 'toasts', 'colregBadge', 'colregArrow', 'colregTxt', 'colregSub', 'nextCard', 'ncName', 'ncL2', 'ncL3', 'ncRope', 'ncRopeVal', 'ncRopeBar', 'camLbl', 'minimap', 'lvThr', 'lvThrS', 'lvRud', 'rpmP', 'rpmS', 'speedo', 'spArc', 'spVal', 'spUnit', 'dock', 'dkDist', 'dkSpd', 'dkAng', 'dkHint', 'bMoor', 'floaters', 'touch', 'tWheel', 'tWheelSvg', 'tThr', 'tRpmP', 'tRpmS', 'tHorn', 'tCam',
   'sTitle', 'sIntro', 'sPause', 'sSettings', 'sEnd', 'bPlay', 'playTxt', 'bCont', 'bEndless', 'bSettingsT', 'bLangT', 'langTxt', 'bestLine', 'cmap', 'inTitle', 'inDesc', 'inCond', 'inTT', 'inTarget', 'bStart', 'bFog', 'fogTxt', 'bIntroBack',
   'bResume', 'bRestart', 'bSettingsP', 'bMenuP', 'rMaster', 'rMusic', 'rSfx', 'oMaster', 'oMusic', 'oSfx', 'bTR', 'bEN', 'bQLow', 'bQHigh', 'bFull', 'bSetBack', 'enTitle', 'enSub', 'enStars', 'enStats', 'enRec', 'bNext', 'nextTxt', 'bRetry', 'bMenuE', 'dbg', 'hurt', 'bDaily', 'dailyLine', 'bA11y', 'bShare', 'aOther', 'enDaily', 'rankName', 'rankXpTxt', 'rankBar', 'missionsDateTag', 'missionsList']) el[id] = document.getElementById(id);
 function toast(msg, kind = 'info', ms = 2600) {
@@ -4279,13 +4408,27 @@ function updateHUD(dt) {
       el.ncL2.textContent = !SIM.boardDone ? t('boarding') : (w > 0 ? t('waitDep', fmtMS(w)) : t('canLeave'));
       el.ncL2.className = 'l2';
       el.ncL3.innerHTML = SIM.depAllowed && SIM.stopIdx < SIM.stops.length - 1 ? tT('hintLeave') : '';
+      // Mooring line tension while docked
+      const curT = clamp(0.20 + 0.30 * SIM.cur + 0.18 * (SIM.wind.a || 0) + 0.10 * Math.sin(SIM.t * 2.1) + 0.40 * Math.abs(player.thr || 0), 0.12, 1.0);
+      SIM.ropeTension = lerp(SIM.ropeTension || curT, curT, Math.min(1, dt * 5));
+      if (el.ncRope) {
+        el.ncRope.classList.remove('hidden');
+        const pct = Math.round(SIM.ropeTension * 100);
+        if (el.ncRopeVal) el.ncRopeVal.textContent = pct + '%';
+        if (el.ncRopeBar && el.ncRopeBar.firstElementChild) el.ncRopeBar.firstElementChild.style.width = pct + '%';
+      }
     } else {
+      SIM.ropeTension = 0;
+      if (el.ncRope) el.ncRope.classList.add('hidden');
       const d = hyp(P.bx - player.x, P.bz - player.z), late = SIM.t - ns.arr;
       el.ncL2.textContent = Math.round(d) + ' m · ' + t('waiting', Math.floor(P.wait));
       el.ncL2.className = 'l2';
       el.ncL3.textContent = late > 0 ? t('lateBy', fmtMS(late)) : t('earlyBy', fmtMS(-late));
       el.ncL3.className = 'l2' + (late > 15 ? ' late' : '');
     }
+  } else {
+    SIM.ropeTension = 0;
+    if (el.ncRope) el.ncRope.classList.add('hidden');
   }
   // speed and levers
   const kn = player.speed * 1.944, frac = clamp(player.speed / 14, 0, 1);
@@ -4293,14 +4436,28 @@ function updateHUD(dt) {
   el.lvThr.style.top = (44 - (player.thrP || 0) * 40) + '%'; el.lvThr.style.height = '12%';
   el.lvThrS.style.top = (44 - (player.thrS || 0) * 40) + '%'; el.lvThrS.style.height = '12%';
   el.lvRud.style.left = (50 - player.rud * 36) + '%'; el.lvRud.style.marginLeft = '-4px';
+  // Per-engine RPM labels & classes
+  const fmtRpm = (thr, pause, rpm) => {
+    if (pause > 0) return { txt: t('gearPause'), cls: 'gear-pause' };
+    if (rpm <= 0 || Math.abs(thr) < 0.03) return { txt: '0', cls: '' };
+    if (thr > 0) return { txt: t('dirAhead') + ' ' + rpm, cls: 'ahead' };
+    return { txt: t('dirAstern') + ' ' + rpm, cls: 'astern' };
+  };
+  const rP = fmtRpm(player.thrP || 0, player.gearPauseP || 0, player.rpmP || 0);
+  const rS = fmtRpm(player.thrS || 0, player.gearPauseS || 0, player.rpmS || 0);
+  if (el.rpmP) { el.rpmP.textContent = rP.txt; el.rpmP.className = 'rpm-lbl' + (rP.cls ? ' ' + rP.cls : ''); }
+  if (el.rpmS) { el.rpmS.textContent = rS.txt; el.rpmS.className = 'rpm-lbl' + (rS.cls ? ' ' + rS.cls : ''); }
+  if (el.tRpmP) { el.tRpmP.textContent = rP.txt; el.tRpmP.className = 'rpm-tag p' + (rP.cls ? ' ' + rP.cls : ''); }
+  if (el.tRpmS) { el.tRpmS.textContent = rS.txt; el.tRpmS.className = 'rpm-tag s' + (rS.cls ? ' ' + rS.cls : ''); }
   // docking guide
   if (DOCK.near && !SIM.docked) {
     el.dock.classList.add('show');
+    el.dock.classList.toggle('ok', DOCK.ok);
     el.dkDist.textContent = Math.max(0, DOCK.gap).toFixed(1) + ' m'; el.dkDist.className = DOCK.gap > -0.6 && DOCK.gap < 4.5 && Math.abs(DOCK.along) < 12 ? 'ok' : '';
     el.dkSpd.textContent = DOCK.spd.toFixed(1) + ' m/s'; el.dkSpd.className = DOCK.spd < 0.9 ? 'ok' : DOCK.spd > 2.5 ? 'no' : '';
     el.dkAng.textContent = Math.round(Math.abs(DOCK.ang) * 180 / Math.PI) + '°'; el.dkAng.className = Math.abs(DOCK.ang) < 0.36 ? 'ok' : '';
-    el.dkHint.textContent = DOCK.ok ? t('hintOk') : t(DOCK.hint); el.dkHint.className = 'hint' + (DOCK.ok ? ' ok' : '');
-  } else el.dock.classList.remove('show');
+    el.dkHint.textContent = DOCK.ok ? t(touchOn ? 'hintMoorTouch' : 'hintMoor') : t(DOCK.hint); el.dkHint.className = 'hint' + (DOCK.ok ? ' ok' : '');
+  } else { el.dock.classList.remove('show'); el.dock.classList.remove('ok'); }
   // colreg right-of-way alert badge
   if (el.colregBadge) {
     if (COLREG.giveWay && G.state === 'play' && !SIM.docked) {
@@ -4456,6 +4613,7 @@ function onKey(e, down) {
   else if (e.code === 'KeyC' && (G.state === 'play')) setCamMode(camMode + 1);
   else if (e.code === 'KeyV') setCompact(!document.body.classList.contains('compact'));
   else if (e.code === 'KeyF' && G.state === 'play') toggleFull();
+  else if ((e.code === 'KeyE' || e.code === 'Enter') && G.state === 'play') throwMooringLines();
 }
 window.addEventListener('keydown', e => { AUD.init(); AUD.resume(); onKey(e, true); });
 window.addEventListener('keyup', e => onKey(e, false));
@@ -4617,8 +4775,8 @@ function renderEnd(res) {
   el.enTitle.textContent = res.kind === 'wreck' ? t('endWreck') : !won ? t('endFail') : campaignDone ? t('endWin') : G.mode === 'endless' ? t('endClear') : t('endClear');
   el.enSub.textContent = res.kind === 'wreck' ? t('subWreck') : !won ? t('subFail') : campaignDone ? t('subWin') : G.mode === 'endless' ? t('subEndless', G.endlessN, G.totals.pax) : t('subClear');
   el.enStars.innerHTML = [0, 1, 2].map(i => '<svg class="' + (i < res.stars ? 'on' : '') + '" style="animation-delay:' + (i * 0.2) + 's" viewBox="0 0 24 24"><use href="#i-star"/></svg>').join('');
-  const kv = [[t('sPax'), res.pax + ' / ' + SIM.potential], [t('sPunct'), res.punct + '%'], [t('sComfort'), res.comfort + '%'], [t('sLost'), res.lost, res.lost > 0 ? 'neg' : ''], [t('sHull'), res.hull + '%', res.hull > 30 ? 'neg' : ''], [t('sScore'), res.score + ' / ' + res.target], [t('sTotal'), G.totals.score]];
-  if (res.fog !== null && res.fog !== undefined) kv.splice(5, 0, [t('sFogBonus'), '+' + res.fog]);
+  const kv = [[t('sPax'), res.pax + ' / ' + SIM.potential], [t('sDockBonus'), '+' + (res.dockBonus || 0), (res.dockBonus > 0 ? 'pos' : '')], [t('sPunct'), res.punct + '%'], [t('sComfort'), res.comfort + '%'], [t('sLost'), res.lost, res.lost > 0 ? 'neg' : ''], [t('sHull'), res.hull + '%', res.hull > 30 ? 'neg' : ''], [t('sScore'), res.score + ' / ' + res.target], [t('sTotal'), G.totals.score]];
+  if (res.fog !== null && res.fog !== undefined) kv.splice(6, 0, [t('sFogBonus'), '+' + res.fog]);
   el.enStats.innerHTML = kv.map(([k, v, c]) => '<span>' + k + '</span><span class="' + (c || '') + '">' + v + '</span>').join('');
   el.enRec.classList.toggle('hidden', !res.rec); el.enRec.textContent = t('newRecord');
   el.nextTxt.textContent = !won ? t('retry') : G.mode === 'daily' ? t('menu') : campaignDone ? t('playAgain') : t('nextShift');
@@ -4667,7 +4825,7 @@ click(el.bSound, () => { settings.mute = !settings.mute; AUD.applyGains(); saveS
 click(el.bResume, resumeGame); click(el.bRestart, () => { G.retries++; beginShift(); }); click(el.bSettingsP, () => openSettings('pause')); click(el.bMenuP, goMenu);
 click(el.bSetBack, closeSettings); click(el.bTR, () => { LANG = 'tr'; settings.lang = 'tr'; saveSettings(); applyLang(); }); click(el.bEN, () => { LANG = 'en'; settings.lang = 'en'; saveSettings(); applyLang(); });
 click(el.bQLow, () => { settings.quality = 'low'; saveSettings(); applyQuality(); syncSettingsUI(); }); click(el.bQHigh, () => { settings.quality = 'high'; saveSettings(); applyQuality(); syncSettingsUI(); });
-click(el.bFull, toggleFull);
+click(el.bFull, toggleFull); click(el.bMoor, throwMooringLines);
 click(el.bNext, nextAction); click(el.bRetry, retryCurrent); click(el.bMenuE, goMenu);
 click(el.bDaily, startDaily); click(el.bA11y, () => { if (window.Arena) Arena.openSettings(); }); click(el.bShare, shareResult);
 function shareResult() {
@@ -4917,6 +5075,9 @@ window.vapur = {
   get hull() { return player.hull; }, get comfort() { return SIM.comfort; }, get log() { return G.log; }, get done() { return G.done; }, get errors() { return G.errors; },
   get assets() { return { loaded: ASSETS.loaded.slice(), failed: ASSETS.failed.slice() }; },
   get colreg() { return COLREG; },
+  get ropeTension() { return SIM.ropeTension || 0; },
+  get dockBonus() { return SIM.dockBonus || 0; },
+  moor: throwMooringLines,
   start(n) { G.mode = 'campaign'; G.shiftIdx = clamp((n || 1) - 1, 0, 7); G.selIdx = G.shiftIdx; G.retries = 0; G.totals = { score: 0, pax: 0, stars: [] }; beginShift(); },
   setCam: setCamMode, end: kind => { if (G.state === 'play') endShift(kind || 'clear'); },
   get gpu() { try { const gl = renderer.getContext(), e = gl.getExtension('WEBGL_debug_renderer_info'); return e ? gl.getParameter(e.UNMASKED_RENDERER_WEBGL) : gl.getParameter(gl.RENDERER); } catch (err) { return '?'; } },
