@@ -473,6 +473,10 @@ body.compact #topbar .btn.icon { width: 36px; height: 36px; } body.compact #topb
   box-shadow: var(--shadow-press-lg);
   position: relative;
 }
+.card::-webkit-scrollbar { width: 5px; }
+.card::-webkit-scrollbar-track { background: var(--c-cream-d); border-radius: 3px; }
+.card::-webkit-scrollbar-thumb { background: var(--c-teak); border-radius: 3px; }
+.card::-webkit-scrollbar-thumb:hover { background: var(--c-deep); }
 .ticket-header-strip {
   display: flex; justify-content: space-between; align-items: center;
   font-family: var(--font-mono); font-size: 10px; font-weight: 700;
@@ -581,7 +585,7 @@ body.compact #topbar .btn.icon { width: 36px; height: 36px; } body.compact #topb
   background: var(--c-cream); border: 1px solid rgba(15, 46, 51, 0.25);
   transition: border-color 0.15s ease, background-color 0.15s ease;
 }
-.mission-item.done { border-color: var(--c-green); background: #f1f8f5; }
+.mission-item.done { border-color: var(--c-green); background: rgba(46, 125, 107, 0.08); }
 .mission-tag {
   font-family: var(--font-mono); font-size: 9px; font-weight: 800;
   letter-spacing: 0.6px; text-transform: uppercase; padding: 2px 5px;
@@ -599,7 +603,7 @@ body.compact #topbar .btn.icon { width: 36px; height: 36px; } body.compact #topb
   font-family: var(--font-mono); font-size: 10.5px; font-weight: 700;
   color: var(--c-deep-mid); font-variant-numeric: tabular-nums; flex: none;
 }
-.mission-bar { height: 5px; margin-top: 0; }
+.mission-bar { height: 6px; margin-top: 0; border: 1px solid var(--c-deep); }
 .mission-bar i { background: var(--c-gold); }
 .mission-item.done .mission-bar i { background: var(--c-green); }
 .mission-reward {
@@ -610,6 +614,8 @@ body.compact #topbar .btn.icon { width: 36px; height: 36px; } body.compact #topb
 .mission-reward.done {
   color: var(--c-green); border: 1.5px solid var(--c-green);
   font-weight: 800; text-transform: uppercase;
+  background: rgba(46, 125, 107, 0.1);
+  transform: rotate(-1.5deg);
 }
 
 /* Timetable Ledger */
@@ -1740,8 +1746,9 @@ function renderMissionsUI() {
     rXp.textContent = rank.isMax ? rank.xp + ' XP (MAX)' : rank.curXP + ' / ' + rank.neededXP + ' XP';
   }
   const rBar = el.rankBar || document.getElementById('rankBar');
-  if (rBar && rBar.firstChild) {
-    rBar.firstChild.style.width = (rank.pct * 100).toFixed(1) + '%';
+  if (rBar) {
+    const barFill = rBar.querySelector('i') || rBar.firstElementChild;
+    if (barFill) barFill.style.width = (rank.pct * 100).toFixed(1) + '%';
   }
   const mDate = el.missionsDateTag || document.getElementById('missionsDateTag');
   if (mDate) {
@@ -1752,7 +1759,7 @@ function renderMissionsUI() {
   mList.innerHTML = '';
   for (const m of active) {
     const claimKey = m.id + ':' + (m.type === 'daily' ? missionsState.dayKey : missionsState.weekKey);
-    const isDone = !!missionsState.claimed[claimKey];
+    const isDone = !!missionsState.claimed[claimKey] || ((missionsState.progress[m.id] || 0) >= m.target);
     const cur = isDone ? m.target : (missionsState.progress[m.id] || 0);
     const pct = clamp(cur / m.target, 0, 1) * 100;
     const title = t(m.titleKey, m.target);
@@ -4038,7 +4045,7 @@ function finishShiftUI(res) {
   let rec = false;
   if (res.stars > 0) {
     recordMissionProgress('stars_earned', res.stars);
-    if (res.hull === 0) {
+    if (res.hull <= 0) {
       recordMissionProgress('clean_shift', 1);
       const isNight = SIM.shift && (sunElevation(SIM.shift.hour) < -0.08 || SIM.shift.hour >= 20 || SIM.shift.hour <= 5 || SIM.shift.id === 5);
       if (isNight) recordMissionProgress('night_nohull', 1);
