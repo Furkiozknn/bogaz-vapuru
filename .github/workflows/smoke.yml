@@ -59,3 +59,33 @@ jobs:
         env:
           SMOKE_HEADED: "1"
         run: xvfb-run -a node tools/smoke.mjs firefox
+
+  # Bot regression gate (tools/gate.mjs, tools/GATE.md): the bot's sim on the PR vs its base branch, plus phone layout.
+  gate:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    steps:
+      # depth 2: on pull_request HEAD is the merge commit and HEAD^1 is the tip of the base branch
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+        with:
+          persist-credentials: false
+          fetch-depth: 2
+
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+        with:
+          node-version: "22"
+
+      - name: Playwright (lockfile) and chromium
+        run: |
+          set -euo pipefail
+          npm ci --prefix tools --ignore-scripts --no-audit --no-fund
+          tools/node_modules/.bin/playwright install --with-deps chromium
+
+      # PR: base = the base branch (HEAD^1). Manual run: base = the committed tools/gate-baseline.json.
+      - name: Regression gate
+        run: |
+          set -euo pipefail
+          if [ "$GITHUB_EVENT_NAME" = "pull_request" ]; then node tools/gate.mjs --base HEAD^1
+          else node tools/gate.mjs --baseline; fi
