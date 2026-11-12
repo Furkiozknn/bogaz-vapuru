@@ -3042,7 +3042,10 @@ function stepTraffic(dt) {
           const nx = dx / d, nz = dz / d;
           if (SIM.fogRun && !(b.fogHitT > FOG.clock - 3)) { b.fogHitT = FOG.clock; FOG.hits++; if (FOG.clock - (b.fogCueT ?? -1e9) < 40) FOG.hitsCued++; }   // was it heard first?
           player.vx -= bvx; player.vz -= bvz; impact(nx, nz, pen, b.kind === 'fish' ? 'bump' : 'crash'); player.vx += bvx; player.vz += bvz;
-          b.v *= 0.7; if (b.kind === 'fish') { b.x -= nx * pen * 0.5; b.z -= nz * pen * 0.5; }
+          // the smaller boat loses way; a 130 m tanker does not: braking it here on every overlapping step held it
+          // dead in the water for as long as a ferry leaned on it, and a bot giving way to it then waited forever
+          if (b.kind !== 'tanker') b.v *= 0.7;
+          if (b.kind === 'fish') { b.x -= nx * pen * 0.5; b.z -= nz * pen * 0.5; }
         }
       }
     }
