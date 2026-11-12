@@ -2707,7 +2707,7 @@ function startShiftSim(sh) {
   SIM.wind.a = sh.wind; SIM.wind.dir = rr(0, TAU); SIM.wind.gust = 0;
   SIM.aboard = {}; SIM.aboardN = 0; SIM.delivered = 0; SIM.lost = 0; SIM.comfort = 100; SIM.punct = []; SIM.score = 0; SIM.stopIdx = 1;
   SIM.docked = null; SIM.dockT = 0; SIM.dockOk = 0; SIM.boardQ = []; SIM.boardDone = false; SIM.ropes = false; SIM.depAllowed = false; SIM.walkers = []; SIM.toasted = {}; SIM.ended = false; SIM.dockBonus = 0; SIM.fogRun = false; SIM.fogBonus = 0;
-  SIM.lastThrSign = 0; SIM.bumpCd = 0; SIM.heelT = 0; SIM.hornT = 0; SIM.lostT = 0; SIM.wrongT = 0; SIM.thunderT = 20;
+  SIM.touch = null; SIM.lastThrSign = 0; SIM.bumpCd = 0; SIM.heelT = 0; SIM.hornT = 0; SIM.lostT = 0; SIM.wrongT = 0; SIM.thunderT = 20;
   for (const id of Object.keys(PIERS)) { const P = PIERS[id]; P.wait = 0; P.wait0 = 0; P.cap = 90; P.lostToast = false; }
   planShift(sh);
   // initial queues: every stop on the route that is not the first one
@@ -2951,31 +2951,92 @@ function ferryNextLeg(b) {
   const [tx, tz] = aiSpot(Pd);
   const wp = routeTo(b.x, b.z, b.seq[b.si]); wp.pop(); wp.push([tx, tz]); b.path = wp.length ? wp : [[tx, tz]]; b.pi = 0;
 }
+let _gapBy = null;   // the hull that set the last aheadGap() result (a traffic boat or BOT_SELF for the player)
 /** distance along the boat's heading to the nearest other hull inside a forward cone (for the give-way rules) */
-function aheadGap(b, cone = 0.5, range = 160) {
-  let gap = 1e9; const s = Math.sin(b.hd), c = Math.cos(b.hd);
-  const test = (x, z, r) => { const dx = x - b.x, dz = z - b.z, f = dx * s + dz * c, side = Math.abs(dx * c - dz * s); if (f > 0 && f < range && side < r + b.w / 2 + 2 + f * cone * 0.3) gap = Math.min(gap, f - r - b.len / 2); };
-  for (const o of SIM.traffic) { if (o === b) continue; for (const [a, r] of o.circ) test(o.x + Math.sin(o.hd) * a, o.z + Math.cos(o.hd) * a, r); }
-  if (b !== BOT_SELF) for (let k = 0; k < HULL_C.length; k++) { circleAt(k, _c1); test(_c1.x, _c1.z, _c1.r); }
+function aheadGap(b, cone = 0.5, range = 160, skip = null) {
+  let gap = 1e9; _gapBy = null; const s = Math.sin(b.hd), c = Math.cos(b.hd);
+  const test = (x, z, r, o) => { const dx = x - b.x, dz = z - b.z, f = dx * s + dz * c, side = Math.abs(dx * c - dz * s); if (f > 0 && f < range && side < r + b.w / 2 + 2 + f * cone * 0.3) { const g = f - r - b.len / 2; if (g < gap) { gap = g; _gapBy = o; } } };
+  for (const o of SIM.traffic) { if (o === b || o === skip) continue; for (const [a, r] of o.circ) test(o.x + Math.sin(o.hd) * a, o.z + Math.cos(o.hd) * a, r, o); }
+  if (b !== BOT_SELF) for (let k = 0; k < HULL_C.length; k++) { circleAt(k, _c1); test(_c1.x, _c1.z, _c1.r, BOT_SELF); }
   return gap;
 }
 /** closest point of approach between a moving point and the traffic (or the player when self is a boat) within horizon s */
-const _cpa = { d: 1e9, t: 0, len: 0, kind: '' };
+const _cpa = { d: 1e9, t: 0, len: 0, kind: '', obj: null };
 function closestApproach(x, z, vx, vz, horizon, self) {
-  _cpa.d = 1e9; _cpa.t = 0; _cpa.len = 0; _cpa.kind = '';
-  const test = (ox, oz, ovx, ovz, len, kind) => {
+  _cpa.d = 1e9; _cpa.t = 0; _cpa.len = 0; _cpa.kind = ''; _cpa.obj = null;
+  const test = (ox, oz, ovx, ovz, len, kind, obj) => {
     const dx = ox - x, dz = oz - z; if (Math.abs(dx) > 260 || Math.abs(dz) > 260) return;
     const rvx = ovx - vx, rvz = ovz - vz, rv2 = rvx * rvx + rvz * rvz; if (rv2 < 0.05) return;
     const tc = clamp(-(dx * rvx + dz * rvz) / rv2, 0, horizon);
     const cx = dx + rvx * tc, cz = dz + rvz * tc, d = hyp(cx, cz);
-    if (d < _cpa.d) { _cpa.d = d; _cpa.t = tc; _cpa.len = len; _cpa.kind = kind; }
+    if (d < _cpa.d) { _cpa.d = d; _cpa.t = tc; _cpa.len = len; _cpa.kind = kind; _cpa.obj = obj; }
   };
-  for (const b of SIM.traffic) { if (b === self || b.delay > 0) continue; test(b.x, b.z, Math.sin(b.hd) * b.v, Math.cos(b.hd) * b.v, b.len, b.kind); }
-  if (self) test(player.x, player.z, player.vx, player.vz, FERRY.len, 'player');
+  for (const b of SIM.traffic) { if (b === self || b.delay > 0) continue; test(b.x, b.z, Math.sin(b.hd) * b.v, Math.cos(b.hd) * b.v, b.len, b.kind, b); }
+  if (self) test(player.x, player.z, player.vx, player.vz, FERRY.len, 'player', BOT_SELF);
   return _cpa;
+}
+// ---------------------------------------------------------------- mutual give-way deadlocks (one rule, whoever the other vessel is)
+// Every vessel that the right-of-way rules hold below HOLD_V records the hull that holds it (heldBy). When the autopilot
+// ferry is held by B and B is held by the ferry, or B is not moving at all, for longer than DEADLOCK_T, nobody will ever
+// move by the rules alone. Then a fixed order decides who has the way (tanker > the scheduled ferry > other ferries >
+// fishing boats): the other one makes a passing manoeuvre, a waypoint off the stand-on vessel's track on its own side, and
+// an AI boat waits there until the stand-on vessel is clear. No randomness. Deadlocks between two AI boats are left alone:
+// they do not hold up the shift, and parting them sends more traffic across the ferry's path.
+const DEADLOCK_T = 8, HOLD_V = 1.0;
+const DEADLOCK = { n: 0, log: [] };
+const ORBIT = { n: 0, log: [] };   // autopilot re-approaches after circling a line-up/approach point (see botTick)
+const dlRank = o => o === BOT_SELF ? 2 : o.kind === 'tanker' ? 3 : o.kind === 'ferry' ? 1 : 0;
+const dlKind = o => o === BOT_SELF ? 'player' : o.kind;
+const dlHeld = o => o === BOT_SELF ? (FLAG.auto ? BOT.heldBy : null) : (o.delay > 0 ? null : o.heldBy);
+const dlStill = o => o === BOT_SELF ? player.speed < 0.3 : Math.abs(o.v) < 0.3;
+/** a point off the stand-on vessel W's track on the give-way vessel L's side, in deep water, reachable and away from every
+ *  other hull; null if none */
+function dlClearPoint(L, W) {
+  let ax = L.x - W.x, az = L.z - W.z; const d0 = hyp(ax, az) || 1; ax /= d0; az /= d0;
+  const ws = Math.sin(W.hd), wc = Math.cos(W.hd); let px = wc, pz = -ws; if (ax * px + az * pz < 0) { px = -px; pz = -pz; }
+  const len = L === BOT_SELF ? FERRY.len : L.len, w = L === BOT_SELF ? FERRY.beam : L.w, dist = 50 + len;
+  const dirs = [[px + ax, pz + az], [px, pz], [ax, az], [px - ws, pz - wc], [-px, -pz]];
+  for (const [ux0, uz0] of dirs) {
+    const ul = hyp(ux0, uz0) || 1, ux = ux0 / ul, uz = uz0 / ul, tx = L.x + ux * dist, tz = L.z + uz * dist;
+    if (!(depth(tx, tz) > 20 && clearLine(L.x, L.z, tx, tz, w / 2 + 4))) continue;
+    let free = L === BOT_SELF || W === BOT_SELF || hyp(player.x - tx, player.z - tz) > FERRY.len / 2 + len / 2 + 15;
+    for (const o of SIM.traffic) if (free && o !== L && o !== W && o.delay <= 0 && hyp(o.x - tx, o.z - tz) < o.len / 2 + len / 2 + 15) free = false;
+    if (free) return [tx, tz];
+  }
+  return null;
+}
+/** L gives way to W: an AI boat sails to the clear point and holds there; the autopilot ferry backs off and detours */
+function dlGiveWay(L, W) {
+  const pt = dlClearPoint(L, W); if (!pt) return false;
+  if (L === BOT_SELF) {
+    if (!FLAG.auto) return false;
+    BOT.wp.unshift(pt); BOT.detour = true; BOT.blockT = 0;
+    if (aheadGap(BOT_SELF, 0.5, 150) < 15) BOT.rev = 2.5;   // touching: back off first
+  } else {
+    if (L.pi >= L.path.length) L.pi = L.path.length;
+    L.path.splice(L.pi, 0, pt); L.wait = 0; L.blockT = 0;
+    L.yl = { w: W, x: pt[0], z: pt[1], t: 40 };
+  }
+  return true;
+}
+const DL = { by: null, t: 0 };
+function stepDeadlocks(dt) {
+  if (!FLAG.auto) return;
+  const a = BOT_SELF, b = dlHeld(a);
+  if (b && (dlHeld(b) === a || dlStill(b))) { if (DL.by === b) DL.t += dt; else { DL.by = b; DL.t = dt; } }
+  else { DL.by = null; DL.t = 0; return; }
+  if (DL.t <= DEADLOCK_T) return;
+  // a fixed right-of-way order decides; if the give-way vessel has no room, the other one tries instead
+  const aStands = dlRank(a) > dlRank(b);
+  const L = aStands ? b : a, W = aStands ? a : b;
+  const ok = dlGiveWay(L, W) ? L : dlGiveWay(W, L) ? W : null;
+  DL.by = null; DL.t = 0;
+  DEADLOCK.n++;
+  if (DEADLOCK.log.length < 400) DEADLOCK.log.push({ t: Math.round(SIM.t), shift: SIM.shift && SIM.shift.id, a: dlKind(a), b: dlKind(b), giveWay: ok ? dlKind(ok) : 'none', x: Math.round(a.x), z: Math.round(a.z) });
 }
 function stepTraffic(dt) {
   for (const b of SIM.traffic) {
+    b.heldBy = null;
     if (b.delay > 0) { b.delay -= dt; continue; }
     b.hornCd = Math.max(0, b.hornCd - dt);
     if (b.wait > 0) { b.wait -= dt; b.v = Math.max(0, b.v - 1.2 * dt); if (b.kind === 'fish') b.bob += dt; }
@@ -2998,19 +3059,31 @@ function stepTraffic(dt) {
     const want = Math.atan2(dx, dz), err = wrapAng(want - b.hd);
     const turn = b.kind === 'tanker' ? 0.045 : b.kind === 'ferry' ? 0.14 : 0.5;
     b.hd = wrapAng(b.hd + clamp(err, -turn * dt, turn * dt));
-    // rules: slow or stop for anything ahead; tankers only slow (they cannot stop quickly) and blow the horn
-    const gap = aheadGap(b, b.kind === 'tanker' ? 0.35 : 0.5, b.kind === 'tanker' ? 220 : 110);
+    // rules: slow or stop for anything ahead; tankers only slow (they cannot stop quickly) and blow the horn. A boat that is
+    // giving way after a deadlock and already points at its clear point (away from the stand-on boat) does not wait for that
+    // boat: otherwise two boats lying on top of each other could never part. The player's ferry is never ignored (it collides).
+    if (b.yl && !b.yl.reached && hyp(b.x - b.yl.x, b.z - b.yl.z) < 35) b.yl.reached = true;
+    const skip = b.yl && !b.yl.reached && b.yl.w !== BOT_SELF && Math.abs(err) < 0.6 ? b.yl.w : null;
+    const gap = aheadGap(b, b.kind === 'tanker' ? 0.35 : 0.5, b.kind === 'tanker' ? 220 : 110, skip);
     let vT = b.vT;
     if (last) vT = Math.min(vT, Math.sqrt(2 * 0.5 * Math.max(d - 4, 0)) + 0.3);
+    const hold = (v, by) => { if (v < vT) { vT = v; if (v < HOLD_V) b.heldBy = by; } };   // remember who holds this boat
     if (gap < 1e8) {
-      if (b.kind === 'tanker') { vT = Math.min(vT, Math.max(1.6, gap / 40)); if (gap < 150 && b.hornCd <= 0) { b.hornCd = 9; const pd = hyp(player.x - b.x, player.z - b.z); if (pd < 200) { AUD.hornFar(0.14); toast(t('toastTanker'), 'bad'); } else AUD.hornFar(0.05); } }
-      else vT = Math.min(vT, Math.sqrt(2 * 0.6 * Math.max(gap - 10, 0)));
+      const by = _gapBy;
+      if (b.kind === 'tanker') { hold(Math.max(1.6, gap / 40), by); if (gap < 150 && b.hornCd <= 0) { b.hornCd = 9; const pd = hyp(player.x - b.x, player.z - b.z); if (pd < 200) { AUD.hornFar(0.14); toast(t('toastTanker'), 'bad'); } else AUD.hornFar(0.05); } }
+      else hold(Math.sqrt(2 * 0.6 * Math.max(gap - 10, 0)), by);
     }
     // crossing rule: a ferry or fishing boat with the player closing on its starboard side slows down
     if (b.kind !== 'tanker' && b.v > 0.5) {
       const bs = Math.sin(b.hd), bc = Math.cos(b.hd);
       const c2 = closestApproach(b.x, b.z, bs * b.v, bc * b.v, 14, b);
-      if (c2.kind === 'player' && c2.d < 28 + FERRY.len / 2 && ((player.x - b.x) * bc - (player.z - b.z) * bs) > 0) vT = Math.min(vT, c2.t < 6 ? 0.5 : 2);
+      if (c2.kind === 'player' && c2.d < 28 + FERRY.len / 2 && ((player.x - b.x) * bc - (player.z - b.z) * bs) > 0) hold(c2.t < 6 ? 0.5 : 2, BOT_SELF);
+    }
+    // giving way after a deadlock: wait at the clear point until the stand-on vessel has passed
+    if (b.yl) {
+      b.yl.t -= dt; const W = b.yl.w, wd = W === BOT_SELF ? hyp(player.x - b.x, player.z - b.z) : hyp(W.x - b.x, W.z - b.z);
+      if (b.yl.t <= 0 || wd > 120 || (W !== BOT_SELF && W.delay > 0)) b.yl = null;
+      else if (b.yl.reached) vT = 0;
     }
     // give way to the player's horn: fishing boats pull aside; a fishing boat parked in the ferry's way moves off
     if (b.kind === 'fish' && player.horn && hyp(player.x - b.x, player.z - b.z) < 90) vT = b.vT * 1.5;
@@ -3042,7 +3115,11 @@ function stepTraffic(dt) {
           const nx = dx / d, nz = dz / d;
           if (SIM.fogRun && !(b.fogHitT > FOG.clock - 3)) { b.fogHitT = FOG.clock; FOG.hits++; if (FOG.clock - (b.fogCueT ?? -1e9) < 40) FOG.hitsCued++; }   // was it heard first?
           player.vx -= bvx; player.vz -= bvz; impact(nx, nz, pen, b.kind === 'fish' ? 'bump' : 'crash'); player.vx += bvx; player.vz += bvz;
-          b.v *= 0.7; if (b.kind === 'fish') { b.x -= nx * pen * 0.5; b.z -= nz * pen * 0.5; }
+          SIM.touch = { b, nx, nz, t: SIM.t };   // the last hull contact with a boat (the autopilot fends off from it)
+          // the smaller boat loses way; a 130 m tanker does not: braking it here on every overlapping step held it
+          // dead in the water for as long as a ferry leaned on it, and a bot giving way to it then waited forever
+          if (b.kind !== 'tanker') b.v *= 0.7;
+          if (b.kind === 'fish') { b.x -= nx * pen * 0.5; b.z -= nz * pen * 0.5; }
         }
       }
     }
@@ -3185,7 +3262,7 @@ function stepSim(dt) {
   if (SIM.ended) return;
   SIM.ff = SIM.docked && SIM.boardDone && !SIM.depAllowed && SIM.stopIdx < SIM.stops.length - 1 ? 8 : 1;
   SIM.t += dt * SIM.ff; SIM.hour = SIM.shift.hour + SIM.t * TS / 3600;
-  stepFerry(dt); stepTraffic(dt); stepColreg(dt); stepFog(dt); stepDocking(dt); stepBoarding(dt); stepPiers(dt * SIM.ff); stepWalkers(dt);
+  stepFerry(dt); stepTraffic(dt); stepDeadlocks(dt); stepColreg(dt); stepFog(dt); stepDocking(dt); stepBoarding(dt); stepPiers(dt * SIM.ff); stepWalkers(dt);
   // weather drift: storm rain, thunder; fog that thickens a little over the shift
   if (SIM.storm) { SIM.rain += (1 - SIM.rain) * 0.1 * dt; SIM.thunderT -= dt; if (SIM.thunderT <= 0) { SIM.thunderT = rr(14, 40); AUD.thunder(); lightning = 1; } }
   SIM.swell += ((SIM.storm ? 1 : 0.15 + 0.25 * SIM.wind.a) - SIM.swell) * 0.05 * dt;
@@ -4720,7 +4797,7 @@ function botTick(dt) {
   }
   if (G.state !== 'play') return;
   const P = player;
-  input.horn = false;
+  input.horn = false; BOT.heldBy = null;
   if (SIM.docked) { BOT.wp = []; BOT.wpFor = null; BOT.dockDir = 0; BOT.back = false; BOT.backOut = false; BOT.escape = false; BOT.near = false; BOT.finalT = 0; input.rudder = 0; input.throttle = (SIM.depAllowed && SIM.stopIdx < SIM.stops.length - 1) ? 0.5 : 0; BOT.stuck = 0; return; }
   // fog run: the bot steers on its internal state, but blows the fog horn now and then like a captain would
   if (SIM.fogRun) { BOT.fogHornT = (BOT.fogHornT ?? 2) - dt; if (BOT.fogHornT <= 0) { BOT.fogHornT = 15; input.horn = true; } }
@@ -4770,7 +4847,7 @@ function botTick(dt) {
   // the approach lane is a glide slope: 0.35 m of gap for every metre still to go beyond the last 50 m (about 19 degrees)
   const slope = Math.max(2, 0.35 * (rem - 50));
   const inLane = rem > -8 && lat > -3 && rem < 420 && ((latRel <= 6 && Math.abs(hdErr) < 0.7) || (lat < slope + 40 && Math.abs(hdErr) < 1.0));
-  let vT, aimX, aimZ, alignHd = null;
+  let vT, aimX, aimZ, alignHd = null, steerPt = false;
   if (near) {
     final = true;
     BOT.finalT += dt; BOT.backT = BOT.back ? BOT.backT + dt : 0;
@@ -4802,8 +4879,8 @@ function botTick(dt) {
         // not in the lane: go round by the line-up point (or straight to the approach point when it is ahead of us)
         const apX = Pr.bx + Pr.nx * 35 - Pr.tx * dir * 180, apZ = Pr.bz + Pr.nz * 35 - Pr.tz * dir * 180;
         const dAP = hyp(apX - P.x, apZ - P.z), usePre = rem < 150 || dAP < 50 || Math.abs(hdErr) > 1.3;
-        aimX = usePre ? preX : apX; aimZ = usePre ? preZ : apZ;
-        if (lat < 15 && Math.abs(rem) < 70) { aimX = P.x + Pr.nx * 50 - Pr.tx * dir * 30; aimZ = P.z + Pr.nz * 50 - Pr.tz * dir * 30; }   // next to the pier: get clear of it first
+        aimX = usePre ? preX : apX; aimZ = usePre ? preZ : apZ; steerPt = true;
+        if (lat < 15 && Math.abs(rem) < 70) { aimX = P.x + Pr.nx * 50 - Pr.tx * dir * 30; aimZ = P.z + Pr.nz * 50 - Pr.tz * dir * 30; steerPt = false; }   // next to the pier: get clear of it first
         if (!clearLine(P.x, P.z, aimX, aimZ, 10)) { BOT.near = false; BOT.wp = []; BOT.wpFor = null; input.throttle = 0; return; }        // land in the way: plan a route instead
         const dd = hyp(aimX - P.x, aimZ - P.z);
         vT = Math.min(7, Math.sqrt(2 * 0.3 * Math.max(dd - 15, 0)) + 2.0);
@@ -4811,6 +4888,21 @@ function botTick(dt) {
       }
     }
   } else { aimX = tg[0]; aimZ = tg[1]; vT = Math.min(FERRY.maxV * 0.92, Math.sqrt(2 * 0.3 * Math.max(d - 20, 0)) + 2.5); BOT.finalT = 0; }
+  // orbit guard. Steering at a point (line-up or approach point) off the pier, the ferry turns on a circle of radius turnR
+  // (~43 m below 6 m/s, wider above); a point that lies inside that circle can only be orbited. A full net turn (360
+  // degrees) without getting into the berth lane means exactly that, so the ferry stops chasing the point and re-approaches
+  // on a wider arc: it follows the line-up line (line-of-sight guidance, look-ahead 2 turning radii), sweeps any big turn
+  // on the side with water, slowly, and keeps its stopping distance from the shore. Inert in a normal approach.
+  const turnR = Math.max(6, Math.abs(P.u)) / (0.14 * (P.u > 7.5 ? 0.75 : 1));
+  if (steerPt) {
+    BOT.orbNet = (BOT.orbNet || 0) + P.r * dt;
+    if (!BOT.reapp && Math.abs(BOT.orbNet) >= 2 * Math.PI) { BOT.reapp = true; BOT.boost = 0; ORBIT.n++; ORBIT.log.push({ t: Math.round(SIM.t), shift: SIM.shift && SIM.shift.id, x: Math.round(P.x), z: Math.round(P.z) }); }
+  } else { BOT.orbNet = 0; BOT.reapp = false; BOT.turnSide = 0; }
+  if (BOT.reapp) {
+    const eLine = lat - 70, la = 2 * turnR;   // cross-track error from the line-up line, positive = outwards
+    aimX = P.x + Pr.tx * dir * la - Pr.nx * eLine; aimZ = P.z + Pr.tz * dir * la - Pr.nz * eLine;
+    vT = Math.min(vT, 5);
+  }
   // compensate the current and wind: steer the water-relative velocity, not the ground track
   currentAt(P.x, P.z, _v);
   const wantX = aimX - P.x, wantZ = aimZ - P.z, wl = hyp(wantX, wantZ) || 1;
@@ -4819,17 +4911,18 @@ function botTick(dt) {
   if (alignHd !== null && Math.abs(vT) >= 0.8 && !BOT.back) { // blend towards parallel while still moving in
     const a = wrapAng(alignHd - hdWant); hdWant = wrapAng(hdWant + a * 0.6);
   }
-  // traffic ahead: slow down, stop, horn at fishing boats
+  // traffic ahead: slow down, stop, horn at fishing boats (and remember who holds us, for the deadlock rule)
+  const hold = (v, by) => { if (v < vT) { vT = v; if (v < HOLD_V) BOT.heldBy = by; } };
   const gap = aheadGap(BOT_SELF, 0.5, 150);
-  if (gap < 1e8) vT = Math.min(vT, Math.sqrt(2 * 0.3 * Math.max(gap - 14, 0)));
+  if (gap < 1e8) hold(Math.sqrt(2 * 0.3 * Math.max(gap - 14, 0)), _gapBy);
   // crossing traffic: closest point of approach within the next 18 s too close -> slow down or hold
   const cpa = closestApproach(P.x, P.z, P.vx, P.vz, 18, null);
-  if (cpa.d < 30 + cpa.len / 2) vT = Math.min(vT, cpa.t < 8 ? 0.4 : 2.5);
+  if (cpa.d < 30 + cpa.len / 2) hold(cpa.t < 8 ? 0.4 : 2.5, cpa.obj);
   // colreg give-way: slow down smoothly, never exceed 2 kn in the danger zone
   if (COLREG.giveWay) {
-    if (COLREG.inDanger) vT = Math.min(vT, 0.8);
-    else if (COLREG.tcpa < 8) vT = Math.min(vT, 0.5);
-    else vT = Math.min(vT, 2.0);
+    if (COLREG.inDanger) hold(0.8, COLREG.threat);
+    else if (COLREG.tcpa < 8) hold(0.5, COLREG.threat);
+    else hold(2.0, COLREG.threat);
   }
   BOT.hornT -= dt; if (gap < 70 && BOT.hornT <= 0) { BOT.hornT = 6; input.horn = true; }
   const s = Math.sin(P.hd), c = Math.cos(P.hd), look = 25 + Math.abs(P.u) * 6;
@@ -4842,22 +4935,50 @@ function botTick(dt) {
     if (gap < 12) BOT.rev = 2.5;     // touching: back off first
   }
   if (BOT.detour && BOT.blockT > 3) vT = Math.max(vT, 1.0);   // creep out of a deadlock towards the detour point
+  // fending off: a moving boat has touched the hull within the last second. The rules above hold the ferry still for a
+  // hull that overlaps its bow, but a boat that is moving just shoves and rams a ferry that holds still, for as long as it
+  // takes to pass (a crossing tanker dragged it ~60 m sideways and cost 20 hull). So keep steerage way and steer along the
+  // other boat's side, away from it; a detour point on its far side is dropped. Not while docking.
+  const T = SIM.touch;
+  if (T && !final && SIM.t - T.t < 1 && SIM.t >= T.t && Math.abs(T.b.v) > 0.8 && SIM.traffic.includes(T.b)) {
+    if (BOT.detour && BOT.wp.length > 1 && (BOT.wp[0][0] - P.x) * T.nx + (BOT.wp[0][1] - P.z) * T.nz < 0) { BOT.wp.shift(); BOT.detour = false; }
+    const fx = BOT.wp.length ? BOT.wp[0][0] : aimX, fz = BOT.wp.length ? BOT.wp[0][1] : aimZ;
+    let ax = fx - P.x, az = fz - P.z; const al = hyp(ax, az) || 1; ax /= al; az /= al;
+    const into = ax * T.nx + az * T.nz; if (into < 0) { ax -= into * T.nx; az -= into * T.nz; }   // drop the part that points into it
+    hdWant = Math.atan2(ax + T.nx * 0.6, az + T.nz * 0.6); vT = Math.max(vT, 2.5); BOT.blockT = 0;
+  }
   // land ahead? look along the heading, slow if shallow
   if (depth(P.x + s * look, P.z + c * look) < 18 && !final) vT = Math.min(vT, 2.5);
   // rudder: proportional on the heading error with yaw-rate damping; no steering while going astern
-  const err = wrapAng(hdWant - P.hd), maxRud = P.u > 7.5 ? 0.75 : 1;   // gentle on the rudder at speed (comfort)
+  let err = wrapAng(hdWant - P.hd); const maxRud = P.u > 7.5 ? 0.75 : 1;   // gentle on the rudder at speed (comfort)
+  if (BOT.reapp) {
+    if (Math.abs(err) < Math.PI / 4) BOT.turnSide = 0;
+    else if (BOT.turnSide || Math.abs(err) > Math.PI / 2) {
+      // a big turn: sweep the turning circle on the side with the deeper water (chosen once per turn), and slowly
+      if (!BOT.turnSide) {
+        const sideDepth = sd => { const px = c * sd, pz = -s * sd; return Math.min(depth(P.x + px * turnR, P.z + pz * turnR), depth(P.x + px * 2 * turnR, P.z + pz * 2 * turnR), depth(P.x + px * turnR + s * turnR, P.z + pz * turnR + c * turnR)); };
+        const sd0 = Math.sign(err) || 1; BOT.turnSide = sideDepth(-sd0) > sideDepth(sd0) ? -sd0 : sd0;
+      }
+      if (Math.sign(err) !== BOT.turnSide) err += BOT.turnSide * 2 * Math.PI;   // the long way round
+      vT = Math.min(vT, 2.5);
+    }
+    // shore ahead within the stopping distance (full astern brakes at ~0.4 m/s^2, plus ~10 m for the telegraph): slow down
+    const stopD = P.u * P.u / 0.8 + 10 + FERRY.len / 2;
+    for (let k = 1; k <= 4; k++) { const dk = stopD * k / 4; if (depth(P.x + s * dk, P.z + c * dk) < 8) { vT = Math.min(vT, Math.sqrt(0.8 * Math.max(dk - 10 - FERRY.len / 2, 0)) + 0.5); break; } }
+  }
   input.rudder = P.u < -0.3 ? clamp(-err * 1.5, -0.5, 0.5) : clamp(err * 2.6 - P.r * 5, -maxRud, maxRud);
   // throttle: ground-speed target turned into a surge target (hold against the current), astern to brake
   const curAlong = -((_v.x + SIM.wind.x * 0.3) * s + (_v.z + SIM.wind.z * 0.3) * c);
   // progress boost: when the ferry is not closing on its aim (wind or current holding it off), push harder for a while
   const closing = ((aimX - P.x) * P.vx + (aimZ - P.z) * P.vz) / (hyp(aimX - P.x, aimZ - P.z) || 1);
-  if (vT > 0.2 && closing < 0.25 && !BOT.back) { BOT.slowT = (BOT.slowT || 0) + dt; if (BOT.slowT > 4) { BOT.boost = Math.min(2.5, (BOT.boost || 0) + 0.5); BOT.slowT = 0; } }
+  if (BOT.reapp) { BOT.slowT = 0; BOT.boost = 0; }   // re-approaching: no progress boost (more speed only widens the turns)
+  else if (vT > 0.2 && closing < 0.25 && !BOT.back) { BOT.slowT = (BOT.slowT || 0) + dt; if (BOT.slowT > 4) { BOT.boost = Math.min(2.5, (BOT.boost || 0) + 0.5); BOT.slowT = 0; } }
   else if (closing > 0.8 || vT <= 0.2) { BOT.slowT = 0; BOT.boost = Math.max(0, (BOT.boost || 0) - dt * 0.3); }
   if (vT > 0.2 && BOT.boost > 0) vT += BOT.boost;
   const e = (vT + (Math.abs(vT) < 2.5 ? curAlong : 0)) - P.u;
   input.throttle = e > 0 ? clamp(e * 0.45, 0, 1) : clamp(e * 0.7, -1, 0);
   if (vT === 0 && Math.abs(P.u) < 0.15) input.throttle = 0;
-  BOT.dbg = { boost: +(BOT.boost||0).toFixed(1), back: BOT.back, out: BOT.backOut, lane: inLane, pin: +BOT.pinT.toFixed(1), rem: +rem.toFixed(0), hdErr: Math.round(hdErr * 57.3), final, vT: +vT.toFixed(2), hdWant: Math.round(hdWant * 57.3), hd: Math.round(P.hd * 57.3), err: Math.round(err * 57.3), rud: +input.rudder.toFixed(2), thr: +input.throttle.toFixed(2), lat: +lat.toFixed(1), along: +along.toFixed(1), dir: BOT.dockDir, gap, d: Math.round(d) };
+  BOT.dbg = { reapp: !!BOT.reapp, orb: Math.round((BOT.orbNet || 0) * 57.3), boost: +(BOT.boost||0).toFixed(1), back: BOT.back, out: BOT.backOut, lane: inLane, pin: +BOT.pinT.toFixed(1), rem: +rem.toFixed(0), hdErr: Math.round(hdErr * 57.3), final, vT: +vT.toFixed(2), hdWant: Math.round(hdWant * 57.3), hd: Math.round(P.hd * 57.3), err: Math.round(err * 57.3), rud: +input.rudder.toFixed(2), thr: +input.throttle.toFixed(2), lat: +lat.toFixed(1), along: +along.toFixed(1), dir: BOT.dockDir, gap, d: Math.round(d) };
   // stuck: no progress for a while -> back out and plan again
   if (Math.abs(P.u) < 0.25 && Math.abs(vT) > 0.5) BOT.stuck += dt; else BOT.stuck = 0;
   if (BOT.stuck > 8) { BOT.stuck = 0; BOT.rev = 3; BOT.wp = []; }
@@ -4897,7 +5018,7 @@ function debugOverlay() {
     'pos ' + player.x.toFixed(0) + ',' + player.z.toFixed(0) + ' hd ' + (player.hd * 180 / Math.PI).toFixed(0) + ' u ' + player.u.toFixed(2) + ' spd ' + player.speed.toFixed(2) + ' thr ' + player.thr.toFixed(2) + ' rud ' + player.rud.toFixed(2) + '\n' +
     'next ' + (ns ? ns.id + ' (' + SIM.stopIdx + '/' + (SIM.stops.length - 1) + ')' : '-') + ' docked ' + (SIM.docked ? SIM.docked.id : '-') + ' gap ' + DOCK.gap.toFixed(1) + ' along ' + DOCK.along.toFixed(1) + ' ang ' + (DOCK.ang * 57.3).toFixed(0) + '\n' +
     'colreg ' + (COLREG.giveWay ? (COLREG.targetKind + ' ' + (COLREG.inDanger ? 'DANGER' : 'give-way') + ' cpa:' + COLREG.cpa.toFixed(0) + 'm') : 'clear') + ' · aboard ' + SIM.aboardN + ' delivered ' + SIM.delivered + ' lost ' + SIM.lost + ' comfort ' + SIM.comfort.toFixed(0) + ' hull ' + player.hull.toFixed(0) + ' traffic ' + SIM.traffic.length + ' walkers ' + SIM.walkers.length + '\n' +
-    'bot wp ' + BOT.wp.length + ' stuck ' + BOT.stuck.toFixed(1) + ' · assets ' + ASSETS.loaded.length + '/' + (ASSETS.loaded.length + ASSETS.failed.length) + '\n' +
+    'bot wp ' + BOT.wp.length + ' stuck ' + BOT.stuck.toFixed(1) + ' · deadlocks ' + DEADLOCK.n + ' · orbits ' + ORBIT.n + ' · assets ' + ASSETS.loaded.length + '/' + (ASSETS.loaded.length + ASSETS.failed.length) + '\n' +
     'results ' + G.log.map(r => r.shift + ':' + r.stars + '★/' + r.score).join(' ') + (G.done ? (G.failed ? ' · FAILED' : ' · DONE') : '') + '\n' +
     'errors ' + G.errors.length + (G.errors.length ? '\n' + G.errors.slice(-3).join('\n') : '');
 }
@@ -4915,7 +5036,7 @@ window.vapurSim = function (seconds) {
   return window.vapur;
 };
 window.vapur = {
-  G, SIM, player, input, AUD, STR, WORLD, PIERS, SHIFTS, ASSETS, DOCK, BOT, CAM, COLREG, scene, renderer, camera, FOG, fogEchoes, fogHornBlast, fogDockBonus, OBJ,
+  G, SIM, player, input, AUD, STR, WORLD, PIERS, SHIFTS, ASSETS, DOCK, BOT, CAM, COLREG, DEADLOCK, ORBIT, scene, renderer, camera, FOG, fogEchoes, fogHornBlast, fogDockBonus, OBJ,
   fog(on) { G.fogPick = !!on; },
   get state() { return G.state; }, get shift() { return SIM.shift && SIM.shift.id; }, get time() { return SIM.t; }, get hour() { return SIM.hour; },
   get score() { return shiftScore(); }, get target() { return SIM.target; }, get aboard() { return SIM.aboardN; }, get delivered() { return SIM.delivered; },
