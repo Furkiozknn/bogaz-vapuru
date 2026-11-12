@@ -1498,6 +1498,7 @@ const SEED = parseInt(Q.get('seed') || '11', 10);
 const START_SHIFT = parseInt(Q.get('shift') || '0', 10);
 let WR = mulberry(2024);            // world-generation rng
 let R = mulberry(SEED);             // gameplay rng
+const FXR = mulberry(SEED + 7);     // cosmetic rng (sounds), so they never shift the gameplay draws
 const rr = (a, b) => a + R() * (b - a);
 const wr = (a, b) => a + WR() * (b - a);
 const wpick = arr => arr[Math.floor(WR() * arr.length)];
@@ -3188,7 +3189,7 @@ function stepSim(dt) {
   // weather drift: storm rain, thunder; fog that thickens a little over the shift
   if (SIM.storm) { SIM.rain += (1 - SIM.rain) * 0.1 * dt; SIM.thunderT -= dt; if (SIM.thunderT <= 0) { SIM.thunderT = rr(14, 40); AUD.thunder(); lightning = 1; } }
   SIM.swell += ((SIM.storm ? 1 : 0.15 + 0.25 * SIM.wind.a) - SIM.swell) * 0.05 * dt;
-  SIM.gullT -= dt; if (SIM.gullT <= 0) { SIM.gullT = rr(4, 11); AUD.gull(); }
+  SIM.gullT -= dt; if (SIM.gullT <= 0) { SIM.gullT = 4 + 7 * FXR(); AUD.gull(); }   // cosmetic: own rng, never the gameplay one
   if (SIM.t > 1 && !SIM.toasted.fog && SIM.fog >= 1) { SIM.toasted.fog = true; if (SIM.fogRun) toast(tT('toastFogRun'), 'info', 5200); else toast(t('toastFog'), 'info'); }
   if (SIM.t > 1 && !SIM.toasted.storm && SIM.storm) { SIM.toasted.storm = true; toast(t('toastStorm'), 'info'); }
   if (!SIM.toasted.night && SIM.night > 0.5) { SIM.toasted.night = true; toast(t('toastNight'), 'info'); }
@@ -4558,6 +4559,7 @@ function renderIntro() {
 function unlockedShift() { let u = 0; for (let i = 0; i < 8; i++) if (best.stars[i] > 0) u = i + 1; if (runSave && runSave.shift > u) u = runSave.shift; return Math.min(u, 7); }
 function beginShift() {
   const sh = currentShiftDef();
+  botReset();
   G.state = 'play'; show(null);
   R = sh.daily ? mulberry(sh.seed) : mulberry(SEED + (sh.endless ? 1000 + sh.endless : sh.id) * 97 + G.retries);
   startShiftSim(sh);
@@ -4689,7 +4691,10 @@ const ASSETS = { loaded: [], failed: [], snd: 0, enabled: !FLAG.noassets, starte
 function loadAssets() { ASSETS.started = true; }
 
 // ---------------------------------------------------------------- autopilot (?auto): a real captain that uses the same controls and rules
-const BOT = { uiT: 0, wp: [], wpFor: null, stuck: 0, rev: 0, revSteer: 1, lastState: '', hornT: 0, dockDir: 0, back: false, blockT: 0, pinT: 0, finalT: 0, backT: 0 };
+const BOT_INIT = () => ({ uiT: 0, wp: [], wpFor: null, stuck: 0, rev: 0, revSteer: 1, lastState: '', hornT: 0, dockDir: 0, back: false, blockT: 0, pinT: 0, finalT: 0, backT: 0 });
+const BOT = BOT_INIT();
+/** a new shift starts the autopilot from a clean state: nothing carries over from the last shift's final manoeuvre */
+function botReset() { const keep = { uiT: BOT.uiT, lastState: BOT.lastState }; for (const k of Object.keys(BOT)) delete BOT[k]; Object.assign(BOT, BOT_INIT(), keep); }
 /** +1 / -1: turning the heading hd this way points the bow away from the pier (towards the water side) */
 function outwardSign(Pr, hd) { const l = wrapAng(hd + 0.3), r = wrapAng(hd - 0.3); return (Math.sin(l) * Pr.nx + Math.cos(l) * Pr.nz) > (Math.sin(r) * Pr.nx + Math.cos(r) * Pr.nz) ? 1 : -1; }
 const BOT_SELF = { get x() { return player.x; }, get z() { return player.z; }, get hd() { return player.hd; }, w: FERRY.beam, len: FERRY.len, circ: HULL_C };
