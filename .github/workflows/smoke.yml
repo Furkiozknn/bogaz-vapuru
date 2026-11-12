@@ -60,10 +60,11 @@ jobs:
           SMOKE_HEADED: "1"
         run: xvfb-run -a node tools/smoke.mjs firefox
 
-  # Bot regression gate (tools/gate.mjs, tools/GATE.md): the bot's sim on the PR vs its base branch, plus phone layout.
+  # Bot regression gate (tools/gate.mjs, tools/GATE.md): the bot's sim on the PR vs its base branch over 5 seeds, plus phone layout.
   gate:
     runs-on: ubuntu-24.04
-    timeout-minutes: 15
+    # 5 seeds x (base + candidate) + 1 replay = 11 sim runs; the script's own watchdog stops at 25 min
+    timeout-minutes: 30
     permissions:
       contents: read
     steps:

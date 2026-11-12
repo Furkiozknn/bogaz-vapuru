@@ -2,9 +2,11 @@
 //
 // smoke.mjs only proves "the page loads with 0 errors". On 9 Nov an unreviewed commit made arrows do 0 damage to
 // armoured enemies; the bot fell from wave 15 to wave 8 and smoke stayed green. This gate catches that class:
-//   1. sim:     the game's own deterministic bot + fast-forward hook runs on BASE and CANDIDATE (headless Chromium);
-//               key metrics are compared with per-metric tolerances. The candidate runs twice: different numbers
-//               mean the sim is not deterministic and the comparison is void (FAIL).
+//   1. sim:     the game's own deterministic bot + fast-forward hook runs on BASE and CANDIDATE (headless Chromium),
+//               once per seed in GAME.sim.seeds; the metrics are summed over the seeds and compared with per-metric
+//               tolerances, and GAME.sim.noNewZero fails any unit (e.g. a shift) that drops to zero on one seed while
+//               the base had it above zero, so a stall cannot hide behind a good sum. The candidate's first seed runs
+//               twice: different numbers mean the sim is not deterministic and the comparison is void (FAIL).
 //   2. layout:  on phone viewports (isMobile + hasTouch) every visible HUD button must lie inside the viewport and be
 //               what elementFromPoint returns at its centre. Known offenders are listed in GAME.layout.known and
 //               printed as KNOWN (never skipped silently); any other offender fails.
@@ -33,6 +35,12 @@ const GAME = {
     // ?auto starts the captain bot and the campaign at boot, ?cal plays all 8 shifts once in order (no retries),
     // so every shift's stars count; window.vapurSim(s) steps botTick + stepSim at 1/30 s with seeded RNG (?seed, default 11).
     query: '?auto&cal&noaudio',
+    // One seed is not enough: the bot's campaign is chaotic, a harmless change can turn one shift from 3 to 0 stars
+    // on seed 11 and the reverse on seed 4. Every build plays the campaign on each seed (`&seed=N` is appended to
+    // `query`); stars and score are compared as sums over the seeds. 11 (the game's default) goes first: it is the
+    // seed the candidate replays for the determinism check. Leave `seeds` out for a single run without `&seed=`.
+    seeds: [11, 1, 2, 3, 4],
+    seedParam: 'seed',
     holdFrames: true,     // queue requestAnimationFrame until the sim is done, so wall-clock frames do not advance it
     ready: () => window.__vapurReady === true && typeof window.vapurSim === 'function' && window.vapur.state === 'play',
     run: () => { window.vapurSim(8000); },
@@ -41,7 +49,10 @@ const GAME = {
       return { shifts: log.length, stars: log.reduce((a, r) => a + r.stars, 0), score: log.reduce((a, r) => a + r.score, 0),
         perShift: log.map((r) => r.stars).join(''), done: V.done, gameErrors: V.errors.length };
     },
-    tolerance: { shifts: { abs: 0 }, stars: { abs: 1 }, score: { rel: 0.10 }, perShift: { info: true }, done: { info: true }, gameErrors: { max: 0 } },
+    // sums over the seeds: every seed must finish all 8 shifts, stars and score may each drop 10 %
+    tolerance: { shifts: { abs: 0 }, stars: { rel: 0.10 }, score: { rel: 0.10 }, perShift: { info: true }, done: { info: true }, gameErrors: { max: 0 } },
+    // per seed: a shift with 0 stars (or never reached) on the candidate fails unless it is 0 (or never reached) on the base
+    noNewZero: { metric: 'perShift', zero: '0' },
     timeoutMs: 300000,
   },
   layout: {
@@ -81,8 +92,10 @@ const sha = (s) => createHash('sha256').update(s).digest('hex').slice(0, 12);
 const withTimeout = (p, ms, what) => Promise.race([p, new Promise((_, rej) => setTimeout(() => rej(new Error(`infra: ${what} timed out after ${ms / 1000} s (machine load ${loadavg()[0].toFixed(1)})`)), ms))]);
 const git = (...a) => execFileSync('git', a, { cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], maxBuffer: 64 << 20 });
 
-// Whole-run watchdog: the machine is shared, never hang.
-const watchdog = setTimeout(() => { log('FAIL gate: whole run exceeded 15 min'); log('RESULT FAIL'); process.exit(1); }, 15 * 60000);
+// Whole-run watchdog: the machine is shared, never hang (one sim run per seed per build, plus the replay).
+const WATCHDOG_MIN = 25;
+const watchdog = setTimeout(() => { log(`FAIL gate: whole run exceeded ${WATCHDOG_MIN} min`); log('RESULT FAIL'); process.exit(1); }, WATCHDOG_MIN * 60000);
+const SEEDS = GAME.sim.seeds?.length ? GAME.sim.seeds : [null];   // null: one run with the game's own default seed
 
 // ---- builds
 const candFile = opt('--candidate') || join(root, GAME.entry);
@@ -102,6 +115,8 @@ function loadBaseline() {
   if (!existsSync(baselinePath)) { fail(`base: no git base and no ${baselinePath.slice(root.length + 1)} (run with --record)`); return null; }
   const b = JSON.parse(readFileSync(baselinePath, 'utf8'));
   if (b.game !== GAME.name || b.run !== GAME.sim.run.toString()) note('baseline was recorded with a different sim config; numbers may not be comparable');
+  // sums over a different seed set are not comparable, and the per-seed zero check needs the per-seed numbers
+  if (JSON.stringify(b.seeds ?? [null]) !== JSON.stringify(SEEDS) || !b.perSeed) { fail(`base: ${baselinePath.slice(root.length + 1)} was recorded for seeds ${JSON.stringify(b.seeds ?? 'default')}, the gate plays ${JSON.stringify(SEEDS)} (run with --record on main)`); return null; }
   return b;
 }
 
@@ -172,11 +187,12 @@ function consoleCheck(what, errors) {
 }
 
 // ---- 1. sim
-async function simRun(build, label) {
+async function simRun(build, label, seed) {
   const S = GAME.sim, ctx = await browser.newContext({ viewport: { width: 1280, height: 800 } });
-  const ts = Date.now();
+  const ts = Date.now(), q = seed == null ? S.query : `${S.query}${S.query.includes('?') ? '&' : '?'}${S.seedParam}=${seed}`;
+  label = seed == null ? label : `${label} seed ${seed}`;
   try {
-    const { page, errors } = await openPage(ctx, `${origin}/${build}/${GAME.entry}${S.query}`, { holdFrames: S.holdFrames });
+    const { page, errors } = await openPage(ctx, `${origin}/${build}/${GAME.entry}${q}`, { holdFrames: S.holdFrames });
     // polling by interval, not rAF: frames are held, so a rAF poll would never re-check
     await page.waitForFunction(S.ready, null, { timeout: 120000, polling: 250 });
     await withTimeout(page.evaluate(S.run), S.timeoutMs, `sim ${label}`);
@@ -188,6 +204,20 @@ async function simRun(build, label) {
   } finally { await ctx.close(); }
 }
 const fmt = (m) => Object.entries(m).map(([k, v]) => `${k} ${v}`).join(' · ');
+// one run per seed; returns { perSeed: { seed: metrics }, sum } where sum adds numbers, ANDs booleans, joins strings with '/'
+async function simSeeds(build, label) {
+  const perSeed = {};
+  for (const seed of SEEDS) perSeed[seed ?? 'default'] = await simRun(build, label, seed);
+  return { perSeed, sum: sumMetrics(Object.values(perSeed)) };
+}
+function sumMetrics(list) {
+  const out = {};
+  for (const k of Object.keys(list[0])) {
+    const v = list.map((m) => m[k]);
+    out[k] = typeof v[0] === 'number' ? v.reduce((a, x) => a + x, 0) : typeof v[0] === 'boolean' ? v.every(Boolean) : v.join('/');
+  }
+  return out;
+}
 
 function compare(base, cand) {
   const rows = [];
@@ -204,31 +234,46 @@ function compare(base, cand) {
     }
     const delta = typeof b === 'number' && typeof c === 'number' ? ` (${c - b >= 0 ? '+' : ''}${c - b}${b ? `, ${(((c - b) / Math.abs(b)) * 100).toFixed(1)}%` : ''})` : '';
     rows.push({ metric: k, base: b, cand: c, ok, rule: why });
-    const line = `sim ${k}: base ${b} → candidate ${c}${delta}, ${why}`;
+    const line = `sim ${k}${SEEDS.length > 1 ? ` (sum of ${SEEDS.length} seeds)` : ''}: base ${b} → candidate ${c}${delta}, ${why}`;
     if (tol.info) log('     ' + line); else if (ok) log('ok   ' + line); else fail(line);
+  }
+  return rows;
+}
+// Per seed, unit by unit (e.g. the stars of each shift): a unit that is zero or missing (never reached) on the
+// candidate fails when the base had it above zero. The sums above can absorb one stalled shift; this cannot.
+function noNewZero(basePer, candPer) {
+  const Z = GAME.sim.noNewZero; if (!Z) return [];
+  const isZero = (s, i) => s[i] === undefined || s[i] === Z.zero, rows = [];
+  for (const seed of Object.keys(basePer)) {
+    const b = String(basePer[seed][Z.metric] ?? ''), c = String(candPer[seed]?.[Z.metric] ?? '');
+    const lost = [...b].map((_, i) => i).filter((i) => isZero(c, i) && !isZero(b, i)).map((i) => i + 1);
+    rows.push({ seed, base: b, cand: c, newZero: lost });
+    const line = `sim ${Z.metric} seed ${seed}: base ${b || '-'} → candidate ${c || '-'}`;
+    if (lost.length) fail(`${line}: unit(s) ${lost.join(', ')} dropped to ${Z.zero} (or were never reached) and are not ${Z.zero} on the base`);
+    else log(`ok   ${line}, no unit newly at ${Z.zero}`);
   }
   return rows;
 }
 
 if (only !== 'layout' && !failed) {
   try {
-    const c1 = await simRun('cand', 'candidate #1');
-    const c2 = await simRun('cand', 'candidate #2');
+    const cand = await simSeeds('cand', 'candidate');
+    const c1 = cand.perSeed[SEEDS[0] ?? 'default'], c2 = await simRun('cand', 'candidate replay', SEEDS[0]);
     const det = JSON.stringify(c1) === JSON.stringify(c2);
-    if (det) log(`ok   sim determinism: candidate run twice, identical metrics`);
+    if (det) log(`ok   sim determinism: candidate seed ${SEEDS[0] ?? 'default'} run twice, identical metrics`);
     else fail(`sim determinism: candidate gave different metrics on two runs (${fmt(c1)} vs ${fmt(c2)}); comparison is meaningless`);
-    report.sim = { candidate: c1, candidate2: c2, deterministic: det };
+    report.sim = { seeds: SEEDS, candidate: cand.sum, candidatePerSeed: cand.perSeed, candidateReplay: c2, deterministic: det };
     if (flag('--record')) {
-      const rec = { game: GAME.name, recorded: new Date().toISOString(), commit: tryGit('rev-parse', '--short', 'HEAD'), entrySha: sha(builds.cand), run: GAME.sim.run.toString(), metrics: c1 };
-      if (det) { writeFileSync(baselinePath, JSON.stringify(rec, null, 2) + '\n'); log(`ok   record: wrote ${baselinePath.slice(root.length + 1)} ${fmt(c1)}`); }
+      const rec = { game: GAME.name, recorded: new Date().toISOString(), commit: tryGit('rev-parse', '--short', 'HEAD'), entrySha: sha(builds.cand), run: GAME.sim.run.toString(), seeds: SEEDS, metrics: cand.sum, perSeed: cand.perSeed };
+      if (det) { writeFileSync(baselinePath, JSON.stringify(rec, null, 2) + '\n'); log(`ok   record: wrote ${baselinePath.slice(root.length + 1)} ${fmt(cand.sum)}`); }
       else fail('record: not written, sim is not deterministic');
     } else if (det) {
       let base;
       if (builds.base !== undefined && builds.base === builds.cand) {
-        base = c1; note(`base ${baseLabel} is byte-identical to the candidate (sha ${sha(builds.cand)}); base metrics = candidate run #1`);
-      } else if (builds.base !== undefined) { base = await simRun('base', `base ${baseLabel}`); }
-      else if (baseline) { base = baseline.metrics; log(`     base = ${baselinePath.slice(root.length + 1)} (commit ${baseline.commit}, recorded ${baseline.recorded})`); baseLabel = 'baseline ' + baseline.commit; }
-      if (base) report.sim = { ...report.sim, baseLabel, base, rows: compare(base, c1) };
+        base = cand; note(`base ${baseLabel} is byte-identical to the candidate (sha ${sha(builds.cand)}); base metrics = candidate runs`);
+      } else if (builds.base !== undefined) { base = await simSeeds('base', `base ${baseLabel}`); }
+      else if (baseline) { base = { perSeed: baseline.perSeed, sum: baseline.metrics }; log(`     base = ${baselinePath.slice(root.length + 1)} (commit ${baseline.commit}, recorded ${baseline.recorded})`); baseLabel = 'baseline ' + baseline.commit; }
+      if (base) report.sim = { ...report.sim, baseLabel, base: base.sum, basePerSeed: base.perSeed, rows: compare(base.sum, cand.sum), zeroRows: noNewZero(base.perSeed, cand.perSeed) };
     }
   } catch (e) { fail(`sim: ${e.message.split('\n')[0]}`); }
 }
