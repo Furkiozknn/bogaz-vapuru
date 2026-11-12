@@ -151,6 +151,7 @@ a.btn { text-decoration: none; }
 }
 .btn[disabled] { opacity: 0.5; pointer-events: none; }
 .btn.icon { padding: 0; width: 48px; height: 48px; }
+.btn.icon-sm { padding: 2px 8px; min-height: 28px; min-width: 28px; font-size: 11px; }
 
 /* HUD */
 #hud { position: fixed; inset: 0; pointer-events: none; z-index: 10; }
@@ -284,6 +285,25 @@ a.btn { text-decoration: none; }
   color: var(--c-red); font-weight: 700;
   display: inline-block; padding: 1px 4px; border: 1px dashed var(--c-red); border-radius: 2px;
 }
+/* Pier approach note & recommended side/heading */
+.nc-approach {
+  margin: 5px 0 3px; padding: 4px 6px; border-radius: 3px;
+  background: var(--c-cream-l); border: 1px dashed var(--c-teak); text-align: left;
+}
+.nc-note {
+  font-family: var(--font-mono); font-size: 10px; font-weight: 600;
+  color: var(--c-deep); line-height: 1.25; margin-bottom: 3px;
+}
+.nc-badges { display: flex; gap: 4px; align-items: center; }
+.nc-badge {
+  font-family: var(--font-mono); font-size: 8.5px; font-weight: 800;
+  letter-spacing: 0.5px; padding: 1.5px 5px; border-radius: 2px;
+  border: 1px solid var(--c-deep); text-transform: uppercase;
+}
+.nc-badge.port { background: rgba(193, 68, 46, 0.14); color: #8a241e; border-color: var(--c-red); }
+.nc-badge.starboard { background: rgba(46, 125, 107, 0.14); color: #1e6348; border-color: var(--c-green); }
+.nc-badge.hd { background: var(--c-cream); color: var(--c-deep); border-color: var(--c-deep); font-variant-numeric: tabular-nums; }
+.bar.hull.degraded { border-color: var(--c-red); animation: colregPulse 1s infinite alternate ease-in-out; }
 
 /* Gauges / Engine Order Telegraph */
 #gauges {
@@ -319,10 +339,64 @@ a.btn { text-decoration: none; }
   content: ""; position: absolute; left: 50%; top: 8px; bottom: 14px;
   width: 3px; margin-left: -1.5px; background: var(--c-deep-faint);
 }
+.lever.thr::before { top: 18px; }
+.lever .rpm-lbl {
+  position: absolute; left: 1px; right: 1px; top: 2px; height: 14px;
+  font-family: var(--font-mono); font-size: 8.5px; font-weight: 800;
+  text-align: center; line-height: 14px; color: var(--c-deep);
+  background: var(--c-cream-d); border-radius: 2px;
+  border-bottom: 1px solid rgba(15, 46, 51, 0.2);
+  letter-spacing: -0.3px; white-space: nowrap; overflow: hidden;
+  font-variant-numeric: tabular-nums; z-index: 2; pointer-events: none;
+}
+.lever.thr-p .rpm-lbl { color: #8a241e; }
+.lever.thr-s .rpm-lbl { color: #1e6348; }
+.lever .rpm-lbl.astern { background: rgba(193, 68, 46, 0.18); color: var(--c-red); }
+.lever .rpm-lbl.ahead { background: rgba(46, 125, 107, 0.18); color: var(--c-green); }
+.lever .rpm-lbl.gear-pause { background: rgba(232, 161, 58, 0.3); color: var(--c-gold-d); }
 .lever i {
   position: absolute; left: 4px; right: 4px; border-radius: 3px;
   background: var(--c-teal); border: 1.5px solid var(--c-deep);
   box-shadow: 0 1px 3px rgba(15, 46, 51, 0.4);
+}
+/* Engine Heat Gauge by the levers */
+.lever.heat {
+  width: 40px; display: flex; flex-direction: column; align-items: center; justify-content: space-between;
+  padding: 2px 2px 3px; background: var(--c-cream);
+}
+.lever.heat::before { display: none; }
+.lever.heat .heat-title {
+  font-family: var(--font-mono); font-size: 8px; font-weight: 800;
+  letter-spacing: 0.5px; text-transform: uppercase; color: var(--c-teal);
+  line-height: 12px; margin-top: 1px; z-index: 2;
+}
+.lever.heat .heat-bars {
+  display: flex; gap: 3px; width: 100%; flex: 1; padding: 1px 2px;
+  justify-content: center; align-items: stretch; margin-bottom: 12px; z-index: 2;
+}
+.lever.heat .heat-col {
+  flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px;
+}
+.lever.heat .heat-track {
+  width: 10px; flex: 1; background: var(--c-deep-faint); border-radius: 2px;
+  border: 1px solid rgba(15, 46, 51, 0.25); position: relative; overflow: hidden;
+  display: flex; align-items: flex-end;
+}
+.lever.heat .heat-track i {
+  display: block; width: 100%; height: 0%;
+  background: var(--c-green); border-radius: 1px;
+  transition: height 0.15s ease-out, background-color 0.2s;
+}
+.lever.heat .heat-col.warm .heat-track i { background: var(--c-gold); }
+.lever.heat .heat-col.hot .heat-track i { background: var(--c-red); animation: colregPulse 0.5s infinite alternate ease-in-out; }
+.lever.heat .heat-num {
+  font-family: var(--font-mono); font-size: 7.5px; font-weight: 800;
+  font-variant-numeric: tabular-nums; color: var(--c-deep); line-height: 1;
+}
+.lever.heat .heat-col.hot .heat-num { color: var(--c-red); font-weight: 800; }
+.lever.heat small {
+  position: absolute; left: 0; right: 0; bottom: 2px;
+  text-align: center; font-size: 8.5px; font-weight: 700; color: var(--c-deep-mid);
 }
 .lever.rud::before { top: 50%; bottom: auto; left: 6px; right: 6px; width: auto; height: 3px; margin: 0; }
 .lever.rud i { top: 8px; bottom: 14px; width: 8px; left: 50%; }
@@ -357,6 +431,30 @@ a.btn { text-decoration: none; }
   font-family: var(--font-mono); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;
 }
 #dock .hint.ok { color: var(--c-green); font-weight: 800; }
+#bMoor {
+  display: none; margin: 6px auto 0; padding: 6px 16px; min-height: 42px;
+  font-size: 13px; font-weight: 800; letter-spacing: 0.8px;
+  align-items: center; justify-content: center; gap: 6px;
+}
+#dock.ok #bMoor { display: inline-flex; animation: colregPulse .65s infinite alternate ease-in-out; }
+
+/* Mooring line tension on Next Stop Card */
+.rope-wrap {
+  margin: 5px 0 3px; padding: 4px 6px; border-radius: 3px;
+  background: var(--c-cream-l); border: 1px dashed var(--c-teak); text-align: left;
+}
+.rope-lbl-row {
+  display: flex; justify-content: space-between; align-items: center;
+  font-family: var(--font-mono); font-size: 9px; font-weight: 700;
+  color: var(--c-teal); text-transform: uppercase; letter-spacing: 0.5px;
+}
+.rope-lbl-row small { display: flex; align-items: center; gap: 4px; }
+.rope-lbl-row b { font-size: 11px; color: var(--c-deep); font-variant-numeric: tabular-nums; font-family: var(--font-mono); }
+.bar.tension { height: 6px; margin-top: 3px; }
+.bar.tension i {
+  background: linear-gradient(90deg, var(--c-teal), var(--c-gold) 55%, var(--c-red));
+  transition: width .15s ease-out;
+}
 
 #camLbl {
   position: absolute; right: max(10px, env(safe-area-inset-right));
@@ -419,9 +517,39 @@ body.touch #touch { display: block; }
   box-shadow: var(--shadow-press-lg); pointer-events: auto; touch-action: none;
 }
 #tThr::before {
-  content: ""; position: absolute; left: 50%; top: 24px; bottom: 24px;
+  content: ""; position: absolute; left: 50%; top: 38px; bottom: 22px;
   width: 4px; margin-left: -2px; border-radius: 2px; background: var(--c-deep-faint);
 }
+.t-thr-rpm {
+  position: absolute; left: 4px; right: 4px; top: 3px; height: 16px;
+  display: flex; gap: 3px; justify-content: space-between; z-index: 2; pointer-events: none;
+}
+.t-thr-rpm .rpm-tag {
+  flex: 1; height: 16px; line-height: 16px; text-align: center;
+  font-family: var(--font-mono); font-size: 8.5px; font-weight: 800;
+  border-radius: 2px; border: 1px solid var(--c-deep);
+  font-variant-numeric: tabular-nums; white-space: nowrap; overflow: hidden;
+}
+.t-thr-rpm .rpm-tag.p { background: #fcdbd8; color: #8a241e; }
+.t-thr-rpm .rpm-tag.s { background: #d7f0e3; color: #1e6348; }
+.t-thr-rpm .rpm-tag.astern { border-color: var(--c-red); }
+.t-thr-rpm .rpm-tag.ahead { border-color: var(--c-green); }
+.t-thr-rpm .rpm-tag.gear-pause { background: rgba(232, 161, 58, 0.3); color: var(--c-gold-d); }
+.t-thr-heat {
+  position: absolute; left: 4px; right: 4px; top: 20px; height: 13px;
+  display: flex; gap: 3px; justify-content: space-between; z-index: 2; pointer-events: none;
+}
+.t-thr-heat .heat-tag {
+  flex: 1; height: 13px; line-height: 13px; text-align: center;
+  font-family: var(--font-mono); font-size: 8px; font-weight: 800;
+  border-radius: 2px; border: 1px solid var(--c-deep);
+  font-variant-numeric: tabular-nums; white-space: nowrap; overflow: hidden;
+  background: var(--c-cream-l); color: var(--c-teal);
+}
+.t-thr-heat .heat-tag.p { color: #8a241e; }
+.t-thr-heat .heat-tag.s { color: #1e6348; }
+.t-thr-heat .heat-tag.warm { background: rgba(232, 161, 58, 0.25); color: var(--c-gold-d); border-color: var(--c-gold-d); }
+.t-thr-heat .heat-tag.hot { background: rgba(193, 68, 46, 0.25); color: var(--c-red); border-color: var(--c-red); animation: colregPulse 0.5s infinite alternate ease-in-out; }
 #tThr u { position: absolute; left: 10px; right: 10px; top: 50%; height: 2px; background: var(--c-deep); }
 #tThr i {
   position: absolute; left: 11px; width: 52px; height: 52px; top: 50%; margin-top: -26px;
@@ -475,15 +603,44 @@ body.touch #dock .g b { font-size: 17px; }
 body.compact #minimap { display: none; }
 body.compact #nextCard { padding: 4px 10px; min-width: 0; } body.compact #nextCard small, body.compact #nextCard::before { display: none; }
 body.compact #nextCard b { font-size: 15px; } body.compact #nextCard .l2 { font-size: 11px; }
+body.compact .nc-approach { margin: 2px 0; padding: 2px 4px; } body.compact .nc-note { display: none; } body.compact .nc-badge { font-size: 7.5px; padding: 1px 3px; }
 body.compact #gauges { transform: scale(.72); transform-origin: 100% 100%; }
 body.compact.touch #gauges { transform: scale(.85); transform-origin: 100% 0; }
 body.compact #tWheel { width: 112px; height: 112px; } body.compact #tWheel svg { width: 94px; height: 94px; }
 body.compact #tThr { width: 62px; height: 160px; } body.compact #tThr i { width: 25px; height: 42px; margin-top: -21px; }
+body.compact #tThr::before { top: 30px; bottom: 18px; }
+body.compact .t-thr-rpm { top: 2px; height: 14px; }
+body.compact .t-thr-rpm .rpm-tag { height: 14px; line-height: 14px; font-size: 8px; }
+body.compact .t-thr-heat { top: 17px; height: 12px; }
+body.compact .t-thr-heat .heat-tag { height: 12px; line-height: 12px; font-size: 7.5px; }
+body.compact #tThr small[data-i="ahead"] { top: 30px !important; }
+body.compact #bMoor { min-height: 36px; padding: 4px 10px; font-size: 11px; }
+body.compact .rope-wrap { margin: 2px 0; padding: 2px 4px; }
 body.compact .tb { width: 48px; height: 42px; }
 body.compact #tHorn, body.compact #tCam { right: calc(max(16px, env(safe-area-inset-right)) + 70px); }
 body.compact #tCam { bottom: calc(max(16px, env(safe-area-inset-bottom)) + 50px); }
 body.compact.touch #dock { bottom: calc(max(14px, env(safe-area-inset-bottom)) + 100px); }
 #bPanel.on { background: var(--c-gold); }
+#bWarp.on { background: var(--c-gold); color: var(--c-deep); border-color: var(--c-deep); font-weight: 800; }
+#warpBadge {
+  position: absolute; left: 50%; transform: translateX(-50%);
+  top: calc(var(--barh, 56px) + max(10px, env(safe-area-inset-top)) + 10px);
+  display: none; align-items: center; gap: 7px;
+  padding: 6px 14px; border-radius: var(--r);
+  background: var(--c-gold); color: var(--c-deep);
+  border: var(--border-press); box-shadow: var(--shadow-press);
+  font-family: var(--font-display); font-weight: 800; font-size: 16px;
+  letter-spacing: 1px; text-transform: uppercase;
+  z-index: 11; pointer-events: none;
+  animation: colregPop .22s cubic-bezier(.2,.8,.2,1);
+}
+#warpBadge.show { display: inline-flex; }
+#warpBadge svg.ic { width: 18px; height: 18px; fill: currentColor; }
+body.compact #warpBadge {
+  padding: 3px 8px; font-size: 12px;
+  top: calc(var(--barh, 40px) + max(6px, env(safe-area-inset-top)) + 6px);
+}
+body.compact #warpBadge svg.ic { width: 14px; height: 14px; }
 body.compact #topbar { padding: 3px 8px; gap: 4px; top: max(6px, env(safe-area-inset-top)); }
 body.compact #topbar .brand, body.compact .stat small { display: none; }
 body.compact .stat { min-width: 0; padding: 0 7px; } body.compact .stat.wide { min-width: 54px; } body.compact .stat b { font-size: 14px; }
@@ -655,6 +812,90 @@ body.compact #colregBadge svg.arrow { width: 14px; height: 14px; }
   transform: rotate(-1.5deg);
 }
 
+/* Vessel Class Selection Cards (Shift Screen) */
+.vessel-select-wrap {
+  margin: 8px 0 10px; padding: 8px 10px;
+  background: var(--c-cream-l); border: 1.5px solid var(--c-deep);
+  border-radius: var(--r); box-shadow: 2px 2px 0 var(--c-deep);
+  text-align: left;
+}
+.vessel-select-head {
+  display: flex; justify-content: space-between; align-items: baseline;
+  border-bottom: 1.5px dashed var(--c-teak);
+  padding-bottom: 4px; margin-bottom: 8px;
+  font-family: var(--font-mono); font-size: 10px; font-weight: 700;
+  letter-spacing: 1px; text-transform: uppercase; color: var(--c-teak);
+}
+.vessel-rank-info {
+  font-size: 9.5px; color: var(--c-teal); font-weight: 700; font-variant-numeric: tabular-nums;
+}
+.vessel-cards {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;
+}
+.vessel-card {
+  position: relative;
+  display: flex; flex-direction: column; align-items: stretch;
+  padding: 8px 8px 6px;
+  background: var(--c-cream); border: 2px solid var(--c-deep);
+  border-radius: var(--r); box-shadow: 2px 2px 0 var(--c-deep);
+  cursor: pointer;
+  transition: transform 0.08s ease, box-shadow 0.08s ease, background-color 0.12s ease;
+  text-align: center; color: var(--c-deep); user-select: none;
+}
+.vessel-card:hover:not(.locked) { background: var(--c-cream-d); }
+.vessel-card:active:not(.locked) { transform: translate(2px, 2px); box-shadow: 0 0 0 transparent; }
+.vessel-card.sel {
+  background: var(--c-gold); border-color: var(--c-deep);
+  box-shadow: 3px 3px 0 var(--c-deep);
+}
+.vessel-card.locked {
+  opacity: 0.58; background: var(--c-cream-d);
+  filter: grayscale(0.6); cursor: not-allowed;
+}
+.vessel-card-header {
+  display: flex; align-items: center; justify-content: space-between; gap: 4px;
+  margin-bottom: 3px;
+}
+.vessel-tag {
+  font-family: var(--font-mono); font-size: 8.5px; font-weight: 800;
+  text-transform: uppercase; letter-spacing: 0.5px;
+  padding: 1px 4px; border-radius: 2px; border: 1px solid currentColor;
+  color: var(--c-teal); white-space: nowrap;
+}
+.vessel-card.sel .vessel-tag {
+  color: var(--c-deep); border-color: var(--c-deep); background: rgba(15,46,51,0.1);
+}
+.vessel-lock-icon { font-size: 11px; color: var(--c-red); font-weight: 800; }
+.vessel-icon {
+  width: 100%; height: 32px; display: flex; align-items: center; justify-content: center;
+  margin: 1px 0 3px;
+}
+.vessel-icon svg {
+  max-width: 52px; max-height: 28px; filter: drop-shadow(1px 1px 0 rgba(15,46,51,0.18));
+}
+.vessel-name {
+  font-family: var(--font-display); font-size: 14.5px; font-weight: 800;
+  line-height: 1.15; color: var(--c-deep); margin-bottom: 4px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.vessel-stats {
+  display: flex; flex-direction: column; gap: 2px;
+  font-family: var(--font-mono); font-size: 9.5px; font-weight: 600;
+  color: var(--c-deep-mid); border-top: 1px dashed rgba(15,46,51,0.25);
+  padding-top: 4px;
+}
+.vessel-card.sel .vessel-stats {
+  color: var(--c-deep); border-top-color: rgba(15,46,51,0.4); font-weight: 700;
+}
+.vessel-stat-row { display: flex; justify-content: space-between; align-items: center; }
+.vessel-stat-row b { font-variant-numeric: tabular-nums; }
+.vessel-req {
+  margin-top: 4px; padding: 2px 3px;
+  font-family: var(--font-mono); font-size: 8.5px; font-weight: 800;
+  color: var(--c-red); border: 1px dashed var(--c-red); border-radius: 2px;
+  background: rgba(193,68,46,0.08); text-transform: uppercase;
+}
+
 /* Timetable Ledger */
 .timetable {
   display: grid; grid-template-columns: auto 1fr auto; gap: 4px 14px;
@@ -760,12 +1001,20 @@ input[type=range] { width: 100%; height: 44px; accent-color: var(--c-teal); back
   .mission-item { gap: 6px 8px; padding: 5px 6px; }
   .mission-title { font-size: 11px; }
   .mission-tag { font-size: 8.5px; padding: 1px 4px; }
+  .vessel-cards { gap: 6px; }
+  .vessel-card { padding: 6px 4px 4px; }
+  .vessel-name { font-size: 12.5px; }
+  .vessel-stats { font-size: 8.5px; }
+  .vessel-tag { font-size: 7.5px; }
 }
 @media (max-height: 520px) {
   .card { padding: 12px 16px; } .card h1 { font-size: 26px; } #logoBig { width: 100px; height: 75px; }
   #minimap { width: 100px; height: 150px; }
   .missions-ledger { margin: 8px 0 4px; padding: 6px 8px; }
   .missions-list { gap: 4px; }
+  .vessel-select-wrap { margin: 4px 0 6px; padding: 4px 6px; }
+  .vessel-icon { height: 22px; }
+  .vessel-icon svg { max-height: 20px; }
 }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .01s !important; transition-duration: 0s !important; }
@@ -1234,6 +1483,7 @@ input[type=range] { width: 100%; height: 44px; accent-color: var(--c-teal); back
     <symbol id="i-home" viewBox="0 0 24 24"><path d="M3.5 11L12 4l8.5 7M6 9.5V20h12V9.5M10 20v-6h4v6"/></symbol>
     <symbol id="i-restart" viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.6-5.9M20 4v5h-5"/></symbol>
     <symbol id="i-horn" viewBox="0 0 24 24"><path d="M3 10v4h3l7 4V6L6 10z" fill="currentColor"/><path d="M16 8l3-2M16 12h4M16 16l3 2"/></symbol>
+    <symbol id="i-warp" viewBox="0 0 24 24"><path d="M4 5v14l8-7zM12 5v14l8-7z" fill="currentColor"/></symbol>
     <symbol id="i-panel" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 15h18M9 15v5"/></symbol>
     <symbol id="i-cam" viewBox="0 0 24 24"><rect x="3" y="7" width="13" height="11" rx="2"/><path d="M16 11l5-3v9l-5-3z"/></symbol>
     <symbol id="i-person" viewBox="0 0 24 24"><circle cx="12" cy="7.5" r="3" fill="currentColor"/><path d="M5 20c0-3.5 3-5.5 7-5.5s7 2 7 5.5z" fill="currentColor"/></symbol>
@@ -1286,6 +1536,38 @@ input[type=range] { width: 100%; height: 44px; accent-color: var(--c-teal); back
       <circle cx="36" cy="82" r="3" fill="#E8A13A" stroke="#0F2E33" stroke-width="1.5"/>
       <circle cx="64" cy="82" r="3" fill="#E8A13A" stroke="#0F2E33" stroke-width="1.5"/>
     </symbol>
+    <symbol id="v-icon-classic" viewBox="0 0 60 30">
+      <path d="M6 18 h48 l-5 6 H11 z" fill="#0F2E33"/>
+      <rect x="6" y="16" width="48" height="2" fill="#C1442E"/>
+      <rect x="10" y="11" width="40" height="5" rx="1" fill="#F4EBD9" stroke="#0F2E33" stroke-width="1.2"/>
+      <rect x="13" y="12.5" width="34" height="2" fill="#1E5F63"/>
+      <rect x="16" y="6" width="26" height="5" rx="1" fill="#F4EBD9" stroke="#0F2E33" stroke-width="1.2"/>
+      <rect x="19" y="7.5" width="18" height="2" fill="#1E5F63"/>
+      <rect x="27" y="1" width="5" height="5" fill="#E8A13A" stroke="#0F2E33" stroke-width="1"/>
+      <rect x="27" y="1" width="5" height="1.8" fill="#0F2E33"/>
+    </symbol>
+    <symbol id="v-icon-launch" viewBox="0 0 60 30">
+      <path d="M8 20 Q24 22 52 17 L50 22 Q24 25 12 24 z" fill="#0F2E33"/>
+      <path d="M8 18 Q24 20 54 16 L52 18 Q24 22 10 20 z" fill="#C1442E"/>
+      <path d="M12 18 L16 11 L40 11 L46 17 L12 18 z" fill="#F4EBD9" stroke="#0F2E33" stroke-width="1.2"/>
+      <path d="M22 13 L26 8 L36 8 L38 13 z" fill="#F4EBD9" stroke="#0F2E33" stroke-width="1.2"/>
+      <rect x="18" y="13" width="22" height="2.5" rx="0.5" fill="#1E5F63"/>
+      <rect x="27" y="9.5" width="8" height="2" rx="0.5" fill="#1E5F63"/>
+      <line x1="32" y1="8" x2="32" y2="4" stroke="#0F2E33" stroke-width="1.2"/>
+      <rect x="12" y="14" width="8" height="1.2" fill="#B98A5A"/>
+    </symbol>
+    <symbol id="v-icon-car" viewBox="0 0 60 30">
+      <path d="M4 20 L10 23 L50 23 L56 20 L58 17 L2 17 z" fill="#0F2E33"/>
+      <rect x="3" y="15.5" width="54" height="1.5" fill="#C1442E"/>
+      <rect x="8" y="11" width="44" height="4.5" fill="#F4EBD9" stroke="#0F2E33" stroke-width="1.2"/>
+      <rect x="12" y="12" width="36" height="2.2" fill="#1E5F63"/>
+      <rect x="22" y="4" width="16" height="7" rx="1" fill="#F4EBD9" stroke="#0F2E33" stroke-width="1.2"/>
+      <rect x="24" y="5.5" width="12" height="2.5" fill="#1E5F63"/>
+      <rect x="16" y="6" width="3.5" height="5" fill="#E8A13A" stroke="#0F2E33" stroke-width="1"/>
+      <rect x="16" y="6" width="3.5" height="1.5" fill="#0F2E33"/>
+      <rect x="40.5" y="6" width="3.5" height="5" fill="#E8A13A" stroke="#0F2E33" stroke-width="1"/>
+      <rect x="40.5" y="6" width="3.5" height="1.5" fill="#0F2E33"/>
+    </symbol>
   </defs>
 </svg>
 
@@ -1303,6 +1585,7 @@ input[type=range] { width: 100%; height: 44px; accent-color: var(--c-teal); back
     <div class="stat wide"><small><svg class="ic"><use href="#i-hull"/></svg><span data-i="hull"></span></small><div class="bar hull" id="hullBar"><i></i></div></div>
     <div class="stat"><small><svg class="ic"><use href="#i-star"/></svg><span data-i="score"></span></small><div class="stars-sm" id="stStars"><svg viewBox="0 0 24 24"><use href="#i-star"/></svg><svg viewBox="0 0 24 24"><use href="#i-star"/></svg><svg viewBox="0 0 24 24"><use href="#i-star"/></svg></div></div>
     <div class="btns">
+      <button class="btn icon" id="bWarp" data-t="warp" aria-label="Transit (3x) · Z" title="Transit (3x) · Z"><svg class="ic"><use href="#i-warp"/></svg></button>
       <button class="btn icon" id="bPanel" data-t="panel" aria-label="Panel"><svg class="ic"><use href="#i-panel"/></svg></button>
       <button class="btn icon" id="bCamH" data-t="camera" aria-label="Camera"><svg class="ic"><use href="#i-cam"/></svg></button>
       <button class="btn icon" id="bPause" data-t="pause" aria-label="Pause"><svg class="ic"><use href="#i-pause"/></svg></button>
@@ -1312,13 +1595,22 @@ input[type=range] { width: 100%; height: 44px; accent-color: var(--c-teal); back
   </div>
   <div id="toasts" role="status" aria-live="polite"></div>
   <div id="colregBadge" class="glass" role="status" aria-live="polite"><svg class="ic arrow" id="colregArrow" viewBox="0 0 24 24"><path d="M12 3l5 6h-3.5v11h-3V9H7z"/></svg><span id="colregTxt">YOL VER</span><small id="colregSub" class="colreg-sub"></small></div>
-  <div id="nextCard" class="glass"><small data-i="nextStop"></small><b id="ncName">—</b><div class="l2" id="ncL2"></div><div class="l2" id="ncL3"></div></div>
+  <div id="warpBadge" class="glass" role="status" aria-live="polite"><svg class="ic" viewBox="0 0 24 24"><use href="#i-warp"/></svg><span id="warpBadgeTxt">3x TRANSİT</span></div>
+  <div id="nextCard" class="glass"><small data-i="nextStop"></small><b id="ncName">—</b><div class="l2" id="ncL2"></div><div id="ncApproach" class="nc-approach"><div class="nc-note" id="ncNote">—</div><div class="nc-badges"><span class="nc-badge side" id="ncSide">—</span><span class="nc-badge hd" id="ncHd">—</span></div></div><div id="ncRope" class="rope-wrap hidden"><div class="rope-lbl-row"><small><svg class="ic" style="width:11px;height:11px"><use href="#i-anchor"/></svg><span data-i="ropeTension"></span></small><b id="ncRopeVal">0%</b></div><div class="bar tension" id="ncRopeBar"><i></i></div></div><div class="l2" id="ncL3"></div></div>
   <div id="camLbl" class="glass"></div>
   <canvas id="minimap" width="300" height="460"></canvas>
   <div id="gauges">
     <div id="levers">
-      <div class="lever thr" title="iskele makine / port engine"><i id="lvThr"></i><small>İ T/G</small></div>
-      <div class="lever thr" title="sancak makine / starboard engine"><i id="lvThrS"></i><small>S Y/H</small></div>
+      <div class="lever thr thr-p" title="iskele makine / port engine"><span class="rpm-lbl" id="rpmP">0</span><i id="lvThr"></i><small>İ T/G</small></div>
+      <div class="lever thr thr-s" title="sancak makine / starboard engine"><span class="rpm-lbl" id="rpmS">0</span><i id="lvThrS"></i><small>S Y/H</small></div>
+      <div class="lever heat" id="lvHeat" title="makine harareti / engine heat">
+        <span class="heat-title" data-i="tempShort">ISI</span>
+        <div class="heat-bars">
+          <div class="heat-col p" id="heatColP" title="iskele / port"><div class="heat-track"><i id="heatBarP"></i></div><span class="heat-num" id="heatValP">60°</span></div>
+          <div class="heat-col s" id="heatColS" title="sancak / starboard"><div class="heat-track"><i id="heatBarS"></i></div><span class="heat-num" id="heatValS">60°</span></div>
+        </div>
+        <small id="heatUnit">°C</small>
+      </div>
       <div class="lever rud" title="rudder"><i id="lvRud"></i><small>A/D</small></div>
     </div>
     <div id="speedo"><svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="42" stroke="rgba(15,46,51,.15)" stroke-dasharray="198 264"/><circle class="ticks" cx="50" cy="50" r="35" stroke-dasharray="1.5 9.5"/><circle id="spArc" cx="50" cy="50" r="42" stroke-dasharray="0 264"/></svg><div><b id="spVal">0</b><small id="spUnit">kn</small></div></div>
@@ -1330,11 +1622,12 @@ input[type=range] { width: 100%; height: 44px; accent-color: var(--c-teal); back
       <div class="g"><small data-i="angle"></small><b id="dkAng">—</b></div>
     </div>
     <div class="hint" id="dkHint"></div>
+    <button class="btn primary" id="bMoor" type="button" data-t="moorBtn" aria-label="Halat At"><svg class="ic"><use href="#i-anchor"/></svg><span id="bMoorTxt" data-i="moorBtn"></span></button>
   </div>
   <div id="floaters"></div>
   <div id="touch">
     <div id="tWheel" class="glass" role="slider" aria-label="Rudder"><svg viewBox="0 0 100 100" id="tWheelSvg"><use href="#i-wheel"/></svg></div>
-    <div id="tThr" class="glass" role="slider" aria-label="Throttle"><small style="top:4px" data-i="ahead"></small><u></u><i class="p"><svg class="ic" style="width:22px;height:22px;transform:rotate(-90deg)"><use href="#i-play"/></svg></i><i class="s"><svg class="ic" style="width:22px;height:22px;transform:rotate(-90deg)"><use href="#i-play"/></svg></i><small style="bottom:4px" data-i="astern"></small></div>
+    <div id="tThr" class="glass" role="slider" aria-label="Throttle"><div id="tThrRpm" class="t-thr-rpm"><span id="tRpmP" class="rpm-tag p">0</span><span id="tRpmS" class="rpm-tag s">0</span></div><div id="tThrHeat" class="t-thr-heat"><span id="tHeatP" class="heat-tag p">60°</span><span id="tHeatS" class="heat-tag s">60°</span></div><small style="top:36px" data-i="ahead"></small><u></u><i class="p"><svg class="ic" style="width:22px;height:22px;transform:rotate(-90deg)"><use href="#i-play"/></svg></i><i class="s"><svg class="ic" style="width:22px;height:22px;transform:rotate(-90deg)"><use href="#i-play"/></svg></i><small style="bottom:4px" data-i="astern"></small></div>
     <div id="tHorn" class="tb glass" aria-label="Horn"><svg class="ic" style="width:26px;height:26px"><use href="#i-horn"/></svg></div>
     <div id="tCam" class="tb glass" aria-label="Camera"><svg class="ic" style="width:26px;height:26px"><use href="#i-cam"/></svg></div>
   </div>
@@ -1395,6 +1688,13 @@ input[type=range] { width: 100%; height: 44px; accent-color: var(--c-teal); back
       <h2 data-i="campaign"></h2>
       <div class="rope" aria-hidden="true" style="margin:4px auto 8px"></div>
       <div id="cmap"></div>
+      <div id="vesselSelect" class="vessel-select-wrap">
+        <div class="vessel-select-head">
+          <span class="vessel-select-lbl" data-i="vesselTitle">VAPUR SINIFI</span>
+          <span id="vesselRankInfo" class="vessel-rank-info"></span>
+        </div>
+        <div id="vesselCards" class="vessel-cards" role="radiogroup" aria-label="Vapur Sınıfı"></div>
+      </div>
       <h2 id="inTitle" style="font-size:22px"></h2>
       <p id="inDesc"></p>
       <div class="cond" id="inCond"></div>
@@ -1430,8 +1730,13 @@ input[type=range] { width: 100%; height: 44px; accent-color: var(--c-teal); back
         <label for="rMaster" data-i="master"></label><input type="range" id="rMaster" min="0" max="100" data-t="master" aria-label="Genel ses"><output id="oMaster"></output>
         <label for="rMusic" data-i="music"></label><input type="range" id="rMusic" min="0" max="100" data-t="music" aria-label="Müzik"><output id="oMusic"></output>
         <label for="rSfx" data-i="effects"></label><input type="range" id="rSfx" min="0" max="100" data-t="effects" aria-label="Efektler"><output id="oSfx"></output>
+        <label for="rSteer" data-i="steerSens"></label><input type="range" id="rSteer" min="0.6" max="1.4" step="0.05" value="1.0" data-t="steerSens" aria-label="Dümen hassasiyeti"><output id="oSteer">1.0x</output>
+        <label data-i="reducedMotion"></label><div class="seg"><button class="btn" id="bMotOff" data-i="motionOff"></button><button class="btn" id="bMotOn" data-i="motionOn"></button></div>
+        <label data-i="ghostDocking"></label><div class="seg"><button class="btn" id="bGhostOff" data-i="ghostOff"></button><button class="btn" id="bGhostOn" data-i="ghostOn"></button></div>
+        <label data-i="announcements"></label><div class="seg"><button class="btn" id="bAnnOff" data-i="annOff"></button><button class="btn" id="bAnnOn" data-i="annOn"></button></div>
         <label data-i="language"></label><div class="seg"><button class="btn" id="bTR">Türkçe</button><button class="btn" id="bEN">English</button></div>
         <label data-i="quality"></label><div class="seg"><button class="btn" id="bQLow" data-i="low"></button><button class="btn" id="bQHigh" data-i="high"></button></div>
+        <label data-i="lowPower"></label><div class="seg"><button class="btn" id="bLPAuto" data-i="lpAuto"></button><button class="btn" id="bLPOn" data-i="lpOn"></button><button class="btn" id="bLPOff" data-i="lpOff"></button></div>
         <label data-i="fullscreen"></label><div class="seg"><button class="btn" id="bFull"><svg class="ic"><use href="#i-full"/></svg><span data-i="toggle"></span></button></div>
         <label data-i="a11y"></label><div class="seg"><button class="btn" id="bA11y"><span data-i="a11yOpen"></span></button></div>
       </div>
@@ -1513,12 +1818,19 @@ const STR = {
     loading: 'Yükleniyor… {0}/{1}', play: 'Oyna', continue: 'Devam', endless: 'Sonsuz sefer', settings: 'Ayarlar',
     language: 'Dil', paused: 'Duraklatıldı', resume: 'Devam et', restart: 'Yeniden başla', menu: 'Ana menü',
     startShift: 'Sefere çık', master: 'Genel ses', music: 'Müzik', effects: 'Efektler', quality: 'Kalite',
-    low: 'Düşük', high: 'Yüksek', fullscreen: 'Tam ekran', toggle: 'Aç / kapat', back: 'Geri',
-    keysHelp: 'P / Esc duraklat · M müzik · X efekt · L dil · C kamera · Boşluk düdük (dokun/tut) · W/S makineler · T/G iskele · Y/H sancak · A/D dümen',
-    keysHelpTouch: 'Sağdaki kol gaz (yukarı ileri, aşağı tornistan; sol ya da sağ kenarı tek makine) · soldaki simit dümen · korna düğmesi düdük · kamera düğmesi görünüm · üst çubuk duraklat, ses, dil',
+    low: 'Düşük', high: 'Yüksek', lowPower: 'Düşük güç modu', lpAuto: 'Otomatik', lpOn: 'Açık', lpOff: 'Kapalı', fullscreen: 'Tam ekran', toggle: 'Aç / kapat', back: 'Geri',
+    steerSens: 'Dümen hassasiyeti', reducedMotion: 'Hareketi azalt', motionOff: 'Kapalı', motionOn: 'Açık',
+    warp: 'Transit (3x) · Z', warpBadge: '3x TRANSİT', warpOn: 'Transit modu devrede (3x)', warpOff: 'Transit modu kapatıldı (1x)',
+    warpAutoOff: 'Açık deniz bitti: 1x normal hız', warpUnavailable: 'Sadece açık denizde (trafik >250m, iskele >500m)',
+    keysHelp: 'P / Esc duraklat · M müzik · X efekt · L dil · C kamera · Z transit (3x) · Boşluk düdük (dokun/tut) · W/S makineler · T/G iskele · Y/H sancak · A/D dümen · E halat at',
+    keysHelpTouch: 'Sağdaki kol gaz (yukarı ileri, aşağı tornistan; sol ya da sağ kenarı tek makine) · soldaki simit dümen · korna düğmesi düdük · kamera düğmesi görünüm · HALAT AT düğmesi yanaşma · üst çubuk duraklat, transit (3x), ses, dil',
     retry: 'Tekrar dene', next: 'Sonraki sefer', playAgain: 'Tekrar oyna', nextShift: 'Sonraki sefer',
     shift: 'Sefer', clock: 'Saat', passengers: 'Yolcu', comfort: 'Konfor', hull: 'Gövde', score: 'Puan', panel: 'Paneli küçült / büyüt (V)', pause: 'Duraklat', sound: 'Ses', camera: 'Kamera',
     nextStop: 'Sonraki iskele', distance: 'Mesafe', speed: 'Hız', angle: 'Açı', ahead: 'İLERİ', astern: 'TORN.',
+    moorBtn: 'HALAT AT', hintMoor: 'HALAT AT (E)', hintMoorTouch: 'HALAT AT', toastMoorFail: 'Yanaşma pozisyonu uygun değil! Hız ve açıyı ayarla.',
+    sDockBonus: 'Yanaşma puanı', ropeTension: 'Halat gerilimi', dirAhead: 'İ', dirAstern: 'T', gearPause: 'BEKL.',
+    tempShort: 'ISI', overheatP: 'İskele makine aşırı ısındı! Güç düşürüldü.', overheatS: 'Sancak makine aşırı ısındı! Güç düşürüldü.',
+    coolP: 'İskele makine soğudu (tam güç)', coolS: 'Sancak makine soğudu (tam güç)',
     waiting: '{0} bekliyor', planned: 'plan {0}', lateBy: '{0} geç', earlyBy: '{0} erken', depart: 'kalkış {0}', waitDep: 'kalkışa {0}', boarding: 'yolcu alınıyor…', canLeave: 'kalkabilirsin!',
     campaign: 'Sefer planı', endlessShort: 'Sonsuz',
     bestLine: 'En iyi: {0} puan · {1}/24 yıldız · Sonsuz: {2} sefer', bestNone: 'Henüz rekor yok.',
@@ -1540,7 +1852,10 @@ const STR = {
     tgt: 'Hedef', star1: '1 yıldız', star2: '2 yıldız', star3: '3 yıldız', ttHead: 'Tarife',
     toastStart: 'Sefer başladı. İlk iskele: {0}', toastDocked: '{0} iskelesine yanaşıldı', toastRopes: 'Halatlar atıldı!', toastBump: 'Sert yanaşma! Yolcular rahatsız', toastCrash: 'Çarpışma! Gövde hasar aldı', toastGround: 'Karaya oturdun!',
     toastLate: 'Geç kaldın, yolcular sabırsız', toastLost: '{0} yolcu beklemekten vazgeçti', toastEarly: 'Erken geldin: saat hızlandı, kalkışa az kaldı', toastDockPro: 'Usta yanaşma! +{0}', toastDockOk: 'Yanaşma puanı +{0}', toastLeave: 'Kalkış saati. Yola çık!', toastWrongPier: 'Burası sıradaki iskele değil: {0}', toastTanker: 'Tanker yaklaşıyor, yol ver!',
+    toastNets: 'Ağlara dikkat',
     toastHeel: 'Sert dümen, yolcular sallanıyor', toastFog: 'Sis bastırdı', toastStorm: 'Fırtına şiddetleniyor', toastNight: 'Işıklar yakıldı',
+    toastSimitStart: 'Yolcular kıç güverteden martılara simit atıyor!', toastSimitDone: 'Martılarla keyifli seyir (+konfor)',
+    toastTeaStart: 'Çaycı güvertede! Nazik dümenle çay servisi başladı.', toastTeaSpill: 'Sert dümen! Çaylar döküldü (-konfor)', toastTeaDone: 'Taze çaylar yudumlandı (+konfor)',
     offOn: '{0} indi · {1} bindi',
     endClear: 'Sefer tamamlandı', endFail: 'Sefer başarısız', endWreck: 'Vapur yara aldı', endWin: 'Tebrikler, kaptan!', endEndless: 'Sonsuz sefer bitti',
     subClear: 'İyi seyirler kaptan!', subFail: 'Bir yıldız bile yok: daha nazik yanaş, tarifeye uy.', subWreck: 'Gövde hasarı yüzde 100: sefer iptal.', subWin: '8 seferi bitirdin. Boğaz senin.', subEndless: 'Toplam {0} sefer, {1} yolcu',
@@ -1548,9 +1863,25 @@ const STR = {
     newRecord: 'Yeni rekor!', camChase: 'Takip kamerası', camBridge: 'Köprüüstü', camTop: 'Kuş bakışı', camDock: 'Yanaşma kamerası', badgeGiveWay: 'YOL VER', toastGiveWay: 'Yol ver! Tehlike bölgesinde hızını 2 kn altına düşür', c_tanker: 'TANKER', c_ferry: 'VAPUR',
     hintSlow: 'Yavaşla', hintAlign: 'Paralel yanaş', hintCloser: 'Daha yakına', hintOk: 'Yanaşıyor…', hintStop: 'Dur ve bekle', hintFast: 'Çok hızlı!',
     dockDone: 'Yanaşma tamam', pierNames: { eminonu: 'Eminönü', karakoy: 'Karaköy', uskudar: 'Üsküdar', besiktas: 'Beşiktaş', kadikoy: 'Kadıköy', kanlica: 'Kanlıca' },
+    p_app_eminonu: 'Yoğun trafik · Çapraz hatlara dikkat',
+    p_app_karakoy: 'Dar rıhtım · Yavaş ve dikkatli gir',
+    p_app_uskudar: 'Sert akıntı · Pruvayı akıntıya ver',
+    p_app_besiktas: 'Burgaç ve solugan · Rıhtıma paralel kal',
+    p_app_kadikoy: 'Rüzgâra açık · Bordadan sürüklenmeye dikkat',
+    p_app_kanlica: 'Sığ bank · Kıyı sığlığına dikkat et',
+    sidePort: 'İSKELE', sideStarboard: 'SANCAK',
+    degradedState: 'Gövde hasarlı: Hız ve makine tepkisi kısıtlandı',
+    toastDegraded: 'Hasar alındı! Makine tepkisi ve azami hız kısıtlandı.',
     hintLeave: '<b>W</b> ile kalk', hintLeaveTouch: '<b>Kolu yukarı it</b>, kalk', unitKn: 'kn',
-    daily: 'Günün Meydan Okuması', sD: 'Günün Meydan Okuması', dD: 'Bugünün seferi herkes için aynı: aynı rota, aynı hava, aynı trafik. Bitir, seriyi sürdür.',
-    dailyLine: 'Günlük seri: {0} gün · en iyi: {1}', dailyDone: 'Bugünkü sefer tamam', a11y: 'Erişilebilirlik', a11yOpen: 'Aç',
+    daily: 'Günün Seferi', sD: 'Günün Seferi', dD: 'Bugünün seferi herkes için aynı: aynı rota, aynı hava, aynı trafik. Bitir, seriyi sürdür.',
+    dailyTitle: 'Günün Seferi', dailyDescBrief: 'Bugünün rotası, havası ve akıntısı herkes için aynı.',
+    dailyLine: 'Günlük seri: {0} gün · en iyi: {1}', dailyDone: 'Bugünkü sefer tamam', dailyScore: 'Günün rekoru: {0} puan', dailyStreak: 'Seri: {0} gün', dailyAllTime: 'En iyi: {0} puan',
+    shareDailyHead: 'Günün Seferi · {0}', shareDailyScore: 'Puan: {0}', shareDailyStreak: 'Seri: {0} gün',
+    ghostDocking: 'Yanaşma hayaleti', ghostOn: 'Açık', ghostOff: 'Kapalı',
+    announcements: 'İskele anonsları', annOn: 'Açık', annOff: 'Kapalı',
+    announcement: 'Sıradaki iskele: {0}.',
+    toastNewGhost: '{0}: Yeni yanaşma hayaleti kaydedildi!',
+    a11y: 'Erişilebilirlik', a11yOpen: 'Aç',
     share: 'Paylaş', another: 'Başka oyun', shareStars: '{0}/3 yıldız · {1} puan', sharePax: '{0} yolcu taşındı',
     awFirst: 'İlk sefer tamam', awCampaign: '8 seferin hepsi', awAllStars: '24 yıldızın hepsi',
     rankTitle: 'Kaptanlık Rütbesi', missionsHead: 'Vardiya Görevleri', dailyMission: 'Günlük', weeklyMission: 'Haftalık',
@@ -1563,6 +1894,16 @@ const STR = {
     m_punctual_shift_t: '{0} dakik sefer (%85+)', m_punctual_shift_d: 'En az %85 dakiklik ile {0} sefer tamamla.',
     m_stars_earned_t: '{0} yıldız topla', m_stars_earned_d: 'Tamamlanan seferlerden toplam {0} yıldız kazan.',
     m_docks_t: '{0} iskeleye yanaş', m_docks_d: 'Boğaz iskelelerine toplam {0} kez başarıyla yanaş.',
+    vesselTitle: 'Vapur Sınıfı', vesselClass: 'Vapur',
+    vesselRankUnlock: 'Rütbe: {0} ({1}★)',
+    vesselLockedToast: 'Bu vapur {0} rütbesinde ({1} yıldız) açılır!',
+    vesselUnlockedToast: 'Yeni vapur sınıfı açıldı: {0}!',
+    v_tag_classic: 'Klasik', v_tag_launch: 'Motor', v_tag_car: 'Feribot',
+    v_classic_name: 'Şehir Hatları Vapuru', v_classic_sub: 'Dengeli klasik vapur · Çift güverte & sarı baca',
+    v_launch_name: 'Hızlı Motor', v_launch_sub: 'Çevik motor launch · Az kapasite, seri dümen',
+    v_car_name: 'Araba Vapuru', v_car_sub: 'Ağır feribot · Yüksek kapasite, geniş dönüş',
+    v_speed: 'Hız', v_pax: 'Kapasite', v_helm: 'Dümen',
+    v_helm_balanced: 'Dengeli', v_helm_twitchy: 'Seri / Çevik', v_helm_heavy: 'Ağır / Geniş',
   },
   en: {
     subtitle: 'Captain a city ferry on the Bosphorus: dock at the piers, carry passengers, keep the timetable.',
@@ -1571,12 +1912,19 @@ const STR = {
     loading: 'Loading… {0}/{1}', play: 'Play', continue: 'Continue', endless: 'Endless shift', settings: 'Settings',
     language: 'Language', paused: 'Paused', resume: 'Resume', restart: 'Restart', menu: 'Main menu',
     startShift: 'Start the shift', master: 'Master', music: 'Music', effects: 'Effects', quality: 'Quality',
-    low: 'Low', high: 'High', fullscreen: 'Fullscreen', toggle: 'Toggle', back: 'Back',
-    keysHelp: 'P / Esc pause · M music · X effects · L language · C camera · Space horn (tap/hold) · W/S engines · T/G port · Y/H starboard · A/D rudder',
-    keysHelpTouch: 'Right lever is the throttle (up ahead, down astern; its left or right edge drives one engine) · wheel on the left steers · horn button sounds the horn · camera button changes the view · top bar: pause, sound, language',
+    low: 'Low', high: 'High', lowPower: 'Low-power mode', lpAuto: 'Auto', lpOn: 'On', lpOff: 'Off', fullscreen: 'Fullscreen', toggle: 'Toggle', back: 'Back',
+    steerSens: 'Steering sensitivity', reducedMotion: 'Reduce motion', motionOff: 'Off', motionOn: 'On',
+    warp: 'Transit (3x) · Z', warpBadge: '3x TRANSIT', warpOn: 'Transit warp engaged (3x)', warpOff: 'Transit warp disengaged (1x)',
+    warpAutoOff: 'Exited open water: returned to 1x', warpUnavailable: 'Open water only (traffic >250m, pier >500m)',
+    keysHelp: 'P / Esc pause · M music · X effects · L language · C camera · Z transit (3x) · Space horn (tap/hold) · W/S engines · T/G port · Y/H starboard · A/D rudder · E throw lines',
+    keysHelpTouch: 'Right lever is the throttle (up ahead, down astern; its left or right edge drives one engine) · wheel on the left steers · horn button sounds the horn · camera button changes the view · THROW LINES button to moor · top bar: pause, transit (3x), sound, language',
     retry: 'Retry', next: 'Next shift', playAgain: 'Play again', nextShift: 'Next shift',
     shift: 'Shift', clock: 'Clock', passengers: 'Pax', comfort: 'Comfort', hull: 'Hull', score: 'Score', panel: 'Compact / full panel (V)', pause: 'Pause', sound: 'Sound', camera: 'Camera',
     nextStop: 'Next pier', distance: 'Distance', speed: 'Speed', angle: 'Angle', ahead: 'AHEAD', astern: 'ASTERN',
+    moorBtn: 'THROW LINES', hintMoor: 'THROW LINES (E)', hintMoorTouch: 'THROW LINES', toastMoorFail: 'Not in docking position! Check speed and angle.',
+    sDockBonus: 'Docking score', ropeTension: 'Rope tension', dirAhead: 'A', dirAstern: 'AS', gearPause: 'GEAR',
+    tempShort: 'TEMP', overheatP: 'Port engine overheated! Power reduced.', overheatS: 'Starboard engine overheated! Power reduced.',
+    coolP: 'Port engine cooled (full power)', coolS: 'Starboard engine cooled (full power)',
     waiting: '{0} waiting', planned: 'due {0}', lateBy: '{0} late', earlyBy: '{0} early', depart: 'depart {0}', waitDep: 'departs in {0}', boarding: 'boarding…', canLeave: 'you may leave!',
     campaign: 'Shift plan', endlessShort: 'Endless',
     bestLine: 'Best: {0} points · {1}/24 stars · Endless: {2} shifts', bestNone: 'No record yet.',
@@ -1598,7 +1946,10 @@ const STR = {
     tgt: 'Target', star1: '1 star', star2: '2 stars', star3: '3 stars', ttHead: 'Timetable',
     toastStart: 'Shift started. First pier: {0}', toastDocked: 'Docked at {0}', toastRopes: 'Ropes thrown!', toastBump: 'Hard docking! Passengers upset', toastCrash: 'Collision! Hull damaged', toastGround: 'Run aground!',
     toastLate: 'You are late, passengers are impatient', toastLost: '{0} passengers gave up waiting', toastEarly: 'Early: the clock runs fast until departure', toastDockPro: 'Masterful docking! +{0}', toastDockOk: 'Docking score +{0}', toastLeave: 'Departure time. Cast off!', toastWrongPier: 'This is not the next pier: {0}', toastTanker: 'Tanker approaching, give way!',
+    toastNets: 'Watch out for nets',
     toastHeel: 'Hard rudder, passengers are swaying', toastFog: 'Fog rolls in', toastStorm: 'The storm picks up', toastNight: 'Lights on',
+    toastSimitStart: 'Passengers are throwing simit to seagulls aft!', toastSimitDone: 'Calm cruise with the seagulls (+comfort)',
+    toastTeaStart: 'Tea seller on deck! Steady helm keeps the glasses steady.', toastTeaSpill: 'Hard turn! Tea spilled on deck (-comfort)', toastTeaDone: 'Fresh tea enjoyed by passengers (+comfort)',
     offOn: '{0} off · {1} on',
     endClear: 'Shift complete', endFail: 'Shift failed', endWreck: 'Ferry damaged', endWin: 'Congratulations, captain!', endEndless: 'Endless shift over',
     subClear: 'Fair winds, captain!', subFail: 'Not even one star: dock gentler, keep the timetable.', subWreck: 'Hull damage reached 100%: shift cancelled.', subWin: 'You finished all 8 shifts. The Bosphorus is yours.', subEndless: '{0} shifts, {1} passengers in total',
@@ -1606,9 +1957,25 @@ const STR = {
     newRecord: 'New record!', camChase: 'Chase camera', camBridge: 'Bridge', camTop: 'Top view', camDock: 'Docking camera', badgeGiveWay: 'GIVE WAY', toastGiveWay: 'Give way! Keep speed under 2 kn in the danger zone', c_tanker: 'TANKER', c_ferry: 'FERRY',
     hintSlow: 'Slow down', hintAlign: 'Come parallel', hintCloser: 'Closer', hintOk: 'Coming alongside…', hintStop: 'Stop and hold', hintFast: 'Too fast!',
     dockDone: 'Docked', pierNames: { eminonu: 'Eminönü', karakoy: 'Karaköy', uskudar: 'Üsküdar', besiktas: 'Beşiktaş', kadikoy: 'Kadıköy', kanlica: 'Kanlıca' },
+    p_app_eminonu: 'Heavy traffic · Watch crossing ferries',
+    p_app_karakoy: 'Tight basin · Slow entry, mind quayside',
+    p_app_uskudar: 'Strong current · Stem into the flow',
+    p_app_besiktas: 'Eddies & swell · Keep parallel to berth',
+    p_app_kadikoy: 'Wind-exposed · Watch lateral wind drift',
+    p_app_kanlica: 'Shallow bank · Mind the shoals',
+    sidePort: 'PORT', sideStarboard: 'STARBOARD',
+    degradedState: 'Hull damaged: Speed & engine response degraded',
+    toastDegraded: 'Damage sustained! Engine response & top speed restricted.',
     hintLeave: 'Cast off with <b>W</b>', hintLeaveTouch: '<b>Push the lever up</b> to cast off', unitKn: 'kn',
-    daily: 'Daily challenge', sD: 'Daily challenge', dD: 'Today\'s shift is the same for everyone: same route, same weather, same traffic. Finish it to keep your streak.',
-    dailyLine: 'Daily streak: {0} · best: {1}', dailyDone: 'Today\'s shift is done', a11y: 'Accessibility', a11yOpen: 'Open',
+    daily: 'Daily Run', sD: 'Daily Run', dD: 'Today\'s shift is the same for everyone: same route, same weather, same traffic. Finish it to keep your streak.',
+    dailyTitle: 'Daily Run', dailyDescBrief: 'Daily route, weather and current are the same for everyone.',
+    dailyLine: 'Daily streak: {0} · best: {1}', dailyDone: 'Today\'s shift is done', dailyScore: 'Today\'s best: {0} pts', dailyStreak: 'Streak: {0} days', dailyAllTime: 'Best: {0} pts',
+    shareDailyHead: 'Daily Run · {0}', shareDailyScore: 'Score: {0} pts', shareDailyStreak: 'Streak: {0} days',
+    ghostDocking: 'Ghost docking', ghostOn: 'On', ghostOff: 'Off',
+    announcements: 'Pier announcements', annOn: 'On', annOff: 'Off',
+    announcement: 'Next stop: {0}.',
+    toastNewGhost: '{0}: New docking ghost recorded!',
+    a11y: 'Accessibility', a11yOpen: 'Open',
     share: 'Share', another: 'Another game', shareStars: '{0}/3 stars · {1} points', sharePax: '{0} passengers carried',
     awFirst: 'First shift cleared', awCampaign: 'All 8 shifts', awAllStars: 'All 24 stars',
     rankTitle: 'Captain Rank', missionsHead: 'Shift Missions', dailyMission: 'Daily', weeklyMission: 'Weekly',
@@ -1621,6 +1988,16 @@ const STR = {
     m_punctual_shift_t: '{0} punctual shifts (85%+)', m_punctual_shift_d: 'Complete {0} shifts with at least 85% punctuality.',
     m_stars_earned_t: 'Earn {0} stars', m_stars_earned_d: 'Collect a total of {0} stars from completed shifts.',
     m_docks_t: 'Dock at {0} piers', m_docks_d: 'Successfully dock at Bosphorus piers {0} times.',
+    vesselTitle: 'Vessel Class', vesselClass: 'Vessel',
+    vesselRankUnlock: 'Rank: {0} ({1}★)',
+    vesselLockedToast: 'Requires {0} rank ({1} stars)!',
+    vesselUnlockedToast: 'New vessel class unlocked: {0}!',
+    v_tag_classic: 'Classic', v_tag_launch: 'Launch', v_tag_car: 'Car Ferry',
+    v_classic_name: 'City Line Ferry', v_classic_sub: 'Balanced classic ferry · Twin deck & yellow funnel',
+    v_launch_name: 'Motor Launch', v_launch_sub: 'Fast agile launch · Less capacity, twitchy helm',
+    v_car_name: 'Car Ferry', v_car_sub: 'Heavy car ferry · High capacity, wide turns',
+    v_speed: 'Speed', v_pax: 'Capacity', v_helm: 'Helm',
+    v_helm_balanced: 'Balanced', v_helm_twitchy: 'Twitchy', v_helm_heavy: 'Heavy',
   },
 };
 let LANG = 'tr';
@@ -1637,6 +2014,15 @@ const PIER_DEF = {
   kadikoy:  { side: 'e', z: 560,  len: 50 },
   kanlica:  { side: 'e', z: -820, len: 36 },
 };
+// Pier approach character: approach note, recommended berth side & heading (TR + EN)
+const PIER_APPROACH = {
+  eminonu:  { side: 'port', hd: 345, hdStr: '345°', noteKey: 'p_app_eminonu' },
+  karakoy:  { side: 'port', hd: 15,  hdStr: '015°', noteKey: 'p_app_karakoy' },
+  uskudar:  { side: 'starboard', hd: 30, hdStr: '030°', noteKey: 'p_app_uskudar' },
+  besiktas: { side: 'port', hd: 15,  hdStr: '015°', noteKey: 'p_app_besiktas' },
+  kadikoy:  { side: 'starboard', hd: 60, hdStr: '060°', noteKey: 'p_app_kadikoy' },
+  kanlica:  { side: 'starboard', hd: 25, hdStr: '025°', noteKey: 'p_app_kanlica' },
+};
 // One table: timetable (stops; schedule = distance / pace + dwell), conditions and difficulty per shift.
 const SHIFTS = [
   { id: 1, hour: 15.0, stops: ['eminonu', 'karakoy', 'uskudar', 'eminonu'], pace: 9.0, current: 0.25, wind: 0.15, fog: 0, storm: 0, tankers: 1, fish: 4, ferries: 1, pax: 0.6, convoy: false },
@@ -1649,7 +2035,86 @@ const SHIFTS = [
   { id: 8, hour: 19.0, stops: ['eminonu', 'uskudar', 'besiktas', 'kanlica', 'besiktas', 'karakoy'], pace: 9.0, current: 0.7, wind: 0.5, fog: 0, storm: 0, tankers: 5, fish: 6, ferries: 4, pax: 1.0, convoy: true },
 ];
 const SCORE_K = { pax: 10, punct: 100, comfort: 3, lost: -5, stars: [0.4, 0.65, 0.85] };
-const FERRY = { len: 36, beam: 9, cap: 150, maxV: 12.5 };
+// Vessel Classes: 3 distinct classes with their own handling, dimensions, capacities and procedural hulls
+const VESSEL_CLASSES = {
+  classic: {
+    id: 'classic',
+    nameKey: 'v_classic_name',
+    subKey: 'v_classic_sub',
+    tagKey: 'v_tag_classic',
+    icon: 'v-icon-classic',
+    unlockStars: 0,
+    rankKey: 'r1',
+    len: 36,
+    beam: 9.0,
+    cap: 150,
+    maxV: 12.5,
+    accel: 0.62,
+    reverseAccel: 0.42,
+    rudderPower: 0.14,
+    yawDamp: 0.9,
+    twinTorque: 0.045,
+    swayFactor: 0.35,
+    circ: [[0, 5.0], [10, 4.4], [15.5, 2.4], [-11, 4.6], [-16, 2.6]],
+    funnelPos: [0, 12.6, -3.5],
+    bridgeCamPos: [0, 7.9, 8.6],
+    statSpeed: '12.5 kn',
+    statPax: '150',
+    statHelmKey: 'v_helm_balanced',
+  },
+  launch: {
+    id: 'launch',
+    nameKey: 'v_launch_name',
+    subKey: 'v_launch_sub',
+    tagKey: 'v_tag_launch',
+    icon: 'v-icon-launch',
+    unlockStars: 6,
+    rankKey: 'r3',
+    len: 19,
+    beam: 5.4,
+    cap: 45,
+    maxV: 16.5,
+    accel: 0.92,
+    reverseAccel: 0.60,
+    rudderPower: 0.22,
+    yawDamp: 1.6,
+    twinTorque: 0.075,
+    swayFactor: 0.45,
+    circ: [[0, 2.7], [5.5, 2.4], [8.5, 1.4], [-5.5, 2.5], [-8.5, 1.5]],
+    funnelPos: [0, 4.2, -4.5],
+    bridgeCamPos: [0, 3.4, 2.8],
+    statSpeed: '16.5 kn',
+    statPax: '45',
+    statHelmKey: 'v_helm_twitchy',
+  },
+  car: {
+    id: 'car',
+    nameKey: 'v_car_name',
+    subKey: 'v_car_sub',
+    tagKey: 'v_tag_car',
+    icon: 'v-icon-car',
+    unlockStars: 14,
+    rankKey: 'r7',
+    len: 48,
+    beam: 14.0,
+    cap: 260,
+    maxV: 10.2,
+    accel: 0.42,
+    reverseAccel: 0.30,
+    rudderPower: 0.09,
+    yawDamp: 0.6,
+    twinTorque: 0.032,
+    swayFactor: 0.30,
+    circ: [[0, 7.0], [12, 6.8], [21, 5.0], [-12, 6.8], [-21, 5.0]],
+    funnelPos: [4.8, 11.2, 0],
+    bridgeCamPos: [0, 11.2, 0],
+    statSpeed: '10.2 kn',
+    statPax: '260',
+    statHelmKey: 'v_helm_heavy',
+  },
+};
+const FERRY = Object.assign({}, VESSEL_CLASSES.classic);
+let HULL_C = VESSEL_CLASSES.classic.circ.map(p => [...p]);
 const TS = 12;                 // game seconds per real second (12: a 5-minute shift is one game hour)
 const DWELL = 22;              // scheduled dwell per stop (real seconds)
 function endlessShift(n) {     // endless shift n (1-based): random route, growing difficulty
@@ -1664,7 +2129,31 @@ function endlessShift(n) {     // endless shift n (1-based): random route, growi
 // ---------------------------------------------------------------- settings / save (all in try/catch)
 const KEY_SET = 'arena.vapur.settings', KEY_SAVE = 'arena.vapur.save';
 const isPhone = /Android|iPhone|iPad|iPod|Mobi/i.test(navigator.userAgent) || (matchMedia && matchMedia('(pointer:coarse)').matches && Math.min(screen.width, screen.height) < 800);
-const settings = { master: 0.8, music: 0.6, sfx: 0.8, mute: false, lang: (navigator.language || 'tr').toLowerCase().startsWith('tr') ? 'tr' : 'en', quality: isPhone ? 'low' : 'high' };
+const settings = { master: 0.8, music: 0.6, sfx: 0.8, mute: false, lang: (navigator.language || 'tr').toLowerCase().startsWith('tr') ? 'tr' : 'en', quality: isPhone ? 'low' : 'high', lowPower: 'auto', ghostDocking: true, announcements: true };
+const batteryState = { low: false, charging: false };
+if (typeof navigator !== 'undefined' && navigator.getBattery) {
+  navigator.getBattery().then(bat => {
+    function updateBat() {
+      batteryState.low = (bat.level <= 0.20);
+      batteryState.charging = !!bat.charging;
+      if (typeof applyQuality === 'function') applyQuality();
+    }
+    updateBat();
+    bat.addEventListener('levelchange', updateBat);
+    bat.addEventListener('chargingchange', updateBat);
+  }).catch(() => {});
+}
+function isAutoLowPower() {
+  const lowMem = (typeof navigator !== 'undefined' && navigator.deviceMemory && navigator.deviceMemory <= 2);
+  const lowBat = (batteryState.low && !batteryState.charging);
+  return !!(lowMem || lowBat);
+}
+function isLowPower() {
+  if (FLAG.low) return true;
+  if (settings.lowPower === 'on') return true;
+  if (settings.lowPower === 'off') return false;
+  return isAutoLowPower();
+}
 function setCompact(on) {
   document.body.classList.toggle('compact', on);
   const b = document.getElementById('bPanel'); if (b) b.classList.toggle('on', on);
@@ -1678,6 +2167,10 @@ function lsSet(k, v) { if (FLAG.nosave) return; try { localStorage.setItem(k, JS
   if (s && typeof s === 'object') for (const k of Object.keys(settings)) if (s[k] !== undefined) settings[k] = s[k];
   if (s && s.musicOn !== undefined) settings.musicOn = s.musicOn; if (s && s.sfxOn !== undefined) settings.sfxOn = s.sfxOn;
   if (s && s.mute !== undefined) settings.mute = s.mute; // restore saved mute state
+  if (s && s.ghostDocking !== undefined) settings.ghostDocking = s.ghostDocking;
+  else if (settings.ghostDocking === undefined) settings.ghostDocking = true;
+  if (s && s.announcements !== undefined) settings.announcements = s.announcements;
+  else if (settings.announcements === undefined) settings.announcements = true;
   LANG = (Q.get('lang') === 'en' || Q.get('lang') === 'tr') ? Q.get('lang') : settings.lang;   // URL override is not saved
 })();
 const saveSettings = () => lsSet(KEY_SET, settings);
@@ -1686,6 +2179,358 @@ const SAVED = lsGet(KEY_SAVE) || {};
 const best = Object.assign({ total: 0, stars: [0, 0, 0, 0, 0, 0, 0, 0], score: [0, 0, 0, 0, 0, 0, 0, 0], endless: 0, endlessPax: 0 }, SAVED.best || {});
 let runSave = SAVED.run || null;
 const writeSave = () => lsSet(KEY_SAVE, { best, run: runSave });
+
+// ---------------------------------------------------------------- Comfort Settings (bogaz-vapuru.comfort)
+const KEY_COMFORT = 'bogaz-vapuru.comfort';
+const comfortSettings = { reducedMotion: false, steerSens: 1.0 };
+(function loadComfort() {
+  const c = lsGet(KEY_COMFORT);
+  if (c && typeof c === 'object') {
+    if (typeof c.reducedMotion === 'boolean') comfortSettings.reducedMotion = c.reducedMotion;
+    if (typeof c.steerSens === 'number' && !isNaN(c.steerSens)) comfortSettings.steerSens = clamp(c.steerSens, 0.6, 1.4);
+  } else {
+    try {
+      if (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        comfortSettings.reducedMotion = true;
+      }
+    } catch (e) {}
+  }
+})();
+const saveComfort = () => lsSet(KEY_COMFORT, comfortSettings);
+
+// ---------------------------------------------------------------- Haptics & Pier Announcements
+function haptic(pattern) {
+  if (calm()) return;
+  try {
+    if (typeof navigator !== 'undefined' && navigator.vibrate) {
+      navigator.vibrate(pattern);
+    }
+  } catch (e) {}
+}
+
+function announcePier(pierId) {
+  if (typeof window === 'undefined' || !window.speechSynthesis) return;
+  if (!settings.announcements) return;
+  const vol = (settings.mute || !settings.sfxOn) ? 0 : clamp(settings.master * settings.sfx, 0, 1);
+  if (vol <= 0.01) return;
+  try {
+    window.speechSynthesis.cancel();
+    const text = t('announcement', pierName(pierId));
+    const utt = new SpeechSynthesisUtterance(text);
+    utt.lang = LANG === 'tr' ? 'tr-TR' : 'en-US';
+    utt.volume = vol;
+    utt.rate = 0.95;
+    utt.pitch = 1.0;
+    const voices = window.speechSynthesis.getVoices ? window.speechSynthesis.getVoices() : [];
+    if (voices && voices.length) {
+      const langPrefix = LANG === 'tr' ? 'tr' : 'en';
+      const match = voices.find(v => v.lang && v.lang.toLowerCase().startsWith(langPrefix));
+      if (match) utt.voice = match;
+    }
+    window.speechSynthesis.speak(utt);
+  } catch (e) {}
+}
+
+// ---------------------------------------------------------------- Daily Run (bogaz-vapuru.daily)
+const KEY_DAILY = 'bogaz-vapuru.daily';
+function getDailyData() {
+  return lsGet(KEY_DAILY) || { history: {}, allTimeBest: 0 };
+}
+function recordDailyScore(day, score) {
+  if (FLAG.nosave) return null;
+  const data = getDailyData();
+  data.history = data.history || {};
+  const prev = data.history[day] || 0;
+  if (score > prev) data.history[day] = score;
+  if (score > (data.allTimeBest || 0)) data.allTimeBest = score;
+  lsSet(KEY_DAILY, data);
+  return data;
+}
+function getTodayDailyBest(day) {
+  const data = getDailyData();
+  return (data.history && data.history[day]) || 0;
+}
+function formatShareDate(dayKey) {
+  const y = Math.floor(dayKey / 10000);
+  const m = String(Math.floor(dayKey / 100) % 100).padStart(2, '0');
+  const d = String(dayKey % 100).padStart(2, '0');
+  return y + '-' + m + '-' + d;
+}
+function shareDaily(day, score, streak) {
+  const dateStr = formatShareDate(day);
+  const url = 'https://furkiozknn.github.io/bogaz-vapuru/?d=' + day;
+  const lines = [
+    t('shareDailyHead', dateStr),
+    t('shareDailyScore', score),
+    streak > 1 ? t('shareDailyStreak', streak) : '',
+  ].filter(Boolean);
+  if (window.Arena && Arena.share) {
+    Arena.share({
+      title: 'Boğaz Vapuru · ' + t('dailyTitle'),
+      lines,
+      url,
+    });
+  } else {
+    const fullText = ['Boğaz Vapuru · ' + t('dailyTitle'), ...lines, url].join('\n');
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(fullText).then(() => toast(t('copied') || 'Kopyalandı / Copied', 'good'));
+    }
+  }
+}
+
+// ---------------------------------------------------------------- Ghost Docking (bogaz-vapuru.ghosts)
+const KEY_GHOST = 'bogaz-vapuru.ghosts';
+let GHOSTS = lsGet(KEY_GHOST) || {};
+const saveGhosts = () => { if (!FLAG.nosave) lsSet(KEY_GHOST, GHOSTS); };
+const GHOST_SAMPLE_INTERVAL = 0.133;
+let ghostRecordTimer = 0;
+const approachRec = [];
+const GHOST_STATE = { active: false, time: 0, pierId: null };
+
+function getGhostSample(frames, t) {
+  if (!frames || !frames.length) return null;
+  if (t <= frames[0].dt) return frames[0];
+  if (t >= frames[frames.length - 1].dt) return frames[frames.length - 1];
+  let lo = 0, hi = frames.length - 1;
+  while (lo <= hi) {
+    const mid = (lo + hi) >> 1;
+    if (frames[mid].dt < t) lo = mid + 1;
+    else hi = mid - 1;
+  }
+  const i0 = Math.max(0, lo - 1);
+  const i1 = Math.min(frames.length - 1, lo);
+  if (i0 === i1) return frames[i0];
+  const f0 = frames[i0], f1 = frames[i1];
+  const span = f1.dt - f0.dt || 0.001;
+  const a = clamp((t - f0.dt) / span, 0, 1);
+  return {
+    x: lerp(f0.x, f1.x, a),
+    z: lerp(f0.z, f1.z, a),
+    hd: wrapAng(f0.hd + wrapAng(f1.hd - f0.hd) * a),
+    heel: lerp(f0.heel || 0, f1.heel || 0, a),
+  };
+}
+
+function recordGhostApproach(P, dq, db) {
+  if (FLAG.nosave || !P || approachRec.length < 15) return;
+  const score = Math.round(dq * 1000 + db * 10);
+  const cur = GHOSTS[P.id];
+  if (cur && cur.score >= score) return;
+
+  const tEnd = SIM.t;
+  const tStart = approachRec[0].t;
+  const dur = Math.max(1, +(tEnd - tStart).toFixed(2));
+  const frames = approachRec.map(f => ({
+    dt: +(f.t - tStart).toFixed(2),
+    x: +(f.x).toFixed(1),
+    z: +(f.z).toFixed(1),
+    hd: +(f.hd).toFixed(3),
+    heel: +(f.heel).toFixed(3),
+  }));
+
+  GHOSTS[P.id] = {
+    pierId: P.id,
+    score,
+    dq: +dq.toFixed(2),
+    db,
+    dur,
+    vessel: selectedVesselId,
+    frames: frames.slice(-300),
+  };
+  saveGhosts();
+  if (dq >= 0.7) {
+    toast(t('toastNewGhost', pierName(P.id)), 'good', 3000);
+  }
+}
+
+function stepGhost(dt) {
+  if (G.state !== 'play' || SIM.docked) {
+    if (SIM.docked) approachRec.length = 0;
+    return;
+  }
+  ghostRecordTimer += dt;
+  if (ghostRecordTimer >= GHOST_SAMPLE_INTERVAL) {
+    ghostRecordTimer = 0;
+    approachRec.push({
+      t: SIM.t,
+      x: +(player.x).toFixed(1),
+      z: +(player.z).toFixed(1),
+      hd: +(player.hd).toFixed(3),
+      heel: +(player.heel).toFixed(3),
+    });
+    while (approachRec.length > 300 || (approachRec.length && approachRec[0].t < SIM.t - 40)) {
+      approachRec.shift();
+    }
+  }
+}
+
+function syncGhostRender(dt) {
+  if (!OBJ.ghostBody) return;
+  if (G.state !== 'play' || SIM.docked || !settings.ghostDocking) {
+    OBJ.ghostBody.visible = false;
+    if (OBJ.ghostWin) OBJ.ghostWin.visible = false;
+    GHOST_STATE.active = false;
+    return;
+  }
+  const ns = nextStop();
+  if (!ns) {
+    OBJ.ghostBody.visible = false;
+    if (OBJ.ghostWin) OBJ.ghostWin.visible = false;
+    GHOST_STATE.active = false;
+    return;
+  }
+  const ghost = GHOSTS[ns.id];
+  if (!ghost || !ghost.frames || ghost.frames.length < 2) {
+    OBJ.ghostBody.visible = false;
+    if (OBJ.ghostWin) OBJ.ghostWin.visible = false;
+    GHOST_STATE.active = false;
+    return;
+  }
+  const P = PIERS[ns.id];
+  const dBerth = hyp(P.bx - player.x, P.bz - player.z);
+  const startF = ghost.frames[0];
+  const ghostStartDist = hyp(P.bx - startF.x, P.bz - startF.z);
+  const triggerDist = Math.max(80, Math.min(180, ghostStartDist + 15));
+
+  if (dBerth > triggerDist + 50) {
+    GHOST_STATE.active = false;
+    GHOST_STATE.time = 0;
+    OBJ.ghostBody.visible = false;
+    if (OBJ.ghostWin) OBJ.ghostWin.visible = false;
+    return;
+  }
+
+  if (dBerth <= triggerDist) {
+    if (!GHOST_STATE.active || GHOST_STATE.pierId !== ns.id) {
+      GHOST_STATE.active = true;
+      GHOST_STATE.time = 0;
+      GHOST_STATE.pierId = ns.id;
+    }
+  }
+
+  if (GHOST_STATE.active) {
+    GHOST_STATE.time += dt * (SIM.ff || 1);
+    const sample = getGhostSample(ghost.frames, GHOST_STATE.time);
+    if (sample) {
+      ferryMatrix(sample.x, sample.z, sample.hd, sample.heel, 0, _mat);
+      OBJ.ghostBody.matrix.copy(_mat);
+      if (OBJ.ghostWin) OBJ.ghostWin.matrix.copy(_mat);
+      OBJ.ghostBody.visible = true;
+      if (OBJ.ghostWin) OBJ.ghostWin.visible = true;
+    }
+  }
+}
+
+// ---------------------------------------------------------------- Vessel Storage & Star Rank Unlocks (bogaz-vapuru.vessel)
+const KEY_VESSEL = 'bogaz-vapuru.vessel';
+let selectedVesselId = 'classic';
+
+const STAR_RANKS = [
+  { level: 1, minStars: 0,  titleKey: 'r1' },
+  { level: 2, minStars: 3,  titleKey: 'r2' },
+  { level: 3, minStars: 6,  titleKey: 'r3' },
+  { level: 4, minStars: 8,  titleKey: 'r4' },
+  { level: 5, minStars: 10, titleKey: 'r5' },
+  { level: 6, minStars: 12, titleKey: 'r6' },
+  { level: 7, minStars: 14, titleKey: 'r7' },
+  { level: 8, minStars: 20, titleKey: 'r8' },
+];
+
+function getTotalStars() {
+  return (best.stars || []).reduce((a, b) => a + (Number(b) || 0), 0);
+}
+
+function getStarCaptainRank(stars = getTotalStars()) {
+  let cur = STAR_RANKS[0];
+  for (let i = 0; i < STAR_RANKS.length; i++) {
+    if (stars >= STAR_RANKS[i].minStars) cur = STAR_RANKS[i];
+    else break;
+  }
+  return cur;
+}
+
+function isVesselUnlocked(id) {
+  const v = VESSEL_CLASSES[id];
+  if (!v) return false;
+  return getTotalStars() >= v.unlockStars;
+}
+
+function updateDeckSlots(vesselId) {
+  OBJ.deckSlots = [];
+  if (vesselId === 'launch') {
+    for (let z = -6; z <= 4; z += 2.0) for (const x of [-1.5, 1.5]) OBJ.deckSlots.push([x, 1.4, z]);
+    for (let z = -7; z <= 2; z += 2.2) OBJ.deckSlots.push([0, 1.4, z]);
+  } else if (vesselId === 'car') {
+    for (let z = -18; z <= 18; z += 2.5) for (const x of [-5.2, 5.2]) OBJ.deckSlots.push([x, 7.2, z]);
+    for (let z = -16; z <= 16; z += 2.8) for (const x of [-2.4, 2.4]) OBJ.deckSlots.push([x, 2.4, z]);
+  } else {
+    // classic
+    for (let z = -11; z <= 9; z += 2.6) for (const x of [-3.3, 3.3]) OBJ.deckSlots.push([x, 2.9, z]);
+    for (let z = -8; z <= 4; z += 2.6) for (const x of [-2.4, 2.4]) OBJ.deckSlots.push([x, 5.8, z]);
+    for (let z = -13; z <= 11; z += 3) OBJ.deckSlots.push([0, 2.9, z]);
+  }
+}
+
+function applyVessel(id) {
+  const v = VESSEL_CLASSES[id] || VESSEL_CLASSES.classic;
+  selectedVesselId = v.id;
+  Object.assign(FERRY, v);
+  HULL_C = v.circ.map(p => [...p]);
+
+  // Update pier berth targets for changed beam
+  if (typeof PIERS !== 'undefined') {
+    for (const pid in PIERS) {
+      const P = PIERS[pid];
+      if (P && P.ex !== undefined) {
+        P.bx = P.ex + P.nx * (FERRY.beam / 2 + 1.2);
+        P.bz = P.ez + P.nz * (FERRY.beam / 2 + 1.2);
+      }
+    }
+  }
+
+  // Update berth marker geometry if created
+  if (OBJ.berth && typeof THREE !== 'undefined') {
+    OBJ.berth.geometry.dispose();
+    OBJ.berth.geometry = new THREE.PlaneGeometry(FERRY.beam + 6, FERRY.len + 6).rotateX(-Math.PI / 2);
+  }
+
+  // Update passenger deck slots
+  updateDeckSlots(v.id);
+
+  // Update 3D player and ghost mesh geometries if created
+  if (OBJ.playerBody && v.geo) {
+    OBJ.playerBody.geometry = v.geo.body;
+    OBJ.playerWin.geometry = v.geo.win;
+    OBJ.playerNav.geometry = v.geo.nav;
+    if (OBJ.ghostBody) OBJ.ghostBody.geometry = v.geo.body;
+    if (OBJ.ghostWin) OBJ.ghostWin.geometry = v.geo.win;
+  }
+}
+
+function loadSelectedVessel() {
+  const saved = lsGet(KEY_VESSEL);
+  if (saved && VESSEL_CLASSES[saved] && isVesselUnlocked(saved)) {
+    selectedVesselId = saved;
+  } else {
+    selectedVesselId = 'classic';
+  }
+  applyVessel(selectedVesselId);
+}
+
+function selectVessel(id) {
+  if (!VESSEL_CLASSES[id]) return;
+  if (!isVesselUnlocked(id)) {
+    const v = VESSEL_CLASSES[id];
+    toast(t('vesselLockedToast', t(v.rankKey), v.unlockStars), 'bad');
+    AUD.bad();
+    return;
+  }
+  selectedVesselId = id;
+  lsSet(KEY_VESSEL, id);
+  applyVessel(id);
+  AUD.click();
+  renderVesselSelect();
+}
 
 // ---------------------------------------------------------------- Captain Rank & Date-Seeded Missions (bogaz-vapuru.missions)
 const KEY_MISSIONS = 'bogaz-vapuru.missions';
@@ -2170,6 +3015,8 @@ const AUD = (() => {
     hornAt(pan, vol, f, dur) { if (!ctx) return; const t0 = ctx.currentTime, out = panBus(pan); tone(out, 'sawtooth', f, f * 0.97, t0, dur, vol, 800); tone(out, 'sawtooth', f * 1.26, f * 1.22, t0, dur, vol * 0.7, 800); },
     bell() { if (!ctx) return; if (smp(['bell'])) return; const t0 = ctx.currentTime; for (let k = 0; k < 3; k++) { const d = t0 + k * 0.42; tone(sfxBus, 'sine', 1320, 1310, d, 0.9, 0.16); tone(sfxBus, 'sine', 1980, 1960, d, 0.5, 0.07); tone(sfxBus, 'triangle', 660, 655, d, 0.7, 0.05); noise(sfxBus, d, 0.03, 0.1, 4000, 1); } },
     gull() { if (!ctx) return; const t0 = ctx.currentTime; const n = 1 + (Math.random() * 3 | 0); for (let k = 0; k < n; k++) { const d = t0 + k * 0.16, f = 1500 + Math.random() * 400; tone(sfxBus, 'sawtooth', f, f * 1.5, d, 0.09, 0.04, 2600); tone(sfxBus, 'sawtooth', f * 1.5, f * 0.9, d + 0.08, 0.1, 0.03, 2600); } },
+    teaClink() { if (!ctx) return; const t0 = ctx.currentTime; tone(sfxBus, 'sine', 2850, 2800, t0, 0.18, 0.06); tone(sfxBus, 'sine', 4200, 4150, t0 + 0.04, 0.15, 0.04); },
+    teaSpill() { if (!ctx) return; const t0 = ctx.currentTime; tone(sfxBus, 'sine', 1800, 900, t0, 0.15, 0.08); noise(sfxBus, t0 + 0.02, 0.22, 0.15, 2200, 1.2); },
     bump(v = 1) { if (!ctx) return; const t0 = ctx.currentTime; if (!smp(['bump'], v)) { tone(sfxBus, 'sine', 90, 35, t0, 0.35, 0.5 * v); noise(sfxBus, t0, 0.25, 0.3 * v, 500, 0.6); } tone(sfxBus, 'triangle', 180, 60, t0 + 0.02, 0.4, 0.15 * v); },
     crash(v = 1) { if (!ctx) return; const t0 = ctx.currentTime; if (!smp(['crash'], v)) { tone(sfxBus, 'sine', 100, 30, t0, 0.5, 0.6 * v); noise(sfxBus, t0, 0.5, 0.5 * v, 1400, 0.4); } noise(sfxBus, t0 + 0.05, 0.4, 0.3 * v, 4000, 0.7); },
     rope() { if (!ctx) return; const t0 = ctx.currentTime; noise(sfxBus, t0, 0.12, 0.25, 1200, 1.2); tone(sfxBus, 'sine', 300, 120, t0 + 0.1, 0.18, 0.18); noise(sfxBus, t0 + 0.3, 0.1, 0.2, 1500, 1.2); tone(sfxBus, 'sine', 280, 110, t0 + 0.4, 0.18, 0.16); },
@@ -2658,20 +3505,40 @@ const SIM = {
   t: 0, hour: 15, shift: null, stops: [], stopIdx: 0, cur: 0.3, wind: { x: 0, z: 0, a: 0, dir: 0, gust: 0 }, fog: 0, storm: 0, rain: 0, swell: 0, night: 0, dusk: 0,
   traffic: [], aboard: {}, aboardN: 0, delivered: 0, lost: 0, comfort: 100, punct: [], score: 0, target: 1000, potential: 0,
   docked: null, dockT: 0, dockOk: 0, boardQ: [], boardT: 0, boardDone: false, offN: 0, onN: 0, ropes: false, depAllowed: false, leaveToast: false, lateToast: false, wrongT: 0,
-  walkers: [], heelT: 0, lastThrSign: 0, bumpCd: 0, toasted: {}, thunderT: 0, hornT: 0, ended: false, lostT: 0, gullT: 4,
+  walkers: [], heelT: 0, lastThrSign: 0, bumpCd: 0, toasted: {}, thunderT: 0, hornT: 0, ended: false, lostT: 0, gullT: 4, ropeTension: 0, warp: false,
 };
-const player = { x: 0, z: 0, hd: 0, u: 0, v: 0, r: 0, thr: 0, rud: 0, hull: 0, vx: 0, vz: 0, speed: 0, heel: 0, pitch: 0, wakeT: 0, smokeT: 0, horn: false };
+const player = { x: 0, z: 0, hd: 0, u: 0, v: 0, r: 0, thr: 0, thrP: 0, thrS: 0, gearDirP: 0, gearDirS: 0, gearPauseP: 0, gearPauseS: 0, rpmP: 0, rpmS: 0, tempP: 60, tempS: 60, overheatP: false, overheatS: false, rud: 0, hull: 0, vx: 0, vz: 0, speed: 0, heel: 0, pitch: 0, wakeT: 0, smokeT: 0, horn: false };
+let lastPlayerX = 0, lastPlayerZ = 0;
 const input = {
   thrP: 0, thrS: 0, rudder: 0, horn: false,   // port / starboard engine telegraphs -1..1; rudder > 0 turns to port
   get throttle() { return (this.thrP + this.thrS) / 2; },
   set throttle(v) { this.thrP = this.thrS = v; },
 };
 const _v = { x: 0, z: 0 };
-/** current vector at a point: along the channel, towards Marmara (+z), strongest in the middle */
+/** current vector at a point: Bosphorus profile with strong southward surface flow mid-strait,
+ *  fastest around promontories (Akıntıburnu, Kanlıca), and weaker northward counter-currents (orkoz) near shores */
 function currentAt(x, z, out) {
   const c = chanCenter(z), h = chanHalf(z), u = clamp(Math.abs(x - c) / h, 0, 1);
   const horn = x < -130 && depth(x, z) > 0 && (hornHalf(x) - Math.abs(z - hornZ(x))) > 0 && (h - Math.abs(x - c)) < 30;   // inside the Golden Horn: still water
-  let mag = SIM.cur * 2.2 * (0.3 + 0.7 * (1 - u * u)) * (1 - sstep(700, 1100, z)) * (1 - sstep(-1000, -1400, z));
+
+  // Bosphorus cross-strait profile: main southward flow mid-strait, weaker counter-current (anafor/orkoz) near shores
+  let prof;
+  if (u < 0.68) {
+    prof = Math.cos((u / 0.68) * (Math.PI / 2));
+  } else {
+    const q = (u - 0.68) / 0.32;
+    prof = -0.28 * Math.sin(q * Math.PI) * clamp(depth(x, z) / 16, 0, 1);
+  }
+
+  // Point acceleration: Akıntıburnu (west shore, z ≈ -520) and Kanlıca Point (east shore, z ≈ -820)
+  const dAkinti = hyp(x - (chanCenter(-520) - chanHalf(-520) * 0.70), z - (-520));
+  const boostAkinti = 0.70 * Math.exp(-(dAkinti * dAkinti) / (2 * 115 * 115));
+  const dKanlica = hyp(x - (chanCenter(-820) + chanHalf(-820) * 0.68), z - (-820));
+  const boostKanlica = 0.65 * Math.exp(-(dKanlica * dKanlica) / (2 * 115 * 115));
+  const pointBoost = boostAkinti + boostKanlica;
+  const speedFactor = prof > 0 ? (prof * (1 + pointBoost * 1.15)) : prof;
+
+  let mag = SIM.cur * 2.2 * speedFactor * (1 - sstep(700, 1100, z)) * (1 - sstep(-1000, -1400, z));
   if (horn) mag = 0;
   const dz = 1, dx = (chanCenter(z + 10) - chanCenter(z - 10)) / 20, l = hyp(dx, dz);
   out.x = mag * dx / l; out.z = mag * dz / l; return out;
@@ -2705,8 +3572,14 @@ function startShiftSim(sh) {
   SIM.shift = sh; SIM.t = 0; SIM.hour = sh.hour; SIM.cur = sh.current; SIM.fog = sh.fog; SIM.storm = sh.storm; SIM.rain = 0; SIM.swell = sh.storm ? 1 : 0.2;
   SIM.wind.a = sh.wind; SIM.wind.dir = rr(0, TAU); SIM.wind.gust = 0;
   SIM.aboard = {}; SIM.aboardN = 0; SIM.delivered = 0; SIM.lost = 0; SIM.comfort = 100; SIM.punct = []; SIM.score = 0; SIM.stopIdx = 1;
-  SIM.docked = null; SIM.dockT = 0; SIM.dockOk = 0; SIM.boardQ = []; SIM.boardDone = false; SIM.ropes = false; SIM.depAllowed = false; SIM.walkers = []; SIM.toasted = {}; SIM.ended = false; SIM.dockBonus = 0; SIM.fogRun = false; SIM.fogBonus = 0;
-  SIM.lastThrSign = 0; SIM.bumpCd = 0; SIM.heelT = 0; SIM.hornT = 0; SIM.lostT = 0; SIM.wrongT = 0; SIM.thunderT = 20;
+  SIM.docked = null; SIM.dockT = 0; SIM.dockOk = 0; SIM.boardQ = []; SIM.boardDone = false; SIM.ropes = false; SIM.depAllowed = false; SIM.walkers = []; SIM.toasted = {}; SIM.ended = false; SIM.dockBonus = 0; SIM.fogRun = false; SIM.fogBonus = 0; SIM.ropeTension = 0; SIM.warp = false; SIM.degradedToast = false; SIM.announcedStop = -1; SIM.underBridge = false; SIM.bridgeGust = null;
+  approachRec.length = 0; GHOST_STATE.active = false; GHOST_STATE.time = 0; GHOST_STATE.pierId = null;
+  if (el.bWarp) el.bWarp.classList.remove('on'); if (el.warpBadge) el.warpBadge.classList.remove('show');
+  SIM.deckLife = {
+    simitActive: false, simitTimer: 18 + rr(6, 12), simitTime: 0, simitDur: 14, simitBonusAcc: 0, gullSfxT: 0,
+    teaActive: false, teaTimer: 32 + rr(8, 16), teaTime: 0, teaDur: 16, teaSpilled: false, teaBonusAcc: 0, teaClinkT: 0,
+  };
+  SIM.lastThrSign = 0; SIM.bumpCd = 0; SIM.heelT = 0; SIM.hornT = 0; SIM.lostT = 0; SIM.wrongT = 0; SIM.thunderT = 20; lastPlayerX = 0; lastPlayerZ = 0;
   for (const id of Object.keys(PIERS)) { const P = PIERS[id]; P.wait = 0; P.wait0 = 0; P.cap = 90; P.lostToast = false; }
   planShift(sh);
   // initial queues: every stop on the route that is not the first one
@@ -2716,7 +3589,10 @@ function startShiftSim(sh) {
   const P0 = PIERS[SIM.stops[0].id], P1 = PIERS[(SIM.stops[1] || SIM.stops[0]).id];
   player.x = P0.bx; player.z = P0.bz;
   player.hd = ((P1.bx - P0.bx) * P0.tx + (P1.bz - P0.bz) * P0.tz) >= 0 ? P0.hd : wrapAng(P0.hd + Math.PI);   // moored facing the next pier
-  player.u = player.v = player.r = player.thr = player.thrP = player.thrS = player.rud = 0; player.hull = 0; player.vx = player.vz = 0; player.heel = 0;
+  player.u = player.v = player.r = player.thr = player.thrP = player.thrS = player.rud = 0;
+  player.gearDirP = player.gearDirS = player.gearPauseP = player.gearPauseS = player.rpmP = player.rpmS = 0;
+  player.tempP = player.tempS = 60; player.overheatP = player.overheatS = false;
+  player.hull = 0; player.vx = player.vz = 0; player.heel = 0;
   input.throttle = 0; input.rudder = 0;
   P0.wait = Math.round(14 + sh.pax * 22);
   SIM.stopIdx = 0; dockAt(P0, 0, true);
@@ -2731,17 +3607,26 @@ function destFor(fromIdx) {   // destination stop index for a passenger boarding
 }
 function dockAt(P, idx, initial = false) {
   const s = SIM.stops[idx];
+  if (typeof setWarp === 'function' && SIM.warp) setWarp(false, true);
   SIM.docked = P; SIM.dockT = 0; SIM.ropes = true; SIM.boardDone = false; SIM.depAllowed = false; SIM.leaveToast = false; SIM.boardQ = []; SIM.boardT = 0; SIM.offN = 0; SIM.onN = 0;
-  player.u = player.v = player.r = 0; player.thr = player.thrP = player.thrS = 0; input.throttle = 0;
+  player.u = player.v = player.r = 0; player.thr = player.thrP = player.thrS = 0;
+  player.gearDirP = player.gearDirS = player.gearPauseP = player.gearPauseS = player.rpmP = player.rpmS = 0;
+  player.overheatP = player.overheatS = false;
+  player.tempP = Math.min(player.tempP || 60, 75); player.tempS = Math.min(player.tempS || 60, 75);
+  input.throttle = 0;
   // snap alongside
   player.x = P.bx; player.z = P.bz;
   const a = wrapAng(player.hd - P.hd); player.hd = Math.abs(a) < Math.PI / 2 ? P.hd : P.hd + Math.PI;
   if (!initial) {
     const dq = clamp(1 - DOCK.spd / 1.2, 0, 1) * 0.6 + clamp(1 - Math.abs(DOCK.ang) / 0.36, 0, 1) * 0.4, db = Math.round(dq * 30);
     SIM.dockBonus = (SIM.dockBonus || 0) + db; if (db > 0) { floater('+' + db, false); toast(t(dq > 0.8 ? 'toastDockPro' : 'toastDockOk', db), dq > 0.8 ? 'good' : 'info'); }
-    if (dq > 0.8) recordMissionProgress('master_docks', 1);
+    if (dq > 0.8) {
+      recordMissionProgress('master_docks', 1);
+      haptic([90, 60, 90]); // double pulse on a masterful docking
+    }
     recordMissionProgress('docks', 1);
     if (SIM.fogRun) { const fb = fogDockBonus(dq); SIM.dockBonus += fb; SIM.fogBonus += fb; FOG.docks++; toast(t('toastFogDock', fb), 'good'); }
+    recordGhostApproach(P, dq, db);
     s.late = Math.max(0, SIM.t - s.arr); s.punct = s.late <= 20 ? SCORE_K.punct : Math.max(0, SCORE_K.punct - (s.late - 20) * 1.0); s.done = true;
     SIM.punct.push(s.punct);
     AUD.bell(); AUD.rope();
@@ -2761,7 +3646,9 @@ function dockAt(P, idx, initial = false) {
   if (off) { SIM.score += off * SCORE_K.pax; floater('+' + off * SCORE_K.pax, false); }
 }
 function undock() {
-  SIM.docked = null; SIM.ropes = false; SIM.dockOk = 0;
+  if (typeof window !== 'undefined' && window.speechSynthesis) window.speechSynthesis.cancel();
+  SIM.docked = null; SIM.ropes = false; SIM.dockOk = 0; SIM.ropeTension = 0;
+  approachRec.length = 0; GHOST_STATE.active = false; GHOST_STATE.time = 0; GHOST_STATE.pierId = null;
   const s = SIM.stops[SIM.stopIdx]; if (s) { s.left = true; }
   SIM.stopIdx++;
   CAM.userDockOverride = false;
@@ -2808,28 +3695,110 @@ function stepPiers(dt) {
   }
 }
 // ---------------------------------------------------------------- the ferry
-const HULL_C = [[0, 5.0], [10, 4.4], [15.5, 2.4], [-11, 4.6], [-16, 2.6]];   // collision circles: [along, radius] (hull half-width at each station)
 function circleAt(k, out) { const [a, r] = HULL_C[k]; out.x = player.x + Math.sin(player.hd) * a; out.z = player.z + Math.cos(player.hd) * a; out.r = r; return out; }
 const _c1 = { x: 0, z: 0, r: 0 }, _g = { x: 0, z: 0 };
 function stepFerry(dt) {
   const P = player;
-  // telegraph and rudder respond with lag
-  P.thrP = (P.thrP || 0) + clamp(input.thrP - (P.thrP || 0), -0.7 * dt, 0.7 * dt);
-  P.thrS = (P.thrS || 0) + clamp(input.thrS - (P.thrS || 0), -0.7 * dt, 0.7 * dt);
-  P.thr = (P.thrP + P.thrS) / 2;
+  // telegraph response with short gear-change pause (0.75s) when reversing direction across neutral
+  const reqP = input.thrP > 0.05 ? 1 : (input.thrP < -0.05 ? -1 : 0);
+  if (reqP !== 0 && P.gearDirP !== 0 && reqP !== P.gearDirP) {
+    P.gearPauseP = 0.75;
+    P.gearDirP = reqP;
+  } else if (reqP !== 0 && P.gearDirP === 0) {
+    P.gearDirP = reqP;
+  } else if (reqP === 0 && Math.abs(P.thrP || 0) < 0.04) {
+    P.gearDirP = 0;
+  }
+
+  const reqS = input.thrS > 0.05 ? 1 : (input.thrS < -0.05 ? -1 : 0);
+  if (reqS !== 0 && P.gearDirS !== 0 && reqS !== P.gearDirS) {
+    P.gearPauseS = 0.75;
+    P.gearDirS = reqS;
+  } else if (reqS !== 0 && P.gearDirS === 0) {
+    P.gearDirS = reqS;
+  } else if (reqS === 0 && Math.abs(P.thrS || 0) < 0.04) {
+    P.gearDirS = 0;
+  }
+
+  // Degraded state: speed limit & slower engine response when damaged (until hull reaches 100%)
+  const hullPct = clamp(P.hull / 100, 0, 1);
+  const degradedSpd = P.hull > 0 ? clamp(1.0 - 0.40 * hullPct, 0.60, 0.88) : 1.0;
+  const degradedResp = P.hull > 0 ? clamp(1.0 - 0.50 * hullPct, 0.45, 0.85) : 1.0;
+  const degradedAccel = P.hull > 0 ? clamp(1.0 - 0.35 * hullPct, 0.65, 0.90) : 1.0;
+  const slewP = 0.7 * degradedResp * dt;
+  const slewS = 0.7 * degradedResp * dt;
+
+  if (P.gearPauseP > 0) {
+    P.gearPauseP -= dt;
+    P.thrP = (P.thrP || 0) + clamp(0 - (P.thrP || 0), -1.8 * dt, 1.8 * dt);
+  } else {
+    P.thrP = (P.thrP || 0) + clamp(input.thrP - (P.thrP || 0), -slewP, slewP);
+  }
+
+  if (P.gearPauseS > 0) {
+    P.gearPauseS -= dt;
+    P.thrS = (P.thrS || 0) + clamp(0 - (P.thrS || 0), -1.8 * dt, 1.8 * dt);
+  } else {
+    P.thrS = (P.thrS || 0) + clamp(input.thrS - (P.thrS || 0), -slewS, slewS);
+  }
+
+  // Engine thermal simulation & overheating per engine
+  const absThrP = Math.abs(P.thrP || 0);
+  const tgtTempP = 60 + 55 * Math.pow(absThrP, 2.2);
+  const dTempP = (tgtTempP > (P.tempP || 60) ? (P.overheatP ? 0.5 : 1.0) * (tgtTempP - P.tempP) * 0.045 : (tgtTempP - P.tempP) * 0.08) * dt;
+  P.tempP = clamp((P.tempP || 60) + dTempP, 60, 115);
+
+  if (P.tempP >= 100 && !P.overheatP) {
+    P.overheatP = true;
+    toast(t('overheatP'), 'bad');
+    AUD.bad();
+    haptic([60, 40, 60]);
+  } else if (P.overheatP && P.tempP <= 82) {
+    P.overheatP = false;
+    toast(t('coolP'), 'good');
+    AUD.good();
+  }
+
+  const absThrS = Math.abs(P.thrS || 0);
+  const tgtTempS = 60 + 55 * Math.pow(absThrS, 2.2);
+  const dTempS = (tgtTempS > (P.tempS || 60) ? (P.overheatS ? 0.5 : 1.0) * (tgtTempS - P.tempS) * 0.045 : (tgtTempS - P.tempS) * 0.08) * dt;
+  P.tempS = clamp((P.tempS || 60) + dTempS, 60, 115);
+
+  if (P.tempS >= 100 && !P.overheatS) {
+    P.overheatS = true;
+    toast(t('overheatS'), 'bad');
+    AUD.bad();
+    haptic([60, 40, 60]);
+  } else if (P.overheatS && P.tempS <= 82) {
+    P.overheatS = false;
+    toast(t('coolS'), 'good');
+    AUD.good();
+  }
+
+  // Overheating forces reduced power (max 50% power) until cooled
+  const maxPowP = P.overheatP ? 0.50 : 1.0;
+  const maxPowS = P.overheatS ? 0.50 : 1.0;
+  const effThrP = clamp(P.thrP || 0, -maxPowP, maxPowP);
+  const effThrS = clamp(P.thrS || 0, -maxPowS, maxPowS);
+
+  P.thr = (effThrP + effThrS) / 2;
   P.rud += clamp(input.rudder - P.rud, -1.6 * dt, 1.6 * dt);
+
+  // per-engine RPM readouts (max ~380 RPM; drops with reduced power)
+  P.rpmP = (P.gearPauseP > 0 || Math.abs(effThrP) < 0.03) ? 0 : Math.round(Math.abs(effThrP) * 380);
+  P.rpmS = (P.gearPauseS > 0 || Math.abs(effThrS) < 0.03) ? 0 : Math.round(Math.abs(effThrS) * 380);
   if (SIM.docked) { P.u = P.v = P.r = 0; P.vx = P.vz = 0; P.speed = 0; P.heel *= 0.95; return; }
-  const maxV = FERRY.maxV, k = 0.62 / (maxV * maxV);
-  const thrust = P.thr > 0 ? P.thr * 0.62 : P.thr * 0.42;
+  const maxV = FERRY.maxV * degradedSpd, k = (FERRY.accel || 0.62) / (maxV * maxV);
+  const thrust = (P.thr > 0 ? P.thr * (FERRY.accel || 0.62) : P.thr * (FERRY.reverseAccel || 0.42)) * degradedAccel;
   const load = 1 - 0.1 * SIM.aboardN / FERRY.cap;
   const du = (thrust * load - k * P.u * Math.abs(P.u) - 0.02 * P.u) * dt;
   P.u += du;
   // yaw: rudder works with the water flow over it (speed or prop wash); astern reverses it
   const flow = Math.max(Math.abs(P.u), Math.abs(P.thr) * 6) * Math.sign(P.u || P.thr || 1);
-  const rT = P.rud * 0.14 * clamp(flow / 6, -1, 1) * (SIM.storm ? 0.9 : 1) + (P.thrS - P.thrP) * 0.045;
-  P.r += (rT - P.r) * Math.min(1, 0.9 * dt);
+  const rT = P.rud * (FERRY.rudderPower || 0.14) * clamp(flow / 6, -1, 1) * (SIM.storm ? 0.9 : 1) + (effThrS - effThrP) * (FERRY.twinTorque || 0.045);
+  P.r += (rT - P.r) * Math.min(1, (FERRY.yawDamp || 0.9) * dt);
   // sway: drifts outwards in a turn, damped
-  P.v += (-P.r * P.u * 0.35 - 1.1 * P.v) * dt;
+  P.v += (-P.r * P.u * (FERRY.swayFactor || 0.35) - 1.1 * P.v) * dt;
   P.hd = wrapAng(P.hd + P.r * dt);
   // wind: gusts on top of the base, slow direction wander
   const W = SIM.wind; W.dir += (rr(-1, 1)) * 0.04 * dt; W.gust += (rr(-1, 1) * 0.6 - W.gust * 0.3) * dt;
@@ -2843,9 +3812,9 @@ function stepFerry(dt) {
   // wind yaw: a side wind pushes the bow around slowly
   P.r += (W.x * c - W.z * s) * 0.004 * dt;
   // heel from the turn and the waves
-  const heelT = -P.r * P.u * 0.08 + SIM.swell * 0.03 * Math.sin(SIM.t * 1.3 + P.x * 0.01);
+  const heelT = -P.r * P.u * 0.08 + SIM.swell * 0.03 * Math.sin(SIM.t * 1.3 + P.x * 0.01) * (calm() ? 0.35 : 1.0);
   P.heel += (heelT - P.heel) * Math.min(1, 2 * dt);
-  P.pitch = SIM.swell * 0.025 * Math.sin(SIM.t * 1.1 + P.z * 0.02) + 0.004 * P.thr;
+  P.pitch = SIM.swell * 0.025 * Math.sin(SIM.t * 1.1 + P.z * 0.02) * (calm() ? 0.35 : 1.0) + 0.004 * P.thr;
   // comfort: hard rudder at speed, throttle reversal, storm speed
   if (Math.abs(P.r * P.u) > 1.25) { SIM.heelT += dt; if (SIM.heelT > 0.8) { SIM.comfort = Math.max(0, SIM.comfort - 1.2 * dt); if (!SIM.toasted.heel) { SIM.toasted.heel = true; toast(t('toastHeel'), 'bad'); } } } else SIM.heelT = 0;
   const sg = Math.sign(P.thr); if (sg && sg !== SIM.lastThrSign && SIM.lastThrSign && Math.abs(P.u) > 4) { SIM.comfort = Math.max(0, SIM.comfort - 2); } if (sg) SIM.lastThrSign = sg;
@@ -2899,14 +3868,24 @@ function impact(nx, nz, pen, kind) {
     const hit = -vn;
     if (hit > 0.7 && SIM.bumpCd <= 0) {
       SIM.bumpCd = kind === 'ground' ? 2.5 : 1.2;
-      const dmg = kind === 'ground' ? (hit - 0.5) * 16 : (hit - 0.6) * 12;
-      P.hull = Math.min(100, P.hull + Math.max(2, dmg));
+      const rawDmg = kind === 'ground' ? (hit - 0.5) * 16 : (hit - 0.6) * 12;
+      // Soft failures: a single bump never ends a shift (capped single hit, degraded state until 100%)
+      const dmg = Math.min(38, Math.max(2, rawDmg));
+      const prevHull = P.hull;
+      P.hull = Math.min(prevHull < 92 ? 92 : 100, prevHull + dmg);
       SIM.comfort = Math.max(0, SIM.comfort - clamp((hit - 0.4) * 14, 4, 35));
       if (kind === 'ground') { toast(t('toastGround'), 'bad'); AUD.crash(Math.min(1, hit / 4)); }
       else if (hit > 2.2) { toast(t('toastCrash'), 'bad'); AUD.crash(Math.min(1, hit / 5)); }
       else { toast(t('toastBump'), 'bad'); AUD.bump(Math.min(1, hit / 3)); }
       hurtFlash(Math.min(1, hit / 4));
-      if (P.hull >= 100) endShift('wreck');
+      if (!calm() && typeof CAM !== 'undefined') CAM.shake = Math.min(1.4, hit * 0.35);
+      haptic(280); // long pulse on a hard bump (off with reduced motion)
+      if (P.hull >= 100) {
+        endShift('wreck');
+      } else if (P.hull > 0 && !SIM.degradedToast) {
+        SIM.degradedToast = true;
+        toast(t('toastDegraded'), 'bad', 4000);
+      }
     }
   }
   // friction along the pier
@@ -2931,8 +3910,33 @@ function spawnTraffic(sh) {
     T.push({ kind: 'ferry', x: ox, z: oz, hd: P0.hd, v: 0, vT: rr(7, 9), seq, si: 0, path: [], pi: 0, wait: 18 + i * 10, delay: 0, len: 36, w: 9, circ: [[-12, 5], [0, 5.5], [12, 5]], hornCd: 0, lights: true });
   }
   for (let i = 0; i < sh.fish; i++) {
-    let x, z, tries = 0; do { z = rr(-1300, 1100); x = chanCenter(z) + rr(-1, 1) * chanHalf(z) * 0.85; } while (depth(x, z) < 25 && tries++ < 50);
-    T.push({ kind: 'fish', x, z, hd: rr(0, TAU), v: 0, vT: rr(2, 3.2), path: [], pi: 0, wait: rr(0, 15), delay: 0, len: 8, w: 3, circ: [[0, 3.6]], col: wpick([0x2a7fd4, 0xe8542f, 0x3cae6a, 0xf2c94c, 0xffffff]), hornCd: 0, bob: rr(0, TAU) });
+    let x = 0, z = 0, tries = 0;
+    do {
+      z = rr(-1250, 1050);
+      const side = (i % 2 === 0) ? -1 : 1;
+      x = chanCenter(z) + side * chanHalf(z) * rr(0.55, 0.82);
+      let nearPier = false;
+      for (const id of Object.keys(PIERS)) {
+        const P = PIERS[id];
+        if (hyp(x - P.bx, z - P.bz) < 130) { nearPier = true; break; }
+      }
+      if (!nearPier && depth(x, z) >= 20) break;
+    } while (tries++ < 60);
+    currentAt(x, z, _v);
+    const hd = Math.atan2(-_v.x, -_v.z);
+    const sgn = x < chanCenter(z) ? -1 : 1;
+    const netLen = rr(45, 65);
+    let nx = sgn * rr(0.6, 0.9), nz = rr(0.3, 0.7);
+    const nl = hyp(nx, nz) || 1; nx /= nl; nz /= nl;
+    let netEndX = x + nx * netLen, netEndZ = z + nz * netLen;
+    if (depth(netEndX, netEndZ) < 6) { netEndX = x + nx * (netLen * 0.55); netEndZ = z + nz * (netLen * 0.55); }
+    T.push({
+      kind: 'fish', x, z, hd, v: 0, vT: 0, anchored: true,
+      netLen, netEndX, netEndZ, netBuoys: 6, netHitCd: 0,
+      path: [], pi: 0, wait: 99999, delay: 0, len: 8, w: 3,
+      circ: [[0, 3.6]], col: wpick([0x2a7fd4, 0xe8542f, 0x3cae6a, 0xf2c94c, 0xffffff]),
+      hornCd: 0, bob: rr(0, TAU)
+    });
   }
 }
 function fishTarget(b) {
@@ -2976,6 +3980,7 @@ function closestApproach(x, z, vx, vz, horizon, self) {
 function stepTraffic(dt) {
   for (const b of SIM.traffic) {
     if (b.delay > 0) { b.delay -= dt; continue; }
+    if (b.anchored) { b.bob += dt; b.v = 0; continue; }
     b.hornCd = Math.max(0, b.hornCd - dt);
     if (b.wait > 0) { b.wait -= dt; b.v = Math.max(0, b.v - 1.2 * dt); if (b.kind === 'fish') b.bob += dt; }
     if (b.wait <= 0 && b.pi >= b.path.length) {
@@ -3110,15 +4115,117 @@ function stepDocking(dt) {
   const dx = player.x - P.ex, dz = player.z - P.ez;
   const gap = dx * P.nx + dz * P.nz - FERRY.beam / 2, along = dx * P.tx + dz * P.tz;
   const dist = hyp(player.x - P.bx, player.z - P.bz);
+  // Pier announcement 300 m before the next pier
+  if (dist <= 300 && SIM.announcedStop !== SIM.stopIdx) {
+    SIM.announcedStop = SIM.stopIdx;
+    announcePier(ns.id);
+  }
   let ang = wrapAng(player.hd - P.hd); if (Math.abs(ang) > Math.PI / 2) ang = wrapAng(ang + Math.PI);
   DOCK.dist = dist; DOCK.gap = gap; DOCK.along = along; DOCK.ang = ang; DOCK.spd = player.speed;
   DOCK.near = dist < 110;
   const okGap = gap > -0.6 && gap < 4.5, okAlong = Math.abs(along) < 12, okAng = Math.abs(ang) < 0.36, okSpd = player.speed < 0.9;
   DOCK.ok = okGap && okAlong && okAng && okSpd;
-  if (DOCK.ok) { SIM.dockOk += dt; if (SIM.dockOk > 0.5) { dockAt(P, SIM.stopIdx); toast(t('toastDocked', pierName(P.id)), 'good'); return; } } else SIM.dockOk = 0;
-  DOCK.hint = !okSpd && dist < 40 ? (player.speed > 2.5 ? 'hintFast' : 'hintSlow') : !okAng && dist < 50 ? 'hintAlign' : !(okGap && okAlong) ? 'hintCloser' : 'hintStop';
+  if (FLAG.auto) {
+    if (DOCK.ok) { SIM.dockOk += dt; if (SIM.dockOk > 0.5) { dockAt(P, SIM.stopIdx); toast(t('toastDocked', pierName(P.id)), 'good'); return; } } else SIM.dockOk = 0;
+  }
+  DOCK.hint = !okSpd && dist < 40 ? (player.speed > 2.5 ? 'hintFast' : 'hintSlow') : !okAng && dist < 50 ? 'hintAlign' : !(okGap && okAlong) ? 'hintCloser' : (DOCK.ok ? (touchOn ? 'hintMoorTouch' : 'hintMoor') : 'hintStop');
   // wrong pier reminder: slow and close to another pier
   if (player.speed < 1.5) for (const id of Object.keys(PIERS)) { if (id === ns.id) continue; const Q2 = PIERS[id]; if (hyp(player.x - Q2.bx, player.z - Q2.bz) < 25) { SIM.wrongT += dt; if (SIM.wrongT > 2.5) { SIM.wrongT = -20; toast(t('toastWrongPier', pierName(ns.id)), 'info'); } } }
+}
+function throwMooringLines() {
+  if (G.state !== 'play' || SIM.docked) return;
+  const ns = nextStop();
+  if (!ns) return;
+  const P = PIERS[ns.id];
+  if (DOCK.ok) {
+    dockAt(P, SIM.stopIdx);
+    toast(t('toastDocked', pierName(P.id)), 'good');
+  } else if (DOCK.near) {
+    toast(t('toastMoorFail'), 'bad');
+  }
+}
+// ---------------------------------------------------------------- deck life: simit to seagulls & tea seller's round
+function stepDeckLife(dt) {
+  if (!SIM.deckLife || G.state !== 'play' || SIM.docked) return;
+  const dl = SIM.deckLife, P = player;
+  const cruising = P.speed >= 2.5 && Math.abs(P.r) < 0.12 && !DOCK.near && SIM.aboardN >= 2;
+
+  // 1. Passengers throwing simit to seagulls (gulls flock behind stern, comfort bonus while cruising calmly)
+  if (dl.simitActive) {
+    dl.simitTime += dt;
+    if (cruising) {
+      const bonus = 0.35 * dt;
+      SIM.comfort = Math.min(100, SIM.comfort + bonus);
+      dl.simitBonusAcc += bonus;
+      dl.gullSfxT -= dt;
+      if (dl.gullSfxT <= 0) { AUD.gull(); dl.gullSfxT = rr(3, 6); }
+      if (Math.random() < 0.25 && OBJ.wake) {
+        const s = Math.sin(P.hd), c = Math.cos(P.hd);
+        const sternX = P.x - s * 18, sternZ = P.z - c * 18;
+        // cosmetic crumbs: Math.random only, never the seeded gameplay rng R (keeps ?seed sims deterministic)
+        const ox = (Math.random() - 0.5) * 6, oz = (Math.random() - 0.5) * 6;
+        OBJ.wake.spawn(sternX + c * ox, 0.35, sternZ - s * oz, -P.vx * 0.1, 0, -P.vz * 0.1, 3.5, 0.4, 0.6, 0xE8A13A, 0.7, 0);
+      }
+    }
+    if (dl.simitTime >= dl.simitDur || DOCK.near) {
+      dl.simitActive = false;
+      if (dl.simitBonusAcc >= 1.5) toast(t('toastSimitDone'), 'good');
+      dl.simitTimer = 45 + rr(15, 30);
+    }
+  } else {
+    dl.simitTimer -= dt;
+    if (dl.simitTimer <= 0) {
+      if (cruising && !dl.teaActive && !SIM.storm) {
+        dl.simitActive = true; dl.simitTime = 0; dl.simitDur = 14; dl.simitBonusAcc = 0; dl.gullSfxT = 1.0;
+        toast(t('toastSimitStart'), 'info'); AUD.gull();
+      } else {
+        dl.simitTimer = 5;
+      }
+    }
+  }
+
+  // 2. Tea seller's round mid-crossing (gentle helm adds comfort, hard turns spill tea)
+  if (dl.teaActive) {
+    dl.teaTime += dt;
+    dl.teaClinkT -= dt;
+    if (dl.teaClinkT <= 0) { AUD.teaClink(); dl.teaClinkT = 3.5 + rr(0, 1.5); }
+    const hardTurn = Math.abs(P.r * P.u) > 0.85 || Math.abs(P.rud) > 0.65 || Math.abs(P.heel) > 0.045;
+    if (hardTurn) {
+      dl.teaActive = false;
+      dl.teaSpilled = true;
+      SIM.comfort = Math.max(0, SIM.comfort - 4.5);
+      toast(t('toastTeaSpill'), 'bad');
+      AUD.teaSpill();
+      floater('-5', true);
+      if (OBJ.wake) {
+        const s = Math.sin(P.hd), c = Math.cos(P.hd);
+        OBJ.wake.spawn(P.x + s * 2, 2.9, P.z + c * 2, 0, 0, 0, 2.0, 0.8, 1.4, 0x8c4a2a, 0.7, 0);
+      }
+      dl.teaTimer = 45 + rr(15, 30);
+    } else {
+      const gentle = Math.abs(P.rud) < 0.35 && Math.abs(P.r) < 0.08;
+      if (gentle) {
+        const bonus = 0.35 * dt;
+        SIM.comfort = Math.min(100, SIM.comfort + bonus);
+        dl.teaBonusAcc += bonus;
+      }
+      if (dl.teaTime >= dl.teaDur || DOCK.near) {
+        dl.teaActive = false;
+        if (!dl.teaSpilled && dl.teaBonusAcc >= 1.0) toast(t('toastTeaDone'), 'good');
+        dl.teaTimer = 50 + rr(15, 30);
+      }
+    }
+  } else {
+    dl.teaTimer -= dt;
+    if (dl.teaTimer <= 0) {
+      if (P.speed >= 1.8 && !DOCK.near && SIM.aboardN >= 2 && SIM.t > 15 && !dl.simitActive) {
+        dl.teaActive = true; dl.teaTime = 0; dl.teaDur = 16; dl.teaSpilled = false; dl.teaBonusAcc = 0; dl.teaClinkT = 2.0;
+        toast(t('toastTeaStart'), 'info'); AUD.teaClink();
+      } else {
+        dl.teaTimer = 6;
+      }
+    }
+  }
 }
 // ---------------------------------------------------------------- Sis seferi (fog run): navigate by sound and light
 // On a fog run the radar is blind and the view ends at about 200 m. The horn (Space) is the fog horn: its echo comes back
@@ -3179,12 +4286,84 @@ function stepFog(dt) {
     FOG.blips.push({ x: b.x, z: b.z, kind: 'boat', at: FOG.clock + d / SOUND_V, ttl: 4 });
   }
 }
+function segIntersect(x1, z1, x2, z2, x3, z3, x4, z4) {
+  const ccw = (ax, az, bx, bz, cx, cz) => (cz - az) * (bx - ax) > (bz - az) * (cx - ax);
+  return (ccw(x1, z1, x3, z3, x4, z4) !== ccw(x2, z2, x3, z3, x4, z4)) &&
+         (ccw(x1, z1, x2, z2, x3, z3) !== ccw(x1, z1, x2, z2, x4, z4));
+}
+function stepNets(dt) {
+  const P = player;
+  if (!lastPlayerX && !lastPlayerZ) { lastPlayerX = P.x; lastPlayerZ = P.z; }
+  const s = Math.sin(P.hd), c = Math.cos(P.hd);
+  const bowX = P.x + s * 17, bowZ = P.z + c * 17;
+  const sternX = P.x - s * 17, sternZ = P.z - c * 17;
+  for (const b of SIM.traffic) {
+    if (!b.anchored || !b.netEndX) continue;
+    if (b.netHitCd > 0) b.netHitCd -= dt;
+    const midX = (b.x + b.netEndX) * 0.5, midZ = (b.z + b.netEndZ) * 0.5;
+    if (Math.abs(P.x - midX) > 90 || Math.abs(P.z - midZ) > 90) continue;
+    const hitKeel = segIntersect(bowX, bowZ, sternX, sternZ, b.x, b.z, b.netEndX, b.netEndZ);
+    const hitTravel = segIntersect(lastPlayerX, lastPlayerZ, P.x, P.z, b.x, b.z, b.netEndX, b.netEndZ);
+    if ((hitKeel || hitTravel) && !(b.netHitCd > 0)) {
+      b.netHitCd = 4.0;
+      SIM.comfort = Math.max(0, SIM.comfort - 6);
+      floater('-6', true);
+      toast(t('toastNets'), 'bad');
+      AUD.rope();
+      AUD.bump(0.5);
+      hurtFlash(0.28);
+    }
+  }
+  lastPlayerX = P.x; lastPlayerZ = P.z;
+}
+// ---------------------------------------------------------------- bridge passage (side gust & camera tremble)
+function stepBridge(dt) {
+  if (!WORLD.bridge || G.state !== 'play' || SIM.docked) return;
+  const P = player, br = WORLD.bridge;
+  const inSpan = P.x >= br.xl && P.x <= br.xr;
+  const dz = Math.abs(P.z - br.z);
+
+  // Passing under the bridge: trigger once per passage through span
+  if (inSpan && dz < 20) {
+    if (!SIM.underBridge) {
+      SIM.underBridge = true;
+      const sideDir = Math.sin(P.hd) >= 0 ? 1 : -1;
+      SIM.bridgeGust = { time: 0, dur: 2.2, dir: sideDir };
+      if (!calm() && typeof CAM !== 'undefined') {
+        CAM.shake = Math.max(CAM.shake || 0, 0.32);
+      }
+    }
+  } else if (dz > 48) {
+    SIM.underBridge = false;
+  }
+
+  // Active side gust dynamics
+  if (SIM.bridgeGust) {
+    const bg = SIM.bridgeGust;
+    bg.time += dt;
+    if (bg.time < bg.dur) {
+      const gProg = bg.time / bg.dur;
+      const envelope = Math.sin(gProg * Math.PI); // smooth bell curve
+      const gustF = envelope * 1.8;
+      P.v += bg.dir * gustF * 0.85 * dt; // short side gust (lateral sway)
+      P.r += bg.dir * gustF * 0.012 * dt; // slight yaw disturbance
+      P.heel += -bg.dir * gustF * 0.016 * dt; // heel response
+      SIM.wind.gust = Math.max(SIM.wind.gust, envelope * 1.5); // audible wind rush
+      if (!calm() && typeof CAM !== 'undefined' && bg.time < 0.5) {
+        CAM.shake = Math.max(CAM.shake || 0, 0.28 * envelope); // light camera tremble
+      }
+    } else {
+      SIM.bridgeGust = null;
+    }
+  }
+}
 // ---------------------------------------------------------------- shift step and end
 function stepSim(dt) {
   if (SIM.ended) return;
   SIM.ff = SIM.docked && SIM.boardDone && !SIM.depAllowed && SIM.stopIdx < SIM.stops.length - 1 ? 8 : 1;
   SIM.t += dt * SIM.ff; SIM.hour = SIM.shift.hour + SIM.t * TS / 3600;
-  stepFerry(dt); stepTraffic(dt); stepColreg(dt); stepFog(dt); stepDocking(dt); stepBoarding(dt); stepPiers(dt * SIM.ff); stepWalkers(dt);
+  stepFerry(dt); stepTraffic(dt); stepNets(dt); stepBridge(dt); stepColreg(dt); stepFog(dt); stepDocking(dt); stepBoarding(dt); stepPiers(dt * SIM.ff); stepWalkers(dt); stepDeckLife(dt);
+  stepGhost(dt);
   // weather drift: storm rain, thunder; fog that thickens a little over the shift
   if (SIM.storm) { SIM.rain += (1 - SIM.rain) * 0.1 * dt; SIM.thunderT -= dt; if (SIM.thunderT <= 0) { SIM.thunderT = rr(14, 40); AUD.thunder(); lightning = 1; } }
   SIM.swell += ((SIM.storm ? 1 : 0.15 + 0.25 * SIM.wind.a) - SIM.swell) * 0.05 * dt;
@@ -3194,15 +4373,26 @@ function stepSim(dt) {
   if (!SIM.toasted.night && SIM.night > 0.5) { SIM.toasted.night = true; toast(t('toastNight'), 'info'); }
 }
 let lightning = 0;
-const calm = () => !!(window.Arena && Arena.settings && Arena.settings.reducedMotion);   // kit "reduce motion": read live, visuals only (the sim never sees it)
+const calm = () => !!(comfortSettings.reducedMotion || (window.Arena && Arena.settings && Arena.settings.reducedMotion));   // live reduced motion check
+function applyReducedMotion() {
+  const isC = calm();
+  if (isC) {
+    lightning = 0; lastSkyHour = -99; hurtA = 0;
+    if (el.hurt) el.hurt.style.opacity = 0;
+    if (typeof CAM !== 'undefined') { CAM.cine = 0; CAM.shake = 0; }
+  }
+  document.documentElement.toggleAttribute('data-arena-reduced-motion', isC);
+}
 function shiftScore() { return Math.round((SIM.dockBonus || 0) + SIM.delivered * SCORE_K.pax + SIM.punct.reduce((a, b) => a + b, 0) + SIM.comfort * SCORE_K.comfort + SIM.lost * SCORE_K.lost); }
 function starsFor(score, target) { const r = score / Math.max(1, target); return r >= SCORE_K.stars[2] ? 3 : r >= SCORE_K.stars[1] ? 2 : r >= SCORE_K.stars[0] ? 1 : 0; }
 function endShift(kind) {
   if (SIM.ended) return; SIM.ended = true;
+  if (typeof setWarp === 'function' && SIM.warp) setWarp(false, false);
+  if (typeof window !== 'undefined' && window.speechSynthesis) window.speechSynthesis.cancel();
   const score = kind === 'wreck' ? Math.round(shiftScore() * 0.5) : shiftScore();
   const stars = kind === 'wreck' ? 0 : starsFor(score, SIM.target);
   const punctAvg = SIM.punct.length ? SIM.punct.reduce((a, b) => a + b, 0) / SIM.punct.length : 0;
-  const res = { kind: stars > 0 ? kind : 'fail', score, stars, target: SIM.target, pax: SIM.delivered, lost: SIM.lost, comfort: Math.round(SIM.comfort), hull: Math.round(player.hull), punct: Math.round(punctAvg), shift: SIM.shift.id, fog: SIM.fogRun ? SIM.fogBonus : null };
+  const res = { kind: stars > 0 ? kind : 'fail', score, stars, target: SIM.target, pax: SIM.delivered, lost: SIM.lost, comfort: Math.round(SIM.comfort), hull: Math.round(player.hull), punct: Math.round(punctAvg), shift: SIM.shift.id, fog: SIM.fogRun ? SIM.fogBonus : null, dockBonus: Math.round(SIM.dockBonus || 0) };
   G.lastResult = res; G.log.push({ shift: SIM.shift.id, stars, score });
   finishShiftUI(res);
 }
@@ -3212,7 +4402,7 @@ const canvas = $('#gl');
 const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: 'high-performance', alpha: false });
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(55, 1, 0.8, 3200);
-const lowQ = () => settings.quality === 'low' || FLAG.low;
+const lowQ = () => settings.quality === 'low' || FLAG.low || isLowPower();
 function applyQuality() {
   renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, lowQ() ? 1 : 1.5));
   renderer.shadowMap.enabled = !lowQ();
@@ -3367,6 +4557,99 @@ function buildFerryGeo() {
   nv.sphere(0, 10.6, 15.2, 0.3, 0xffffff, 6); nv.sphere(0, 3.6, -18.1, 0.26, 0xffffff, 6);
   return { body: g.build(), win: w.build(), nav: nv.build() };
 }
+/** small fast motor launch: sleek wooden/fiberglass passenger motor, single cabin, wheelhouse forward (bow = +z) */
+function buildLaunchGeo() {
+  const g = new GB(), w = new GB(), nv = new GB();
+  const st = [[-9.5, 1.6], [-6.5, 2.4], [-2, 2.7], [3, 2.6], [7, 2.0], [9.2, 0.9], [9.5, 0.2]];
+  const { lower, upper } = hullRings(st, -1.8, -0.3, 0.5, 0.65);
+  g.loft(lower, 0x142028, true, true, true);
+  g.loft(upper, 0xf4efe4, true, true, true);
+  // red waterline stripe
+  g.loft(st.map(([z, w0]) => { const ww = Math.max(0.15, w0) * 1.015; return [[-ww, -0.5, z], [-ww, -0.2, z], [ww, -0.2, z], [ww, -0.5, z]]; }), 0xb3232a, true, false, false);
+  // teak main deck
+  g.box(0, 1.4, 0, 5.1, 0.2, 18.5, 0xb88854);
+  // passenger salon
+  g.box(0, 1.6, -1.2, 4.2, 1.8, 10.5, 0xf7f7f2);
+  w.box(0, 2.2, -1.2, 4.35, 0.75, 9.8, 0x163b4a);
+  g.box(0, 3.4, -1.2, 4.4, 0.18, 11.2, 0xf4efe4); // salon roof
+  // forward raised wheelhouse
+  g.box(0, 1.6, 4.8, 3.6, 2.4, 3.2, 0xf7f7f2);
+  w.box(0, 2.5, 4.9, 3.75, 1.0, 3.0, 0x163b4a);
+  g.box(0, 4.0, 4.8, 3.9, 0.2, 3.5, 0xe6e2d8); // wheelhouse roof
+  // searchlight, horn & mast
+  g.cyl(0, 4.2, 5.2, 0.08, 2.2, 0xd9d4c8, 4);
+  g.sphere(0, 4.3, 3.8, 0.22, 0x222222, 6); // horn
+  g.cyl(0, 4.3, 6.2, 0.16, 0.35, 0xfff1c8, 6); // searchlight
+  // aft open cockpit with mahogany benches
+  for (const z of [-7.2, -5.4]) g.box(0, 1.6, z, 3.6, 0.45, 0.5, 0x8a5a3c);
+  // handrails
+  for (const s of [-1, 1]) {
+    g.box(s * 2.4, 1.6, 0, 0.06, 0.8, 17.5, 0xd0d4d8);
+    for (let z = -8; z <= 8; z += 3.2) g.box(s * 2.4, 1.6, z, 0.08, 0.8, 0.08, 0xd0d4d8);
+  }
+  // tyre fenders
+  for (const s of [-1, 1]) for (const z of [-6, -1.5, 3.5]) g.box(s * 2.65, 0.9, z, 0.35, 0.65, 0.65, 0x222222);
+  // small aft ensign / flag
+  g.cyl(0, 1.6, -9.0, 0.06, 2.0, 0xd9d4c8, 4);
+  g.box(0, 3.1, -9.0, 0.04, 0.8, 1.2, 0xd8322a);
+  // navigation lights
+  nv.sphere(2.65, 2.6, 5.0, 0.22, 0xff2a2a, 6); // port (red)
+  nv.sphere(-2.65, 2.6, 5.0, 0.22, 0x2aff6a, 6); // starboard (green)
+  nv.sphere(0, 6.4, 5.2, 0.24, 0xffffff, 6); // masthead (white)
+  nv.sphere(0, 1.9, -9.2, 0.2, 0xffffff, 6); // stern (white)
+  return { body: g.build(), win: w.build(), nav: nv.build() };
+}
+
+/** double-ended car ferry: broad open vehicle deck, side passenger superstructures, elevated cross-bridge (bow = +z) */
+function buildCarFerryGeo() {
+  const g = new GB(), w = new GB(), nv = new GB();
+  const st = [[-24, 4.2], [-18, 6.4], [-10, 7.0], [0, 7.0], [10, 7.0], [18, 6.4], [24, 4.2]];
+  const { lower, upper } = hullRings(st, -2.8, -0.4, 0.8, 0.72);
+  g.loft(lower, 0x1e2024, true, true, true);
+  g.loft(upper, 0xf2ede2, true, true, true);
+  // red waterline band
+  g.loft(st.map(([z, w0]) => { const ww = Math.max(0.18, w0) * 1.012; return [[-ww, -0.8, z], [-ww, -0.3, z], [ww, -0.3, z], [ww, -0.8, z]]; }), 0xb3232a, true, false, false);
+  // main vehicular deck (steel/asphalt)
+  g.box(0, 2.2, 0, 13.6, 0.35, 46.5, 0x42464c);
+  // lane markings on car deck
+  for (let z = -18; z <= 18; z += 4.5) g.box(0, 2.4, z, 0.3, 0.05, 2.4, 0xe8e4d8);
+  for (const s of [-1, 1]) for (let z = -18; z <= 18; z += 4.5) g.box(s * 2.8, 2.4, z, 0.2, 0.05, 2.4, 0xd4a034);
+  // bow and stern loading ramps
+  g.box(0, 2.1, 23.6, 9.2, 0.35, 2.6, 0x33363b);
+  g.box(0, 2.1, -23.6, 9.2, 0.35, 2.6, 0x33363b);
+  // side passenger galleries (port and starboard along car deck)
+  for (const s of [-1, 1]) {
+    g.box(s * 5.3, 2.4, 0, 2.8, 4.2, 34, 0xf7f7f2);
+    w.box(s * 5.3, 4.5, 0, 2.95, 1.1, 30, 0x163b4a);
+    // upper passenger promenade walkway
+    g.box(s * 5.3, 6.6, 0, 3.2, 0.3, 35, 0xcfb58c);
+    g.box(s * 6.8, 6.9, 0, 0.08, 0.9, 34, 0xf7f7f2);
+    for (let z = -15; z <= 15; z += 3.5) g.box(s * 6.8, 6.9, z, 0.1, 0.9, 0.1, 0xd9d4c8);
+    // yellow funnel with black cap on each side
+    g.cyl(s * 5.3, 6.9, -6, 0.95, 4.2, 0xFACC15, 8);
+    g.cyl(s * 5.3, 10.7, -6, 0.97, 0.7, 0x1a1a1a, 8);
+    // lifebuoys along galleries
+    for (const z of [-10, 0, 10]) g.box(s * 5.3, 5.8, z, 0.2, 0.8, 0.8, 0xff7a2a);
+    // fenders
+    for (const z of [-16, -8, 0, 8, 16]) g.box(s * 6.95, 1.6, z, 0.45, 0.9, 0.9, 0x242424);
+  }
+  // elevated cross-bridge superstructure spanning over the car deck
+  g.box(0, 9.5, 0, 13.8, 2.6, 5.4, 0xf7f7f2);
+  w.box(0, 10.3, 0, 13.95, 1.2, 5.55, 0x163b4a);
+  g.box(0, 12.1, 0, 14.2, 0.3, 5.8, 0xe6e2d8); // bridge roof
+  // structural pylons supporting the bridge from side galleries
+  for (const s of [-1, 1]) for (const dz of [-2.0, 2.0]) g.box(s * 5.3, 6.9, dz, 0.7, 2.6, 0.7, 0xd0d4d8);
+  // radar & mast atop central bridge
+  g.cyl(0, 12.4, 0, 0.16, 5.2, 0xd9d4c8, 4);
+  g.box(0, 17.6, 0, 2.4, 0.22, 0.35, 0x333333);
+  // navigation lights
+  nv.sphere(7.1, 10.2, 0, 0.3, 0xff2a2a, 6); // port (red)
+  nv.sphere(-7.1, 10.2, 0, 0.3, 0x2aff6a, 6); // starboard (green)
+  nv.sphere(0, 17.8, 0, 0.32, 0xffffff, 6); // masthead (white)
+  nv.sphere(0, 3.2, 24.0, 0.28, 0xffffff, 6); // bow (white)
+  nv.sphere(0, 3.2, -24.0, 0.28, 0xffffff, 6); // stern (white)
+  return { body: g.build(), win: w.build(), nav: nv.build() };
+}
 /** tanker: long low hull with the superstructure aft. Returns {hull (tinted), top} */
 function buildTankerGeo() {
   const g = new GB(), tp = new GB();
@@ -3404,6 +4687,14 @@ function buildFishGeo() {
   tp.box(0, 1.45, -3.2, 2.0, 0.7, 1.2, 0x4f8a5a); for (const [x, z] of [[-1.1, 1.6], [1.0, 0.9], [0.4, -3.5]]) tp.sphere(x, 1.7, z, 0.28, 0xf28c28, 5);   // net heap, buoys
   for (const s of [-1, 1]) for (const z of [-2, 1.2]) tp.box(s * 1.75, 0.6, z, 0.3, 0.5, 0.5, 0x242424);   // tyre fenders
   return { hull: g.build(), top: tp.build() };
+}
+/** orange net buoy: bright float barrel, small pole mast, amber pennant */
+function buildBuoyGeo() {
+  const g = new GB();
+  g.cyl(0, 0, 0, 0.38, 0.55, 0xf26522, 6);
+  g.cyl(0, 0.45, 0, 0.04, 0.85, 0x242424, 4);
+  g.box(0.14, 0.82, 0, 0.28, 0.18, 0.02, 0xffa022);
+  return g.build();
 }
 /** tiny passenger: body (tinted) and head */
 function buildPeopleGeo() {
@@ -3606,11 +4897,32 @@ function buildScene() {
   OBJ.trees = mkInst(buildTreeGeo(false), matTint, WORLD.trees, (b, i, m) => { m.setMatrixAt(i, place(b.x, b.y, b.z, 0, b.s, b.s, b.s)); m.setColorAt(i, _c.setHex(b.col)); }, false);
   OBJ.cyp = mkInst(buildTreeGeo(true), matTint, WORLD.cypress, (b, i, m) => { m.setMatrixAt(i, place(b.x, b.y, b.z, 0, b.s, b.s * 1.1, b.s)); m.setColorAt(i, _c.setHex(b.col)); }, false);
   // boats
-  const fg = buildFerryGeo(); OBJ.ferryGeo = fg;
-  const nF = 1 + 6;
+  const fg = buildFerryGeo();
+  const lg = buildLaunchGeo();
+  const cg = buildCarFerryGeo();
+  VESSEL_CLASSES.classic.geo = fg;
+  VESSEL_CLASSES.launch.geo = lg;
+  VESSEL_CLASSES.car.geo = cg;
+  OBJ.ferryGeo = fg;
+  const nF = 6;
   OBJ.ferryB = new THREE.InstancedMesh(fg.body, matLam, nF); OBJ.ferryW = new THREE.InstancedMesh(fg.win, matWin, nF);
-  for (const m of [OBJ.ferryB, OBJ.ferryW]) { m.castShadow = true; m.receiveShadow = true; m.frustumCulled = false; m.count = 1; scene.add(m); }
-  OBJ.ferryN = new THREE.InstancedMesh(fg.nav, new THREE.MeshBasicMaterial({ vertexColors: true }), nF); OBJ.ferryN.frustumCulled = false; OBJ.ferryN.count = 1; OBJ.ferryN.visible = false; scene.add(OBJ.ferryN);
+  for (const m of [OBJ.ferryB, OBJ.ferryW]) { m.castShadow = true; m.receiveShadow = true; m.frustumCulled = false; m.count = 0; scene.add(m); }
+  OBJ.ferryN = new THREE.InstancedMesh(fg.nav, new THREE.MeshBasicMaterial({ vertexColors: true }), nF); OBJ.ferryN.frustumCulled = false; OBJ.ferryN.count = 0; OBJ.ferryN.visible = false; scene.add(OBJ.ferryN);
+  // player vessel meshes (supports distinct hull geometries for each class)
+  OBJ.playerBody = new THREE.Mesh(fg.body, matLam);
+  OBJ.playerBody.castShadow = true; OBJ.playerBody.receiveShadow = true; OBJ.playerBody.matrixAutoUpdate = false;
+  OBJ.playerWin = new THREE.Mesh(fg.win, matWin);
+  OBJ.playerWin.castShadow = true; OBJ.playerWin.receiveShadow = true; OBJ.playerWin.matrixAutoUpdate = false;
+  OBJ.playerNav = new THREE.Mesh(fg.nav, new THREE.MeshBasicMaterial({ vertexColors: true }));
+  OBJ.playerNav.matrixAutoUpdate = false; OBJ.playerNav.visible = false;
+  scene.add(OBJ.playerBody); scene.add(OBJ.playerWin); scene.add(OBJ.playerNav);
+  // Ghost docking ferry meshes (translucent sea-foam silhouette)
+  const matGhost = new THREE.MeshLambertMaterial({ color: 0x60d0d8, emissive: 0x15454a, transparent: true, opacity: 0.42, depthWrite: false });
+  OBJ.ghostBody = new THREE.Mesh(fg.body, matGhost);
+  OBJ.ghostBody.castShadow = false; OBJ.ghostBody.receiveShadow = false; OBJ.ghostBody.matrixAutoUpdate = false; OBJ.ghostBody.frustumCulled = false; OBJ.ghostBody.visible = false; OBJ.ghostBody.renderOrder = 4;
+  OBJ.ghostWin = new THREE.Mesh(fg.win, matGhost);
+  OBJ.ghostWin.castShadow = false; OBJ.ghostWin.receiveShadow = false; OBJ.ghostWin.matrixAutoUpdate = false; OBJ.ghostWin.frustumCulled = false; OBJ.ghostWin.visible = false; OBJ.ghostWin.renderOrder = 4;
+  scene.add(OBJ.ghostBody); scene.add(OBJ.ghostWin);
   const tg = buildTankerGeo();
   OBJ.tankH = new THREE.InstancedMesh(tg.hull, matTint, 8); OBJ.tankT = new THREE.InstancedMesh(tg.top, matLam, 8);
   for (const m of [OBJ.tankH, OBJ.tankT]) { m.castShadow = true; m.receiveShadow = true; m.frustumCulled = false; m.count = 0; scene.add(m); }
@@ -3619,6 +4931,8 @@ function buildScene() {
   OBJ.fishH = new THREE.InstancedMesh(fsh.hull, matTint, 12); OBJ.fishT = new THREE.InstancedMesh(fsh.top, matLam, 12);
   for (const m of [OBJ.fishH, OBJ.fishT]) { m.castShadow = true; m.receiveShadow = true; m.frustumCulled = false; m.count = 0; scene.add(m); }
   OBJ.fishH.setColorAt(0, _c.setHex(0xffffff));
+  OBJ.buoys = new THREE.InstancedMesh(buildBuoyGeo(), matLam, 96);
+  OBJ.buoys.castShadow = false; OBJ.buoys.receiveShadow = true; OBJ.buoys.frustumCulled = false; OBJ.buoys.count = 0; scene.add(OBJ.buoys);
   // people and gulls
   const pg = buildPeopleGeo(); OBJ.peopleMax = 360;
   OBJ.pplB = new THREE.InstancedMesh(pg.body, matTint, OBJ.peopleMax); OBJ.pplH = new THREE.InstancedMesh(pg.head, matLam, OBJ.peopleMax);
@@ -3727,13 +5041,10 @@ function buildScene() {
   OBJ.berth = new THREE.Mesh(new THREE.PlaneGeometry(FERRY.beam + 6, FERRY.len + 6).rotateX(-Math.PI / 2), matBerth); OBJ.berth.position.y = 0.4; OBJ.berth.renderOrder = 3; scene.add(OBJ.berth);
   OBJ.beacon = new THREE.Mesh(new THREE.ConeGeometry(4, 9, 6), new THREE.MeshLambertMaterial({ color: 0xf2b84a, emissive: 0xb0601a })); OBJ.beacon.rotation.x = Math.PI; scene.add(OBJ.beacon);
   // ropes
-  const rg = new THREE.BufferGeometry(); rg.setAttribute('position', new THREE.BufferAttribute(new Float32Array(4 * 3), 3));
+  const rg = new THREE.BufferGeometry(); rg.setAttribute('position', new THREE.BufferAttribute(new Float32Array(8 * 3), 3));
   OBJ.ropes = new THREE.LineSegments(rg, matRope); OBJ.ropes.frustumCulled = false; OBJ.ropes.visible = false; scene.add(OBJ.ropes);
   // passenger slots on the ferry decks (local coordinates)
-  OBJ.deckSlots = [];
-  for (let z = -11; z <= 9; z += 2.6) for (const x of [-3.3, 3.3]) OBJ.deckSlots.push([x, 2.9, z]);
-  for (let z = -8; z <= 4; z += 2.6) for (const x of [-2.4, 2.4]) OBJ.deckSlots.push([x, 5.8, z]);
-  for (let z = -13; z <= 11; z += 3) OBJ.deckSlots.push([0, 2.9, z]);
+  updateDeckSlots(selectedVesselId);
 }
 const GULLS = [];
 // ---------------- people: queues on the piers, passengers on the decks, walkers in between
@@ -3777,6 +5088,20 @@ function syncPeople() {
     const a = w.local[seg] ? ferryLocalToWorld(w.pts[seg], _p3) : w.pts[seg], b = w.local[seg + 1] ? ferryLocalToWorld(w.pts[seg + 1], _p4) : w.pts[seg + 1];
     const x = lerp(a[0], b[0], f), y = lerp(a[1], b[1], f) + 0.08 * Math.abs(Math.sin(w.t * 9)), z = lerp(a[2], b[2], f);
     put(x, y, z, Math.atan2(b[0] - a[0], b[2] - a[2]), w.col);
+  }
+  // deck life: tea seller walking the deck aisle & passengers at aft rail
+  if (SIM.deckLife && SIM.deckLife.teaActive) {
+    const u = clamp(SIM.deckLife.teaTime / SIM.deckLife.teaDur, 0, 1);
+    const zAisle = lerp(-11, 7, u);
+    ferryLocalToWorld([0, 2.9, zAisle], _p3);
+    const stepBob = 0.06 * Math.abs(Math.sin(SIM.deckLife.teaTime * 8));
+    put(_p3[0], _p3[1] + stepBob, _p3[2], player.hd, 0xf4f1ea);
+  }
+  if (SIM.deckLife && SIM.deckLife.simitActive) {
+    ferryLocalToWorld([-2.4, 5.8, -13.6], _p3);
+    put(_p3[0], _p3[1], _p3[2], player.hd + Math.PI, 0xe8a13a);
+    ferryLocalToWorld([2.4, 5.8, -13.6], _p3);
+    put(_p3[0], _p3[1], _p3[2], player.hd + Math.PI, 0xc1442e);
   }
   B.count = H.count = n; B.instanceMatrix.needsUpdate = H.instanceMatrix.needsUpdate = true; if (B.instanceColor) B.instanceColor.needsUpdate = true;
 }
@@ -3839,18 +5164,19 @@ function updateSky(force) {
   OBJ.lights.material.uniforms.uOpacity.value = Math.max(night, dusk * 0.7, storm * 0.5, fogA * 0.4);
   matWin.emissiveIntensity = Math.max(night, dusk * 0.7, storm * 0.5, fogA * 0.4) * 0.9;
   if (OBJ.ferryN) OBJ.ferryN.visible = Math.max(night, dusk, fogA, storm) > 0.35;   // navigation lights
+  if (OBJ.playerNav) OBJ.playerNav.visible = Math.max(night, dusk, fogA, storm) > 0.35;
   OBJ.beacon.material.emissiveIntensity = 0.6 + night;
 }
 
 // ---------------------------------------------------------------- per-frame render sync
 let camMode = 0;   // 0 chase, 1 bridge, 2 top, 3 docking
-const CAM = { yaw: 0, pitch: 0.42, dist: 72, distUser: 72, cine: 0, idle: 0, px: 0, py: 0, pz: 0, drag: false, lx: 0, ly: 0, lookYaw: 0, lookPitch: 0, autoDock: false, userDockOverride: false, lastStopIdx: -1 };
+const CAM = { yaw: 0, pitch: 0.42, dist: 72, distUser: 72, cine: 0, idle: 0, px: 0, py: 0, pz: 0, drag: false, lx: 0, ly: 0, lookYaw: 0, lookPitch: 0, autoDock: false, userDockOverride: false, lastStopIdx: -1, shake: 0 };
 const _mat = new THREE.Matrix4();
 function ferryMatrix(x, z, hd, heel, pitch, out) {
   _o.position.set(x, waveY(x, z) * 0.9, z); _e.set(pitch, hd, heel, 'YXZ'); _o.quaternion.setFromEuler(_e); _o.scale.set(1, 1, 1); _o.updateMatrix(); return out.copy(_o.matrix);
 }
 function syncRender(dt) {
-  waterU.uTime.value += dt; waterU.uAmp.value = 0.22 + 1.1 * SIM.swell * (SIM.storm ? 1 : 0.5); waterU.uCur.value = SIM.cur;
+  waterU.uTime.value += dt; waterU.uAmp.value = (0.22 + 1.1 * SIM.swell * (SIM.storm ? 1 : 0.5)) * (calm() ? 0.35 : 1.0); waterU.uCur.value = SIM.cur;
   updateSky(false);
   if (lightning > 0) { lightning = Math.max(0, lightning - dt * 4); lastSkyHour = -99; }
   // sun follows the ferry (shadow map covers the play area around it)
@@ -3859,32 +5185,79 @@ function syncRender(dt) {
   moonDisc.position.copy(camera.position).addScaledVector(_v3.set(-SKY.sunDir.x, Math.abs(SKY.sunDir.y) * 0.8 + 0.2, -SKY.sunDir.z).normalize(), 2500); moonDisc.lookAt(camera.position);
   skyMesh.position.copy(camera.position); stars.position.copy(camera.position); OBJ.clouds.position.set(camera.position.x * 0.9, 0, camera.position.z * 0.9); driftClouds(dt);
   waterU.uSunV.value.copy(SKY.sunDir).transformDirection(camera.matrixWorldInverse);
-  // ferries: the player first
+  // ferries: player ship
+  ferryMatrix(player.x, player.z, player.hd, player.heel, player.pitch, _mat);
+  if (OBJ.playerBody) {
+    OBJ.playerBody.matrix.copy(_mat);
+    OBJ.playerWin.matrix.copy(_mat);
+    OBJ.playerNav.matrix.copy(_mat);
+    OBJ.playerNav.visible = Math.max(SIM.night, SIM.dusk, SIM.fog, SIM.storm) > 0.35;
+  }
+  // Ghost docking ferry sync
+  syncGhostRender(dt);
+  // traffic ferries
   let n = 0;
-  ferryMatrix(player.x, player.z, player.hd, player.heel, player.pitch, _mat); OBJ.ferryB.setMatrixAt(n, _mat); OBJ.ferryW.setMatrixAt(n, _mat); OBJ.ferryN.setMatrixAt(n, _mat); n++;
   let nt = 0, nf = 0;
   for (const b of SIM.traffic) {
     if (b.delay > 0) continue;
-    if (b.kind === 'ferry' && n < 7) { ferryMatrix(b.x, b.z, b.hd, 0, 0, _mat); OBJ.ferryB.setMatrixAt(n, _mat); OBJ.ferryW.setMatrixAt(n, _mat); OBJ.ferryN.setMatrixAt(n, _mat); n++; }
+    if (b.kind === 'ferry' && n < 6) { ferryMatrix(b.x, b.z, b.hd, 0, 0, _mat); OBJ.ferryB.setMatrixAt(n, _mat); OBJ.ferryW.setMatrixAt(n, _mat); OBJ.ferryN.setMatrixAt(n, _mat); n++; }
     else if (b.kind === 'tanker' && nt < 8) { ferryMatrix(b.x, b.z, b.hd, 0, 0, _mat); OBJ.tankH.setMatrixAt(nt, _mat); OBJ.tankT.setMatrixAt(nt, _mat); OBJ.tankH.setColorAt(nt, _c.setHex(b.col)); nt++; }
     else if (b.kind === 'fish' && nf < 12) { ferryMatrix(b.x, b.z, b.hd, 0.08 * Math.sin(b.bob * 2.1), 0.05 * Math.sin(b.bob * 1.7), _mat); OBJ.fishH.setMatrixAt(nf, _mat); OBJ.fishT.setMatrixAt(nf, _mat); OBJ.fishH.setColorAt(nf, _c.setHex(b.col)); nf++; }
   }
   OBJ.ferryB.count = OBJ.ferryW.count = OBJ.ferryN.count = n; OBJ.ferryB.instanceMatrix.needsUpdate = OBJ.ferryW.instanceMatrix.needsUpdate = OBJ.ferryN.instanceMatrix.needsUpdate = true;
   OBJ.tankH.count = OBJ.tankT.count = nt; OBJ.tankH.instanceMatrix.needsUpdate = OBJ.tankT.instanceMatrix.needsUpdate = true; if (OBJ.tankH.instanceColor) OBJ.tankH.instanceColor.needsUpdate = true;
   OBJ.fishH.count = OBJ.fishT.count = nf; OBJ.fishH.instanceMatrix.needsUpdate = OBJ.fishT.instanceMatrix.needsUpdate = true; if (OBJ.fishH.instanceColor) OBJ.fishH.instanceColor.needsUpdate = true;
+  let nb = 0;
+  if (OBJ.buoys) {
+    for (const b of SIM.traffic) {
+      if (!b.anchored || !b.netEndX) continue;
+      const count = b.netBuoys || 6;
+      for (let k = 0; k < count; k++) {
+        if (nb >= 96) break;
+        const u = (k + 1) / (count + 1);
+        const bx = lerp(b.x, b.netEndX, u);
+        const bz = lerp(b.z, b.netEndZ, u);
+        const bob = Math.sin(waterU.uTime.value * 2.5 + k * 1.2 + b.bob);
+        const by = waveY(bx, bz) + 0.12 + bob * 0.08;
+        _o.position.set(bx, by, bz);
+        _e.set(bob * 0.12, b.hd + u * 0.4, bob * 0.08, 'YXZ');
+        _o.quaternion.setFromEuler(_e);
+        _o.scale.set(1, 1, 1);
+        _o.updateMatrix();
+        OBJ.buoys.setMatrixAt(nb++, _o.matrix);
+      }
+    }
+    OBJ.buoys.count = nb;
+    OBJ.buoys.instanceMatrix.needsUpdate = true;
+  }
   syncPeople(); syncGulls(dt); syncParticles(dt); syncMarkers(dt);
   updateCamera(dt);
 }
 function syncGulls(dt) {
   const m = OBJ.gulls, t = waterU.uTime.value;
+  const simit = !!(SIM.deckLife && SIM.deckLife.simitActive);
+  const P = player, s = Math.sin(P.hd), c = Math.cos(P.hd);
+  const sternX = P.x - s * (FERRY.len * 0.48), sternZ = P.z - c * (FERRY.len * 0.48);
   for (let i = 0; i < GULLS.length; i++) {
     const g = GULLS[i];
     const spot = g.spot < WORLD.gullSpots.length ? WORLD.gullSpots[g.spot] : null;
-    const cx = spot ? spot[0] : player.x, cz = spot ? spot[1] : player.z;
-    g.a += g.w * dt * (player.horn && !spot ? 2.2 : 1);
-    const x = cx + Math.cos(g.a) * g.r, z = cz + Math.sin(g.a) * g.r, y = g.h + Math.sin(t * 0.7 + g.ph) * 3 + (player.horn && !spot ? 10 : 0);
-    const flap = 1 + 0.55 * Math.sin(t * 9 + g.ph);
-    m.setMatrixAt(i, place(x, y, z, -g.a + (g.w > 0 ? Math.PI : 0), 1, flap, 1));
+    const cx = spot ? spot[0] : P.x, cz = spot ? spot[1] : P.z;
+    g.a += g.w * dt * (P.horn && !spot ? 2.2 : 1);
+    if (simit && i < 12) {
+      // Flocking behind the stern for simit crumbs (instanced, max 12)
+      const dBack = 7 + (i % 4) * 4.5 + Math.sin(t * 1.8 + i * 1.3) * 2.5;
+      const dLat = Math.sin(t * 2.2 + i * 1.5) * (2.8 + (i % 3) * 1.4);
+      const gx = sternX - s * dBack + c * dLat;
+      const gz = sternZ - c * dBack - s * dLat;
+      const gy = Math.max(1.6, waveY(gx, gz) + 2.5 + Math.sin(t * 2.8 + i * 1.7) * 1.6 + (i % 3) * 1.1);
+      const gHd = P.hd + Math.sin(t * 2.0 + i) * 0.35;
+      const flap = 1 + 0.75 * Math.sin(t * 13 + i * 2.1);
+      m.setMatrixAt(i, place(gx, gy, gz, gHd, 1, flap, 1));
+    } else {
+      const x = cx + Math.cos(g.a) * g.r, z = cz + Math.sin(g.a) * g.r, y = g.h + Math.sin(t * 0.7 + g.ph) * 3 + (P.horn && !spot ? 10 : 0);
+      const flap = 1 + 0.55 * Math.sin(t * 9 + g.ph);
+      m.setMatrixAt(i, place(x, y, z, -g.a + (g.w > 0 ? Math.PI : 0), 1, flap, 1));
+    }
   }
   m.instanceMatrix.needsUpdate = true;
 }
@@ -3893,7 +5266,7 @@ function syncWakeRibbon(dt) {
   if (!OBJ.wakeRibbon || !OBJ.wakeRibbon.visible) return;
   const P = player, sp = player.speed;
   const s = Math.sin(P.hd), c = Math.cos(P.hd);
-  const sternX = P.x - s * 17.5, sternZ = P.z - c * 17.5;
+  const sternX = P.x - s * (FERRY.len * 0.48), sternZ = P.z - c * (FERRY.len * 0.48);
   const fk = 1 - 0.72 * SIM.night - 0.3 * (SIM.storm ? 1 : 0);
   const alpha0 = clamp((sp - 0.3) / 5.5, 0, 0.55) * fk;
 
@@ -4012,44 +5385,48 @@ function syncParticles(dt) {
         // Twin screw propeller wash: port & starboard churn
         const kP = Math.min(1, 0.25 + sp / 6 + Math.abs(P.thrP || 0) * 0.5);
         const kS = Math.min(1, 0.25 + sp / 6 + Math.abs(P.thrS || 0) * 0.5);
-        const washLen = 17 + sp * 0.5;
+        const sternAlong = FERRY.len * 0.46;
+        const washLen = FERRY.len * 0.47 + sp * 0.5;
+        const propW = FERRY.beam * 0.25;
         if (Math.abs(P.thrP || 0) > 0.1 || sp > 0.5) {
           const sternDir = (P.thrP || 0) < -0.1 ? 1 : -1;
-          wk(P.x + s * sternDir * 16.5 - c * 2.2 + rr(-0.5, 0.5), 0.3, P.z + c * sternDir * 16.5 + s * 2.2 + rr(-0.5, 0.5),
+          wk(P.x + s * sternDir * sternAlong - c * propW + rr(-0.5, 0.5), 0.3, P.z + c * sternDir * sternAlong + s * propW + rr(-0.5, 0.5),
              -P.vx * 0.25 + rr(-0.7, 0.7), 0.2, -P.vz * 0.25 + rr(-0.7, 0.7), 2.2 + sp * 0.25, 2.2, 6 + sp * 0.7, 0xf4fbff, 0.32 * kP);
         }
         if (Math.abs(P.thrS || 0) > 0.1 || sp > 0.5) {
           const sternDir = (P.thrS || 0) < -0.1 ? 1 : -1;
-          wk(P.x + s * sternDir * 16.5 + c * 2.2 + rr(-0.5, 0.5), 0.3, P.z + c * sternDir * 16.5 - s * 2.2 + rr(-0.5, 0.5),
+          wk(P.x + s * sternDir * sternAlong + c * propW + rr(-0.5, 0.5), 0.3, P.z + c * sternDir * sternAlong - s * propW + rr(-0.5, 0.5),
              -P.vx * 0.25 + rr(-0.7, 0.7), 0.2, -P.vz * 0.25 + rr(-0.7, 0.7), 2.2 + sp * 0.25, 2.2, 6 + sp * 0.7, 0xf4fbff, 0.32 * kS);
         }
         // Wide churning foam carpet behind twin screws
         const side = rr(-1, 1);
-        wk(P.x - s * washLen + c * side * (3.5 + sp * 0.3), 0.25, P.z - c * washLen - s * side * (3.5 + sp * 0.3),
+        wk(P.x - s * washLen + c * side * (FERRY.beam * 0.38 + sp * 0.3), 0.25, P.z - c * washLen - s * side * (FERRY.beam * 0.38 + sp * 0.3),
            -P.vx * 0.1 + rr(-0.5, 0.5), 0, -P.vz * 0.1 + rr(-0.5, 0.5), 5 + sp * 0.5, 3.5, 10 + sp * 1.2, 0xd8edf5, 0.12 * Math.max(kP, kS));
         // Bow wave foam & spray: scales dynamically with speed
         if (sp > 1.8) {
           const sd = rr(0, 1) < 0.5 ? -1 : 1;
           const bowSpdScale = clamp(sp / 10, 0.3, 1.2);
-          wk(P.x + s * 14.5 + c * sd * (3.8 + sp * 0.22), 0.3, P.z + c * 14.5 - s * sd * (3.8 + sp * 0.22),
+          const bowAlong = FERRY.len * 0.40;
+          const bowW = FERRY.beam * 0.42;
+          wk(P.x + s * bowAlong + c * sd * (bowW + sp * 0.22), 0.3, P.z + c * bowAlong - s * sd * (bowW + sp * 0.22),
              c * sd * (1.2 + sp * 0.3) + P.vx * 0.45, 0.1, -s * sd * (1.2 + sp * 0.3) + P.vz * 0.45,
              2.0 + sp * 0.2, 1.2 * bowSpdScale, (3.5 + sp * 0.4) * bowSpdScale, 0xffffff, 0.28 * bowSpdScale);
           if (sp > 4.5 && rr(0, 1) < 0.6) {
-            wk(P.x + s * 16.5 + c * sd * 3.2, 1.0, P.z + c * 16.5 - s * sd * 3.2,
+            wk(P.x + s * (FERRY.len * 0.46) + c * sd * (FERRY.beam * 0.35), 1.0, P.z + c * (FERRY.len * 0.46) - s * sd * (FERRY.beam * 0.35),
                c * sd * (2.2 + sp * 0.2) + P.vx * 0.55, 2.5 + sp * 0.3, -s * sd * (2.2 + sp * 0.2) + P.vz * 0.55,
                1.0 + sp * 0.1, 0.8, 1.6 + sp * 0.15, 0xffffff, 0.45, 9);
           }
         }
         // Foam collar along the hull scaling with speed
         if (sp > 1.0) {
-          const sd = rr(0, 1) < 0.5 ? -1 : 1, az = rr(-13, 12);
-          wk(P.x + s * az + c * sd * 4.8, 0.3, P.z + c * az - s * sd * 4.8, P.vx * 0.25, 0, P.vz * 0.25, 1.4, 0.9, 2.8, 0xeaf6fa, 0.2 * Math.min(1, sp / 5));
+          const sd = rr(0, 1) < 0.5 ? -1 : 1, az = rr(-FERRY.len * 0.36, FERRY.len * 0.33);
+          wk(P.x + s * az + c * sd * (FERRY.beam * 0.52), 0.3, P.z + c * az - s * sd * (FERRY.beam * 0.52), P.vx * 0.25, 0, P.vz * 0.25, 1.4, 0.9, 2.8, 0xeaf6fa, 0.2 * Math.min(1, sp / 5));
         }
       }
     }
     // funnel smoke
     P.smokeT += dt * (3 + Math.abs(P.thr) * 10);
-    while (P.smokeT > 1) { P.smokeT -= 1; ferryLocalToWorld([0, 12.6, -3.5], _p3); OBJ.smoke.spawn(_p3[0], _p3[1], _p3[2], SIM.wind.x * 1.5 + rr(-0.4, 0.4) - P.vx * 0.7, 2.2 + rr(0, 1), SIM.wind.z * 1.5 + rr(-0.4, 0.4) - P.vz * 0.7, 3.5 + rr(0, 2), 1.6, 7 + Math.abs(P.thr) * 4, Math.abs(P.thr) > 0.6 ? 0x4a4a4a : 0x9a9a9a, 0.22 + 0.25 * Math.abs(P.thr)); }
+    while (P.smokeT > 1) { P.smokeT -= 1; ferryLocalToWorld(FERRY.funnelPos || [0, 12.6, -3.5], _p3); OBJ.smoke.spawn(_p3[0], _p3[1], _p3[2], SIM.wind.x * 1.5 + rr(-0.4, 0.4) - P.vx * 0.7, 2.2 + rr(0, 1), SIM.wind.z * 1.5 + rr(-0.4, 0.4) - P.vz * 0.7, 3.5 + rr(0, 2), 1.6, 7 + Math.abs(P.thr) * 4, Math.abs(P.thr) > 0.6 ? 0x4a4a4a : 0x9a9a9a, 0.22 + 0.25 * Math.abs(P.thr)); }
   }
   // rain around the camera
   if (SIM.rain > 0.05 && G.state === 'play') {
@@ -4098,21 +5475,34 @@ function syncMarkers(dt) {
     const P = SIM.docked, a = OBJ.ropes.geometry.attributes.position, s = Math.sin(player.hd), c = Math.cos(player.hd);
     // cleats near the bow and the stern on the pier side
     const sideSign = ((P.ex - player.x) * c - (P.ez - player.z) * s) > 0 ? 1 : -1;
-    const cl = [[sideSign * 4.2, 3.0, 13], [sideSign * 4.2, 3.0, -13]];
+    const halfL = FERRY.len * 0.38, halfW = FERRY.beam * 0.46;
+    const cl = [[sideSign * halfW, 3.0, halfL], [sideSign * halfW, 3.0, -halfL]];
+    const tension = clamp(SIM.ropeTension || 0.2, 0.1, 1.0);
+    const sag = (1 - tension) * 0.65;
     for (let i = 0; i < 2; i++) {
-      const w = ferryLocalToWorld(cl[i], _p3), bl = P.boll[i];
+      const w = ferryLocalToWorld(cl[i], _p3);
       // the nearer bollard for each cleat
       let bi = 0, bd = 1e9; P.boll.forEach((b, j) => { const d = hyp(b[0] - w[0], b[1] - w[2]); if (d < bd) { bd = d; bi = j; } });
       const bb = P.boll[bi];
-      a.setXYZ(i * 2, w[0], w[1], w[2]); a.setXYZ(i * 2 + 1, bb[0], 3.4, bb[1]);
+      const midX = (w[0] + bb[0]) * 0.5, midY = (w[1] + 3.4) * 0.5 - sag, midZ = (w[2] + bb[1]) * 0.5;
+      const baseIdx = i * 4;
+      a.setXYZ(baseIdx, w[0], w[1], w[2]);
+      a.setXYZ(baseIdx + 1, midX, midY, midZ);
+      a.setXYZ(baseIdx + 2, midX, midY, midZ);
+      a.setXYZ(baseIdx + 3, bb[0], 3.4, bb[1]);
     }
     a.needsUpdate = true;
+    if (matRope && matRope.color) {
+      matRope.color.setRGB(lerp(0.54, 0.76, tension), lerp(0.42, 0.27, tension), lerp(0.24, 0.18, tension));
+    }
   }
 }
 // ---------------------------------------------------------------- camera
 function updateCamera(dt) {
   const P = player, s = Math.sin(P.hd), c = Math.cos(P.hd);
+  const still = calm();
   const boatY = waveY(P.x, P.z) * 0.9;
+  const camBoatY = still ? boatY * 0.2 : boatY;
   if (G.state === 'title' || G.state === 'intro' || (G.state === 'settings' && settingsFrom !== 'pause')) {
     // slow sweep around the ferry at its first pier, always from the water side
     const a = Math.sin(waterU.uTime.value * 0.11) * 0.9, Pr = SIM.docked || (SIM.stops[0] && PIERS[SIM.stops[0].id]);
@@ -4144,13 +5534,13 @@ function updateCamera(dt) {
     const dPier = Pr ? hyp(Pr.bx - P.x, Pr.bz - P.z) : 30;
     const midX = Pr ? (P.x * 0.55 + Pr.bx * 0.45) : P.x;
     const midZ = Pr ? (P.z * 0.55 + Pr.bz * 0.45) : P.z;
-    const lookY = boatY + 2.5;
+    const lookY = camBoatY + 2.5;
     const camH = clamp(36 + dPier * 0.08, 38, 48);
     const nx = Pr ? Pr.nx : 1, nz = Pr ? Pr.nz : 0;
     const offsetDist = clamp(32 + dPier * 0.12, 34, 50);
     const tx = midX + nx * (offsetDist * 0.72) - s * (offsetDist * 0.42);
     const tz = midZ + nz * (offsetDist * 0.72) - c * (offsetDist * 0.42);
-    const ty = boatY + camH;
+    const ty = camBoatY + camH;
     const k = Math.min(1, dt * 3.5);
     CAM.px += (tx - CAM.px) * k;
     CAM.py += (ty - CAM.py) * k;
@@ -4162,7 +5552,7 @@ function updateCamera(dt) {
   } else if (camMode === 0) {
     // cinematic docking: near the target pier the chase camera drifts out over the water, drops low and frames the
     // ferry against the pier; moored, it keeps a slow orbit. A drag on the scene overrides it for a few seconds.
-    const still = calm(), cine = !still && !!Pr && (DOCK.near || !!SIM.docked) && !CAM.drag && CAM.idle > 2.5 && !CAM.cineOff;   // reduce motion: no cinematic docking drift/orbit
+    const cine = !still && !!Pr && (DOCK.near || !!SIM.docked) && !CAM.drag && CAM.idle > 2.5 && !CAM.cineOff;   // reduce motion: no cinematic docking drift/orbit
     CAM.cine = still ? 0 : CAM.cine + ((cine ? 1 : 0) - CAM.cine) * Math.min(1, dt * 0.8);
     if (!CAM.drag && CAM.idle > 3) {
       let yawT = 0, pitchT = 0.42, distT = CAM.distUser;
@@ -4174,14 +5564,14 @@ function updateCamera(dt) {
       CAM.yaw += wrapAng(yawT - CAM.yaw) * Math.min(1, dt * (cine ? 0.7 : 1.2)); CAM.pitch += (pitchT - CAM.pitch) * Math.min(1, dt * 1.0); CAM.dist += (distT - CAM.dist) * Math.min(1, dt * 0.8);
     }
     const yaw = P.hd + Math.PI + CAM.yaw, d = CAM.dist, pitch = CAM.pitch;
-    const tx = P.x + Math.sin(yaw) * Math.cos(pitch) * d, ty = boatY + 4 + Math.sin(pitch) * d, tz = P.z + Math.cos(yaw) * Math.cos(pitch) * d;
-    const k = Math.min(1, dt * 4);
+    const tx = P.x + Math.sin(yaw) * Math.cos(pitch) * d, ty = camBoatY + 4 + Math.sin(pitch) * d, tz = P.z + Math.cos(yaw) * Math.cos(pitch) * d;
+    const k = Math.min(1, dt * (SIM.warp ? 8 : 4));
     CAM.px += (tx - CAM.px) * k; CAM.py += (ty - CAM.py) * k; CAM.pz += (tz - CAM.pz) * k;
     camera.position.set(CAM.px, Math.max(CAM.py, 3), CAM.pz);
-    camera.lookAt(P.x + s * 8 * (1 - CAM.cine), boatY + 5, P.z + c * 8 * (1 - CAM.cine));
+    camera.lookAt(P.x + s * 8 * (1 - CAM.cine), camBoatY + 5, P.z + c * 8 * (1 - CAM.cine));
     camera.fov = 55 + (still ? 0 : 5 * Math.min(1, P.speed / 12) * (1 - CAM.cine));   // a touch wider at speed
   } else if (camMode === 1) {
-    ferryLocalToWorld([0, 7.9, 8.6], _p3);
+    ferryLocalToWorld(FERRY.bridgeCamPos || [0, 7.9, 8.6], _p3);
     camera.position.set(_p3[0], _p3[1], _p3[2]);
     const ly = P.hd + CAM.lookYaw, lp = CAM.lookPitch;
     camera.lookAt(_p3[0] + Math.sin(ly) * Math.cos(lp) * 50, _p3[1] + Math.sin(lp) * 50 - 1, _p3[2] + Math.cos(ly) * Math.cos(lp) * 50);
@@ -4195,6 +5585,15 @@ function updateCamera(dt) {
     camera.position.set(CAM.px, CAM.py, CAM.pz);
     camera.lookAt(P.x + s * 20, 0, P.z + c * 20);
     camera.fov = 55;
+  }
+  if (CAM.shake > 0) {
+    CAM.shake = Math.max(0, CAM.shake - dt * 2.5);
+    if (!still) {
+      const sh = CAM.shake * 0.6;
+      camera.position.x += (Math.random() - 0.5) * sh;
+      camera.position.y += (Math.random() - 0.5) * sh;
+      camera.position.z += (Math.random() - 0.5) * sh;
+    }
   }
   if (el.camLbl && G.state === 'play') {
     el.camLbl.textContent = t(['camChase', 'camBridge', 'camTop', 'camDock'][isDockCam ? 3 : camMode]);
@@ -4212,9 +5611,9 @@ function setCamMode(m) {
 
 // ---------------------------------------------------------------- UI: elements, toasts, HUD
 const el = {};
-for (const id of ['hud', 'topbar', 'stShift', 'stClock', 'stPlan', 'stPax', 'comfBar', 'hullBar', 'stStars', 'bPanel', 'bCamH', 'bPause', 'bSound', 'bLang', 'toasts', 'colregBadge', 'colregArrow', 'colregTxt', 'colregSub', 'nextCard', 'ncName', 'ncL2', 'ncL3', 'camLbl', 'minimap', 'lvThr', 'lvThrS', 'lvRud', 'speedo', 'spArc', 'spVal', 'spUnit', 'dock', 'dkDist', 'dkSpd', 'dkAng', 'dkHint', 'floaters', 'touch', 'tWheel', 'tWheelSvg', 'tThr', 'tHorn', 'tCam',
+for (const id of ['hud', 'topbar', 'stShift', 'stClock', 'stPlan', 'stPax', 'comfBar', 'hullBar', 'stStars', 'bWarp', 'warpBadge', 'warpBadgeTxt', 'bPanel', 'bCamH', 'bPause', 'bSound', 'bLang', 'toasts', 'colregBadge', 'colregArrow', 'colregTxt', 'colregSub', 'nextCard', 'ncName', 'ncL2', 'ncApproach', 'ncNote', 'ncSide', 'ncHd', 'ncL3', 'ncRope', 'ncRopeVal', 'ncRopeBar', 'camLbl', 'minimap', 'lvThr', 'lvThrS', 'lvHeat', 'heatColP', 'heatColS', 'heatBarP', 'heatBarS', 'heatValP', 'heatValS', 'lvRud', 'rpmP', 'rpmS', 'speedo', 'spArc', 'spVal', 'spUnit', 'dock', 'dkDist', 'dkSpd', 'dkAng', 'dkHint', 'bMoor', 'floaters', 'touch', 'tWheel', 'tWheelSvg', 'tThr', 'tRpmP', 'tRpmS', 'tThrHeat', 'tHeatP', 'tHeatS', 'tHorn', 'tCam',
   'sTitle', 'sIntro', 'sPause', 'sSettings', 'sEnd', 'bPlay', 'playTxt', 'bCont', 'bEndless', 'bSettingsT', 'bLangT', 'langTxt', 'bestLine', 'cmap', 'inTitle', 'inDesc', 'inCond', 'inTT', 'inTarget', 'bStart', 'bFog', 'fogTxt', 'bIntroBack',
-  'bResume', 'bRestart', 'bSettingsP', 'bMenuP', 'rMaster', 'rMusic', 'rSfx', 'oMaster', 'oMusic', 'oSfx', 'bTR', 'bEN', 'bQLow', 'bQHigh', 'bFull', 'bSetBack', 'enTitle', 'enSub', 'enStars', 'enStats', 'enRec', 'bNext', 'nextTxt', 'bRetry', 'bMenuE', 'dbg', 'hurt', 'bDaily', 'dailyLine', 'bA11y', 'bShare', 'aOther', 'enDaily', 'rankName', 'rankXpTxt', 'rankBar', 'missionsDateTag', 'missionsList']) el[id] = document.getElementById(id);
+  'bResume', 'bRestart', 'bSettingsP', 'bMenuP', 'rMaster', 'rMusic', 'rSfx', 'oMaster', 'oMusic', 'oSfx', 'rSteer', 'oSteer', 'bMotOff', 'bMotOn', 'bGhostOff', 'bGhostOn', 'bAnnOff', 'bAnnOn', 'bTR', 'bEN', 'bQLow', 'bQHigh', 'bLPAuto', 'bLPOn', 'bLPOff', 'bFull', 'bSetBack', 'enTitle', 'enSub', 'enStars', 'enStats', 'enRec', 'bNext', 'nextTxt', 'bRetry', 'bMenuE', 'dbg', 'hurt', 'bDaily', 'dailyLine', 'bA11y', 'bShare', 'aOther', 'enDaily', 'rankName', 'rankXpTxt', 'rankBar', 'missionsDateTag', 'missionsList', 'vesselSelect', 'vesselRankInfo', 'vesselCards']) el[id] = document.getElementById(id);
 function toast(msg, kind = 'info', ms = 2600) {
   const d = document.createElement('div'); d.className = 'toast ' + kind; d.textContent = msg; el.toasts.appendChild(d);
   while (el.toasts.children.length > 4) el.toasts.firstChild.remove();
@@ -4233,6 +5632,7 @@ function applyLang() {
   if (window.Arena) Arena.lang(LANG);
   $$('[data-i]').forEach(e => { const k = e.getAttribute('data-i'); if (k === 'howto') e.innerHTML = tT('howto'); else if (k !== 'loading') e.textContent = k === 'keysHelp' ? tT(k) : t(k); });
   $$('[data-t]').forEach(e => { e.title = t(e.getAttribute('data-t')); e.setAttribute('aria-label', t(e.getAttribute('data-t'))); });
+  if (el.warpBadgeTxt) el.warpBadgeTxt.textContent = t('warpBadge');
   el.langTxt.textContent = LANG === 'tr' ? 'TR / EN' : 'EN / TR';
   el.bTR.classList.toggle('sel', LANG === 'tr'); el.bEN.classList.toggle('sel', LANG === 'en');
   updateBestLine(); if (G.state === 'intro') renderIntro(); if (G.state === 'end' && G.lastResult) renderEnd(G.lastResult);
@@ -4244,12 +5644,61 @@ function updateBestLine() {
   const st = best.stars.reduce((a, b) => a + b, 0);
   el.bestLine.textContent = (best.total > 0 || best.endless > 0) ? t('bestLine', best.total, st, best.endless) : t('bestNone');
   el.bCont.classList.toggle('hidden', !runSave);
-  if (window.Arena) { const d = Arena.daily(); el.dailyLine.textContent = (d.done ? t('dailyDone') + ' · ' : '') + t('dailyLine', d.streak, d.best); }
+  const day = getDayKey();
+  const d = window.Arena ? Arena.daily(null, { dayKey: day }) : { day, streak: 0, best: 0, done: false };
+  const todayScore = getTodayDailyBest(day);
+  const data = getDailyData();
+  const allTime = data.allTimeBest || 0;
+
+  if (todayScore > 0) {
+    const txt = t('dailyDone') + ' · ' + t('dailyScore', todayScore) + (d.streak > 0 ? ' · ' + t('dailyStreak', d.streak) : '');
+    el.dailyLine.innerHTML = '<span>' + txt + '</span> <button class="btn icon-sm" id="bDailyShare" data-t="share" aria-label="' + t('share') + '" title="' + t('share') + '"><svg class="ic" style="width:13px;height:13px;"><use href="#i-star"/></svg> <span>' + t('share') + '</span></button>';
+    const bSh = document.getElementById('bDailyShare');
+    if (bSh) {
+      bSh.addEventListener('click', e => {
+        e.stopPropagation();
+        AUD.click();
+        shareDaily(day, todayScore, d.streak);
+      });
+    }
+  } else if (d.streak > 0 || allTime > 0) {
+    el.dailyLine.textContent = t('dailyTitle') + ' · ' + t('dailyStreak', d.streak) + (allTime > 0 ? ' · ' + t('dailyAllTime', allTime) : '');
+  } else {
+    el.dailyLine.textContent = t('dailyTitle') + ' · ' + t('dailyDescBrief');
+  }
 }
 function syncSettingsUI() {
   el.rMaster.value = Math.round(settings.master * 100); el.rMusic.value = Math.round(settings.music * 100); el.rSfx.value = Math.round(settings.sfx * 100);
   el.oMaster.value = el.rMaster.value; el.oMusic.value = el.rMusic.value; el.oSfx.value = el.rSfx.value;
+  if (el.rSteer) {
+    const s = comfortSettings.steerSens || 1.0;
+    el.rSteer.value = s.toFixed(2);
+    if (el.oSteer) el.oSteer.value = s.toFixed(2) + 'x';
+  }
+  if (el.bMotOff && el.bMotOn) {
+    const isMot = !!comfortSettings.reducedMotion;
+    el.bMotOff.classList.toggle('sel', !isMot);
+    el.bMotOn.classList.toggle('sel', isMot);
+  }
+  if (el.bGhostOff && el.bGhostOn) {
+    const isGhost = settings.ghostDocking !== false;
+    el.bGhostOff.classList.toggle('sel', !isGhost);
+    el.bGhostOn.classList.toggle('sel', isGhost);
+    el.bGhostOff.setAttribute('aria-pressed', String(!isGhost));
+    el.bGhostOn.setAttribute('aria-pressed', String(isGhost));
+  }
+  if (el.bAnnOff && el.bAnnOn) {
+    const isAnn = settings.announcements !== false;
+    el.bAnnOff.classList.toggle('sel', !isAnn);
+    el.bAnnOn.classList.toggle('sel', isAnn);
+    el.bAnnOff.setAttribute('aria-pressed', String(!isAnn));
+    el.bAnnOn.setAttribute('aria-pressed', String(isAnn));
+  }
   el.bQLow.classList.toggle('sel', settings.quality === 'low'); el.bQHigh.classList.toggle('sel', settings.quality === 'high');
+  const lp = settings.lowPower || 'auto';
+  if (el.bLPAuto) el.bLPAuto.classList.toggle('sel', lp === 'auto');
+  if (el.bLPOn) el.bLPOn.classList.toggle('sel', lp === 'on');
+  if (el.bLPOff) el.bLPOff.classList.toggle('sel', lp === 'off');
   el.bSound.innerHTML = '<svg class="ic"><use href="#' + (settings.mute || !settings.sfxOn ? 'i-sfx-off' : 'i-sfx') + '"/></svg>';
 }
 const starSvg = () => '<svg viewBox="0 0 24 24"><use href="#i-star"/></svg>';
@@ -4268,6 +5717,7 @@ function updateHUD(dt) {
   el.stPax.textContent = SIM.aboardN + '/' + FERRY.cap;
   el.comfBar.firstChild.style.width = SIM.comfort.toFixed(0) + '%';
   el.hullBar.firstChild.style.width = player.hull.toFixed(0) + '%';
+  el.hullBar.classList.toggle('degraded', player.hull > 0 && player.hull < 100);
   const proj = starsFor(shiftScore() + (SIM.stops.length - 1 - SIM.punct.length) * 0 + 0, SIM.target);   // stars so far (score grows with the stops)
   [...el.stStars.children].forEach((s, i) => s.classList.toggle('on', i < proj));
   // next stop card
@@ -4275,17 +5725,45 @@ function updateHUD(dt) {
     const P = PIERS[ns.id];
     el.ncName.textContent = pierName(ns.id);
     if (SIM.docked) {
+      if (el.ncApproach) el.ncApproach.classList.add('hidden');
       const w = ns.dep - SIM.t;
       el.ncL2.textContent = !SIM.boardDone ? t('boarding') : (w > 0 ? t('waitDep', fmtMS(w)) : t('canLeave'));
       el.ncL2.className = 'l2';
       el.ncL3.innerHTML = SIM.depAllowed && SIM.stopIdx < SIM.stops.length - 1 ? tT('hintLeave') : '';
+      // Mooring line tension while docked
+      const curT = clamp(0.20 + 0.30 * SIM.cur + 0.18 * (SIM.wind.a || 0) + 0.10 * Math.sin(SIM.t * 2.1) + 0.40 * Math.abs(player.thr || 0), 0.12, 1.0);
+      SIM.ropeTension = lerp(SIM.ropeTension || curT, curT, Math.min(1, dt * 5));
+      if (el.ncRope) {
+        el.ncRope.classList.remove('hidden');
+        const pct = Math.round(SIM.ropeTension * 100);
+        if (el.ncRopeVal) el.ncRopeVal.textContent = pct + '%';
+        if (el.ncRopeBar && el.ncRopeBar.firstElementChild) el.ncRopeBar.firstElementChild.style.width = pct + '%';
+      }
     } else {
+      SIM.ropeTension = 0;
+      if (el.ncRope) el.ncRope.classList.add('hidden');
       const d = hyp(P.bx - player.x, P.bz - player.z), late = SIM.t - ns.arr;
       el.ncL2.textContent = Math.round(d) + ' m · ' + t('waiting', Math.floor(P.wait));
       el.ncL2.className = 'l2';
       el.ncL3.textContent = late > 0 ? t('lateBy', fmtMS(late)) : t('earlyBy', fmtMS(-late));
       el.ncL3.className = 'l2' + (late > 15 ? ' late' : '');
+      if (el.ncApproach) {
+        el.ncApproach.classList.remove('hidden');
+        const app = PIER_APPROACH[ns.id];
+        if (app) {
+          if (el.ncNote) el.ncNote.textContent = t(app.noteKey);
+          if (el.ncSide) {
+            el.ncSide.textContent = t(app.side === 'port' ? 'sidePort' : 'sideStarboard');
+            el.ncSide.className = 'nc-badge side ' + app.side;
+          }
+          if (el.ncHd) el.ncHd.textContent = app.hdStr;
+        }
+      }
     }
+  } else {
+    SIM.ropeTension = 0;
+    if (el.ncRope) el.ncRope.classList.add('hidden');
+    if (el.ncApproach) el.ncApproach.classList.add('hidden');
   }
   // speed and levers
   const kn = player.speed * 1.944, frac = clamp(player.speed / 14, 0, 1);
@@ -4293,14 +5771,41 @@ function updateHUD(dt) {
   el.lvThr.style.top = (44 - (player.thrP || 0) * 40) + '%'; el.lvThr.style.height = '12%';
   el.lvThrS.style.top = (44 - (player.thrS || 0) * 40) + '%'; el.lvThrS.style.height = '12%';
   el.lvRud.style.left = (50 - player.rud * 36) + '%'; el.lvRud.style.marginLeft = '-4px';
+  // Per-engine RPM labels & classes
+  const fmtRpm = (thr, pause, rpm) => {
+    if (pause > 0) return { txt: t('gearPause'), cls: 'gear-pause' };
+    if (rpm <= 0 || Math.abs(thr) < 0.03) return { txt: '0', cls: '' };
+    if (thr > 0) return { txt: t('dirAhead') + ' ' + rpm, cls: 'ahead' };
+    return { txt: t('dirAstern') + ' ' + rpm, cls: 'astern' };
+  };
+  const rP = fmtRpm(player.thrP || 0, player.gearPauseP || 0, player.rpmP || 0);
+  const rS = fmtRpm(player.thrS || 0, player.gearPauseS || 0, player.rpmS || 0);
+  if (el.rpmP) { el.rpmP.textContent = rP.txt; el.rpmP.className = 'rpm-lbl' + (rP.cls ? ' ' + rP.cls : ''); }
+  if (el.rpmS) { el.rpmS.textContent = rS.txt; el.rpmS.className = 'rpm-lbl' + (rS.cls ? ' ' + rS.cls : ''); }
+  if (el.tRpmP) { el.tRpmP.textContent = rP.txt; el.tRpmP.className = 'rpm-tag p' + (rP.cls ? ' ' + rP.cls : ''); }
+  if (el.tRpmS) { el.tRpmS.textContent = rS.txt; el.tRpmS.className = 'rpm-tag s' + (rS.cls ? ' ' + rS.cls : ''); }
+  // engine temperature gauges & touch tags
+  const tP = Math.round(player.tempP || 60), tS = Math.round(player.tempS || 60);
+  const fracP = clamp((tP - 60) / 45, 0, 1), fracS = clamp((tS - 60) / 45, 0, 1);
+  const hotP = !!player.overheatP || tP >= 100, warmP = !hotP && tP >= 85;
+  const hotS = !!player.overheatS || tS >= 100, warmS = !hotS && tS >= 85;
+  if (el.heatBarP) el.heatBarP.style.height = (fracP * 100).toFixed(0) + '%';
+  if (el.heatBarS) el.heatBarS.style.height = (fracS * 100).toFixed(0) + '%';
+  if (el.heatValP) el.heatValP.textContent = tP + '°';
+  if (el.heatValS) el.heatValS.textContent = tS + '°';
+  if (el.heatColP) { el.heatColP.classList.toggle('hot', hotP); el.heatColP.classList.toggle('warm', warmP); }
+  if (el.heatColS) { el.heatColS.classList.toggle('hot', hotS); el.heatColS.classList.toggle('warm', warmS); }
+  if (el.tHeatP) { el.tHeatP.textContent = tP + '°'; el.tHeatP.classList.toggle('hot', hotP); el.tHeatP.classList.toggle('warm', warmP); }
+  if (el.tHeatS) { el.tHeatS.textContent = tS + '°'; el.tHeatS.classList.toggle('hot', hotS); el.tHeatS.classList.toggle('warm', warmS); }
   // docking guide
   if (DOCK.near && !SIM.docked) {
     el.dock.classList.add('show');
+    el.dock.classList.toggle('ok', DOCK.ok);
     el.dkDist.textContent = Math.max(0, DOCK.gap).toFixed(1) + ' m'; el.dkDist.className = DOCK.gap > -0.6 && DOCK.gap < 4.5 && Math.abs(DOCK.along) < 12 ? 'ok' : '';
     el.dkSpd.textContent = DOCK.spd.toFixed(1) + ' m/s'; el.dkSpd.className = DOCK.spd < 0.9 ? 'ok' : DOCK.spd > 2.5 ? 'no' : '';
     el.dkAng.textContent = Math.round(Math.abs(DOCK.ang) * 180 / Math.PI) + '°'; el.dkAng.className = Math.abs(DOCK.ang) < 0.36 ? 'ok' : '';
-    el.dkHint.textContent = DOCK.ok ? t('hintOk') : t(DOCK.hint); el.dkHint.className = 'hint' + (DOCK.ok ? ' ok' : '');
-  } else el.dock.classList.remove('show');
+    el.dkHint.textContent = DOCK.ok ? t(touchOn ? 'hintMoorTouch' : 'hintMoor') : t(DOCK.hint); el.dkHint.className = 'hint' + (DOCK.ok ? ' ok' : '');
+  } else { el.dock.classList.remove('show'); el.dock.classList.remove('ok'); }
   // colreg right-of-way alert badge
   if (el.colregBadge) {
     if (COLREG.giveWay && G.state === 'play' && !SIM.docked) {
@@ -4313,6 +5818,14 @@ function updateHUD(dt) {
     } else {
       el.colregBadge.classList.remove('show');
     }
+  }
+  if (el.bWarp) {
+    el.bWarp.classList.toggle('on', !!SIM.warp);
+    el.bWarp.setAttribute('aria-pressed', String(!!SIM.warp));
+    el.bWarp.style.opacity = (SIM.warp || canWarp()) ? '1' : '0.45';
+  }
+  if (el.warpBadge) {
+    el.warpBadge.classList.toggle('show', !!SIM.warp);
   }
   if (hurtA > 0) { hurtA = Math.max(0, hurtA - dt * 2); el.hurt.style.opacity = hurtA.toFixed(2); }
   if (touchOn) el.tWheelSvg.style.transform = 'rotate(' + (-player.rud * 120) + 'deg)';
@@ -4359,6 +5872,7 @@ function buildMinimapBase() {
 }
 const mmX = x => (x - MM.x0) / (MM.x1 - MM.x0) * el.minimap.width, mmZ = z => (z - MM.z0) / (MM.z1 - MM.z0) * el.minimap.height;
 let mmWp = null, mmWpFor = null, mmWpT = -99;
+const _mmCur = { x: 0, z: 0 };
 function drawMinimap() {
   const g = el.minimap.getContext('2d'), W = el.minimap.width, H = el.minimap.height;
   g.drawImage(MM.base, 0, 0);
@@ -4380,14 +5894,92 @@ function drawMinimap() {
     g.fillStyle = isNext ? '#C1442E' : '#0F2E33'; g.textAlign = P.side === 'w' ? 'right' : 'left';
     g.fillText(pierName(id), x + (P.side === 'w' ? -15 : 15), z);
   }
+  // Recommended approach arrow for next stop pier
+  if (ns && !SIM.docked) {
+    const P = PIERS[ns.id], app = PIER_APPROACH[ns.id];
+    if (P && app) {
+      const bx = mmX(P.bx), bz = mmZ(P.bz);
+      const rad = app.hd * Math.PI / 180;
+      const dx = Math.sin(rad), dz = -Math.cos(rad);
+      const arrowLen = 22;
+      const headX = bx - dx * 5, headZ = bz - dz * 5;
+      const tailX = headX - dx * arrowLen, tailZ = headZ - dz * arrowLen;
+      const ang = Math.atan2(dz, dx);
+      g.save();
+      g.strokeStyle = '#0F2E33'; g.lineWidth = 4.5; g.lineCap = 'round';
+      g.beginPath(); g.moveTo(tailX, tailZ); g.lineTo(headX, headZ); g.stroke();
+      g.strokeStyle = app.side === 'port' ? '#C1442E' : '#2E7D6B'; g.lineWidth = 2.4;
+      g.beginPath(); g.moveTo(tailX, tailZ); g.lineTo(headX, headZ); g.stroke();
+      g.translate(headX, headZ);
+      g.rotate(ang);
+      g.fillStyle = app.side === 'port' ? '#C1442E' : '#2E7D6B';
+      g.strokeStyle = '#0F2E33'; g.lineWidth = 1.6;
+      g.beginPath();
+      g.moveTo(5, 0); g.lineTo(-8, -5); g.lineTo(-5, 0); g.lineTo(-8, 5);
+      g.closePath();
+      g.fill(); g.stroke();
+      g.restore();
+    }
+  }
   // traffic
   for (const b of SIM.traffic) {
     if (b.delay > 0) continue;
     const x = mmX(b.x), z = mmZ(b.z);
+    if (b.anchored && b.netEndX) {
+      g.strokeStyle = '#E8542F'; g.lineWidth = 1.8; g.setLineDash([3, 3]);
+      g.beginPath(); g.moveTo(x, z); g.lineTo(mmX(b.netEndX), mmZ(b.netEndZ)); g.stroke();
+      g.setLineDash([]);
+    }
     g.save(); g.translate(x, z); g.rotate(-b.hd);
     g.fillStyle = b.kind === 'tanker' ? '#C1442E' : b.kind === 'ferry' ? '#1E5F63' : '#B98A5A';
     if (b.kind === 'tanker') g.fillRect(-4, -14, 8, 28); else if (b.kind === 'ferry') g.fillRect(-3, -7, 6, 14); else { g.beginPath(); g.arc(0, 0, 3, 0, TAU); g.fill(); }
     g.restore();
+  }
+  // ghost docking ferry on minimap
+  if (OBJ.ghostBody && OBJ.ghostBody.visible && GHOST_STATE.active) {
+    const ns2 = nextStop();
+    const ghost = ns2 ? GHOSTS[ns2.id] : null;
+    if (ghost) {
+      const smp = getGhostSample(ghost.frames, GHOST_STATE.time);
+      if (smp) {
+        g.save(); g.translate(mmX(smp.x), mmZ(smp.z)); g.rotate(-smp.hd);
+        g.fillStyle = 'rgba(96, 208, 216, 0.7)'; g.strokeStyle = '#0F2E33'; g.lineWidth = 1.4;
+        g.beginPath(); g.moveTo(0, -11); g.lineTo(6, 8); g.lineTo(0, 4); g.lineTo(-6, 8); g.closePath(); g.fill(); g.stroke();
+        g.restore();
+      }
+    }
+  }
+  // local current field arrows near ferry (teal = southward main flow, amber = counter-current)
+  for (let dz = -160; dz <= 160; dz += 80) {
+    for (let dx = -140; dx <= 140; dx += 70) {
+      if (dx * dx + dz * dz > 36000) continue;
+      const sx = player.x + dx, sz = player.z + dz;
+      if (depth(sx, sz) <= 4) continue;
+      currentAt(sx, sz, _mmCur);
+      const cSpd = hyp(_mmCur.x, _mmCur.z);
+      if (cSpd < 0.12) continue;
+      const mx = mmX(sx), mz = mmZ(sz);
+      const cAng = Math.atan2(_mmCur.z, _mmCur.x);
+      const aLen = clamp(3.5 + cSpd * 5.0, 5, 12.5);
+      const isCounter = _mmCur.z < -0.04;
+      g.save();
+      g.translate(mx, mz);
+      g.rotate(cAng);
+      g.strokeStyle = isCounter ? 'rgba(184, 120, 27, 0.70)' : 'rgba(30, 95, 99, 0.55)';
+      g.fillStyle = isCounter ? 'rgba(184, 120, 27, 0.85)' : 'rgba(30, 95, 99, 0.70)';
+      g.lineWidth = 1.3;
+      g.beginPath();
+      g.moveTo(-aLen * 0.5, 0);
+      g.lineTo(aLen * 0.5 - 2, 0);
+      g.stroke();
+      g.beginPath();
+      g.moveTo(aLen * 0.5 + 1.2, 0);
+      g.lineTo(aLen * 0.5 - 3.2, -2.0);
+      g.lineTo(aLen * 0.5 - 3.2, 2.0);
+      g.closePath();
+      g.fill();
+      g.restore();
+    }
   }
   // the player ferry
   g.save(); g.translate(mmX(player.x), mmZ(player.z)); g.rotate(-player.hd);
@@ -4427,8 +6019,9 @@ function readInput(dt) {
     input.thrP = clamp(input.thrP + (dA + dP) * 0.9 * dt, -1, 1);
     input.thrS = clamp(input.thrS + (dA + dS) * 0.9 * dt, -1, 1);
   }
+  const sens = comfortSettings.steerSens || 1.0;
   let rd = 0; if (keys.KeyA || keys.ArrowLeft) rd += 1; if (keys.KeyD || keys.ArrowRight) rd -= 1;   // + = port
-  if (!touchOn || TOUCH.wheelId === null) { if (rd !== 0) input.rudder = clamp(input.rudder + rd * 2.2 * dt, -1, 1); else if (!touchOn) input.rudder += (0 - input.rudder) * Math.min(1, dt * 3); }
+  if (!touchOn || TOUCH.wheelId === null) { if (rd !== 0) input.rudder = clamp(input.rudder + rd * 2.2 * sens * dt, -1, 1); else if (!touchOn) input.rudder += (0 - input.rudder) * Math.min(1, dt * 3 * sens); }
   input.horn = !!keys.Space || TOUCH.horn;
 }
 function onKey(e, down) {
@@ -4456,6 +6049,8 @@ function onKey(e, down) {
   else if (e.code === 'KeyC' && (G.state === 'play')) setCamMode(camMode + 1);
   else if (e.code === 'KeyV') setCompact(!document.body.classList.contains('compact'));
   else if (e.code === 'KeyF' && G.state === 'play') toggleFull();
+  else if (e.code === 'KeyZ' && G.state === 'play') toggleWarp();
+  else if ((e.code === 'KeyE' || e.code === 'Enter') && G.state === 'play') throwMooringLines();
 }
 window.addEventListener('keydown', e => { AUD.init(); AUD.resume(); onKey(e, true); });
 window.addEventListener('keyup', e => onKey(e, false));
@@ -4492,7 +6087,7 @@ function setupTouch() {
   const wh = el.tWheel;
   const angAt = (x, y) => { const r = wh.getBoundingClientRect(); return Math.atan2(y - (r.top + r.height / 2), x - (r.left + r.width / 2)); };
   wh.addEventListener('pointerdown', e => { TOUCH.wheelId = e.pointerId; wh.setPointerCapture(e.pointerId); TOUCH.wheelA0 = angAt(e.clientX, e.clientY); TOUCH.rud0 = input.rudder; e.preventDefault(); AUD.init(); });
-  wh.addEventListener('pointermove', e => { if (TOUCH.wheelId !== e.pointerId) return; const a = wrapAng(angAt(e.clientX, e.clientY) - TOUCH.wheelA0); input.rudder = clamp(TOUCH.rud0 - a / 2.1, -1, 1); });
+  wh.addEventListener('pointermove', e => { if (TOUCH.wheelId !== e.pointerId) return; const a = wrapAng(angAt(e.clientX, e.clientY) - TOUCH.wheelA0); const sens = comfortSettings.steerSens || 1.0; input.rudder = clamp(TOUCH.rud0 - (a / 2.1) * sens, -1, 1); });
   const whUp = e => { if (TOUCH.wheelId === e.pointerId) { TOUCH.wheelId = null; input.rudder = 0; } };
   wh.addEventListener('pointerup', whUp); wh.addEventListener('pointercancel', whUp);
   const hold = (btn, on, off) => { btn.addEventListener('pointerdown', e => { e.preventDefault(); btn.classList.add('on'); on(); AUD.init(); }); const up = () => { btn.classList.remove('on'); off && off(); }; btn.addEventListener('pointerup', up); btn.addEventListener('pointercancel', up); btn.addEventListener('pointerleave', up); };
@@ -4514,15 +6109,67 @@ function startCampaign(resume) {
   G.retries = 0; G.selIdx = G.shiftIdx; enterIntro();
 }
 function startEndless() { G.mode = 'endless'; G.endlessN = 0; G.totals = { score: 0, pax: 0, stars: [] }; G.curEndless = endlessShift(1); G.endlessN = 1; enterIntro(); }
-// Daily challenge: one endless-style shift built from the arena-kit day seed (same for everyone that UTC day, ?d=YYYYMMDD replays a day)
+// Daily challenge: one distinct shift built from date-seeded route, wind, current, fog, storm and traffic
 function dailyShift(d) {
-  const keep = R; R = d.rng;
-  const sh = endlessShift(3); R = keep;
-  return Object.assign(sh, { id: 'D', endless: 0, daily: d.day, seed: d.seed });
+  const rng = (d && d.rng) ? d.rng : mulberry((d && d.seed) || getDayKey());
+  const ids = Object.keys(PIER_DEF);
+  const stops = [];
+  let last = ids[Math.floor(rng() * ids.length)];
+  stops.push(last);
+  const nStops = 4 + (rng() < 0.45 ? 1 : 0);
+  for (let i = 0; i < nStops; i++) {
+    let p;
+    do { p = ids[Math.floor(rng() * ids.length)]; } while (p === last);
+    stops.push(p);
+    last = p;
+  }
+  const hour = +(6.5 + rng() * 14.5).toFixed(1);
+  const current = +(0.25 + rng() * 0.70).toFixed(2);
+  const wind = +(0.15 + rng() * 0.75).toFixed(2);
+  const fog = (rng() < 0.28) ? 1 : 0;
+  const storm = (!fog && rng() < 0.25) ? 1 : 0;
+  const tankers = 1 + Math.floor(rng() * 4);
+  const ferries = 1 + Math.floor(rng() * 3);
+  const fish = 3 + Math.floor(rng() * 4);
+  const convoy = !fog && (tankers >= 3 || rng() < 0.22);
+  const pax = +(0.7 + rng() * 0.4).toFixed(2);
+  return {
+    id: 'D',
+    endless: 0,
+    daily: d.day,
+    seed: d.seed,
+    hour,
+    stops,
+    pace: 9.0,
+    current,
+    wind,
+    fog,
+    storm,
+    tankers,
+    fish,
+    ferries,
+    pax,
+    convoy,
+  };
 }
 function startDaily() {
-  if (!window.Arena) return;
-  G.mode = 'daily'; G.daily = Arena.daily(); G.totals = { score: 0, pax: 0, stars: [] }; G.curEndless = dailyShift(G.daily); G.dailyRec = null; G.retries = 0; G.fogPick = false; enterIntro();
+  const day = getDayKey();
+  const d = (window.Arena && Arena.daily) ? Arena.daily(null, { dayKey: day }) : {
+    day,
+    seed: fnv1a('bv-daily:' + day),
+    rng: mulberry(fnv1a('bv-daily:' + day)),
+    streak: 0,
+    best: getTodayDailyBest(day),
+    complete: score => ({ streak: 1, best: score }),
+  };
+  G.mode = 'daily';
+  G.daily = d;
+  G.totals = { score: 0, pax: 0, stars: [] };
+  G.curEndless = dailyShift(G.daily);
+  G.dailyRec = null;
+  G.retries = 0;
+  G.fogPick = false;
+  enterIntro();
 }
 function enterIntro() { G.state = 'intro'; renderIntro(); show('sIntro'); el.bStart.focus(); }
 function condChips(sh) {
@@ -4531,6 +6178,63 @@ function condChips(sh) {
   if (el0 < -0.08) out.push('c_night'); else if (el0 < 0.25) out.push('c_dusk'); else out.push('c_day');
   if (sh.fog >= 1) out.push('c_fog'); if (sh.current >= 0.7) out.push('c_current'); if (sh.storm) out.push('c_storm'); if (sh.convoy) out.push('c_convoy'); if (sh.tankers + sh.ferries >= 6) out.push('c_traffic');
   return out.map(k => '<span>' + t(k) + '</span>').join('');
+}
+function renderVesselSelect() {
+  if (!el.vesselCards) el.vesselCards = document.getElementById('vesselCards');
+  if (!el.vesselRankInfo) el.vesselRankInfo = document.getElementById('vesselRankInfo');
+  if (!el.vesselCards) return;
+
+  const totalStars = getTotalStars();
+  const rank = getStarCaptainRank(totalStars);
+  if (el.vesselRankInfo) {
+    el.vesselRankInfo.textContent = t('vesselRankUnlock', t(rank.titleKey), totalStars);
+  }
+
+  el.vesselCards.innerHTML = '';
+  const list = ['classic', 'launch', 'car'];
+  list.forEach(id => {
+    const v = VESSEL_CLASSES[id];
+    const unlocked = totalStars >= v.unlockStars;
+    const isSel = (id === selectedVesselId);
+
+    const card = document.createElement('div');
+    card.className = 'vessel-card' + (isSel ? ' sel' : '') + (unlocked ? '' : ' locked');
+    card.setAttribute('role', 'radio');
+    card.setAttribute('aria-checked', String(isSel));
+    card.setAttribute('aria-disabled', String(!unlocked));
+    card.setAttribute('tabindex', unlocked ? '0' : '-1');
+
+    card.innerHTML =
+      '<div class="vessel-tag">' + t(v.tagKey) + '</div>' +
+      '<div class="vessel-icon"><svg viewBox="0 0 60 30"><use href="#' + v.icon + '"/></svg></div>' +
+      '<div class="vessel-name">' + t(v.nameKey) + '</div>' +
+      '<div class="vessel-sub">' + t(v.subKey) + '</div>' +
+      '<div class="vessel-stats">' +
+        '<div class="vessel-stat-pill"><small>' + t('v_speed') + '</small><b>' + v.statSpeed + '</b></div>' +
+        '<div class="vessel-stat-pill"><small>' + t('v_pax') + '</small><b>' + v.statPax + '</b></div>' +
+        '<div class="vessel-stat-pill"><small>' + t('v_helm') + '</small><b>' + t(v.statHelmKey) + '</b></div>' +
+      '</div>' +
+      (!unlocked ? '<div class="vessel-lock-overlay"><svg class="ic lock-svg" viewBox="0 0 24 24"><use href="#i-hull"/></svg><span class="vessel-lock-req">' + t('vesselLockedToast', t(v.rankKey), v.unlockStars) + '</span></div>' : '');
+
+    const activate = () => {
+      if (unlocked) {
+        selectVessel(id);
+      } else {
+        toast(t('vesselLockedToast', t(v.rankKey), v.unlockStars), 'bad');
+        AUD.bad();
+      }
+    };
+
+    card.addEventListener('click', activate);
+    card.addEventListener('keydown', e => {
+      if (e.code === 'Enter' || e.code === 'Space') {
+        e.preventDefault();
+        activate();
+      }
+    });
+
+    el.vesselCards.appendChild(card);
+  });
 }
 function renderIntro() {
   const sh = G.mode !== 'campaign' ? G.curEndless : SHIFTS[G.selIdx];
@@ -4545,6 +6249,7 @@ function renderIntro() {
   });
   const e = document.createElement('button'); e.className = 'cnode endless' + (G.mode === 'endless' ? ' sel' : ''); e.innerHTML = '<b>∞</b><small style="font-size:10px">' + t('endlessShort') + '</small>'; e.disabled = G.mode === 'endless';
   e.addEventListener('click', () => { AUD.click(); startEndless(); }); el.cmap.appendChild(e);
+  renderVesselSelect();
   el.inTitle.textContent = sh.endless ? t('sE', sh.endless) : t('s' + sh.id);
   const fogRun = isFogRun(sh), forced = FLAG.fog || sh.fog >= 1;
   el.inDesc.textContent = (sh.endless ? t('dE') : t('d' + sh.id)) + (fogRun ? ' ' + tT('fogDesc') : '');
@@ -4569,14 +6274,27 @@ function beginShift() {
   toast(t('toastStart', pierName(SIM.stops[1] ? SIM.stops[1].id : SIM.stops[0].id)), 'info', 3200);
   AUD.init(); AUD.resume();
 }
-function pauseGame() { if (G.state !== 'play') return; G.state = 'paused'; show('sPause'); el.bResume.focus(); AUD.hornStop(); }
+function pauseGame() { if (G.state !== 'play') return; if (typeof setWarp === 'function' && SIM.warp) setWarp(false, false); if (typeof window !== 'undefined' && window.speechSynthesis) window.speechSynthesis.cancel(); G.state = 'paused'; show('sPause'); el.bResume.focus(); AUD.hornStop(); }
 function resumeGame() { if (G.state !== 'paused') return; G.state = 'play'; show(null); lastT = performance.now(); }
 function retryCurrent() { G.retries++; beginShift(); }
-function goMenu() { G.state = 'title'; SIM.shift = null; SIM.stops = []; show('sTitle'); showcase(); updateBestLine(); renderMissionsUI(); el.bPlay.focus(); }
+function goMenu() {
+  G.state = 'title';
+  SIM.shift = null;
+  SIM.stops = [];
+  if (OBJ.ghostBody) OBJ.ghostBody.visible = false;
+  if (OBJ.ghostWin) OBJ.ghostWin.visible = false;
+  GHOST_STATE.active = false;
+  show('sTitle');
+  showcase();
+  updateBestLine();
+  renderMissionsUI();
+  el.bPlay.focus();
+}
 function finishShiftUI(res) {
   G.state = 'end';
   const idx = G.shiftIdx;
   let rec = false;
+  const starsBefore = getTotalStars();
   if (res.stars > 0) {
     recordMissionProgress('stars_earned', res.stars);
     if (res.hull <= 0) {
@@ -4595,12 +6313,27 @@ function finishShiftUI(res) {
     if (res.stars > 0 && idx < 7) runSave = { shift: idx + 1, total: G.totals.score, pax: G.totals.pax, stars: G.totals.stars }; else if (idx >= 7 && res.stars > 0) runSave = null;
     if (G.totals.score > best.total) { best.total = G.totals.score; }
   } else if (G.mode === 'daily') {
-    if (res.stars > 0) { G.totals.score += res.score; G.totals.pax += res.pax; if (G.daily) G.dailyRec = G.daily.complete(res.score); }
+    if (res.stars > 0) {
+      G.totals.score += res.score;
+      G.totals.pax += res.pax;
+      if (G.daily) G.dailyRec = G.daily.complete(res.score);
+      const day = (G.daily && G.daily.day) || getDayKey();
+      const prevBest = getTodayDailyBest(day);
+      if (res.score > prevBest) rec = true;
+      recordDailyScore(day, res.score);
+    }
   } else {
     if (res.stars > 0) { G.totals.score += res.score; G.totals.pax += res.pax; }
     if (res.stars > 0 && G.endlessN > best.endless) { best.endless = G.endlessN; best.endlessPax = G.totals.pax; rec = true; }
   }
   writeSave();
+  const starsAfter = getTotalStars();
+  if (starsBefore < 6 && starsAfter >= 6) {
+    toast(t('vesselUnlockedToast', t(VESSEL_CLASSES.launch.nameKey)), 'good', 4500);
+  }
+  if (starsBefore < 14 && starsAfter >= 14) {
+    toast(t('vesselUnlockedToast', t(VESSEL_CLASSES.car.nameKey)), 'good', 4500);
+  }
   if (window.Arena && res.stars > 0) {
     Arena.award('bogaz-vapuru:first-shift', t('awFirst'));
     if (G.mode === 'campaign' && idx >= 7) Arena.award('bogaz-vapuru:campaign', t('awCampaign'));
@@ -4617,12 +6350,12 @@ function renderEnd(res) {
   el.enTitle.textContent = res.kind === 'wreck' ? t('endWreck') : !won ? t('endFail') : campaignDone ? t('endWin') : G.mode === 'endless' ? t('endClear') : t('endClear');
   el.enSub.textContent = res.kind === 'wreck' ? t('subWreck') : !won ? t('subFail') : campaignDone ? t('subWin') : G.mode === 'endless' ? t('subEndless', G.endlessN, G.totals.pax) : t('subClear');
   el.enStars.innerHTML = [0, 1, 2].map(i => '<svg class="' + (i < res.stars ? 'on' : '') + '" style="animation-delay:' + (i * 0.2) + 's" viewBox="0 0 24 24"><use href="#i-star"/></svg>').join('');
-  const kv = [[t('sPax'), res.pax + ' / ' + SIM.potential], [t('sPunct'), res.punct + '%'], [t('sComfort'), res.comfort + '%'], [t('sLost'), res.lost, res.lost > 0 ? 'neg' : ''], [t('sHull'), res.hull + '%', res.hull > 30 ? 'neg' : ''], [t('sScore'), res.score + ' / ' + res.target], [t('sTotal'), G.totals.score]];
-  if (res.fog !== null && res.fog !== undefined) kv.splice(5, 0, [t('sFogBonus'), '+' + res.fog]);
+  const kv = [[t('sPax'), res.pax + ' / ' + SIM.potential], [t('sDockBonus'), '+' + (res.dockBonus || 0), (res.dockBonus > 0 ? 'pos' : '')], [t('sPunct'), res.punct + '%'], [t('sComfort'), res.comfort + '%'], [t('sLost'), res.lost, res.lost > 0 ? 'neg' : ''], [t('sHull'), res.hull + '%', res.hull > 30 ? 'neg' : ''], [t('sScore'), res.score + ' / ' + res.target], [t('sTotal'), G.totals.score]];
+  if (res.fog !== null && res.fog !== undefined) kv.splice(6, 0, [t('sFogBonus'), '+' + res.fog]);
   el.enStats.innerHTML = kv.map(([k, v, c]) => '<span>' + k + '</span><span class="' + (c || '') + '">' + v + '</span>').join('');
   el.enRec.classList.toggle('hidden', !res.rec); el.enRec.textContent = t('newRecord');
   el.nextTxt.textContent = !won ? t('retry') : G.mode === 'daily' ? t('menu') : campaignDone ? t('playAgain') : t('nextShift');
-  el.enDaily.textContent = G.mode === 'daily' && G.dailyRec && won ? t('dailyLine', G.dailyRec.streak, G.dailyRec.best) : '';
+  el.enDaily.textContent = G.mode === 'daily' && G.dailyRec && won ? t('dailyLine', G.dailyRec.streak, (G.dailyRec.best || G.dailyRec.score || res.score)) : '';
   if (window.Arena) { const others = Arena.games.filter(g => g !== Arena.game); el.aOther.href = 'https://furkiozknn.github.io/' + others[(G.log.length * 7 + res.score) % others.length] + '/'; }
   el.bRetry.classList.toggle('hidden', !won);
   const stamp = document.getElementById('stampOutcome');
@@ -4667,22 +6400,37 @@ click(el.bSound, () => { settings.mute = !settings.mute; AUD.applyGains(); saveS
 click(el.bResume, resumeGame); click(el.bRestart, () => { G.retries++; beginShift(); }); click(el.bSettingsP, () => openSettings('pause')); click(el.bMenuP, goMenu);
 click(el.bSetBack, closeSettings); click(el.bTR, () => { LANG = 'tr'; settings.lang = 'tr'; saveSettings(); applyLang(); }); click(el.bEN, () => { LANG = 'en'; settings.lang = 'en'; saveSettings(); applyLang(); });
 click(el.bQLow, () => { settings.quality = 'low'; saveSettings(); applyQuality(); syncSettingsUI(); }); click(el.bQHigh, () => { settings.quality = 'high'; saveSettings(); applyQuality(); syncSettingsUI(); });
-click(el.bFull, toggleFull);
+click(el.bLPAuto, () => { settings.lowPower = 'auto'; saveSettings(); applyQuality(); syncSettingsUI(); }); click(el.bLPOn, () => { settings.lowPower = 'on'; saveSettings(); applyQuality(); syncSettingsUI(); }); click(el.bLPOff, () => { settings.lowPower = 'off'; saveSettings(); applyQuality(); syncSettingsUI(); });
+click(el.bFull, toggleFull); click(el.bMoor, throwMooringLines);
+click(el.bWarp, toggleWarp);
+if (el.bMotOff) click(el.bMotOff, () => { comfortSettings.reducedMotion = false; saveComfort(); applyReducedMotion(); syncSettingsUI(); });
+if (el.bMotOn) click(el.bMotOn, () => { comfortSettings.reducedMotion = true; saveComfort(); applyReducedMotion(); syncSettingsUI(); });
+if (el.bGhostOff) click(el.bGhostOff, () => { settings.ghostDocking = false; saveSettings(); syncSettingsUI(); if (OBJ.ghostBody) OBJ.ghostBody.visible = false; if (OBJ.ghostWin) OBJ.ghostWin.visible = false; GHOST_STATE.active = false; });
+if (el.bGhostOn) click(el.bGhostOn, () => { settings.ghostDocking = true; saveSettings(); syncSettingsUI(); });
+if (el.bAnnOff) click(el.bAnnOff, () => { settings.announcements = false; saveSettings(); syncSettingsUI(); if (typeof window !== 'undefined' && window.speechSynthesis) window.speechSynthesis.cancel(); });
+if (el.bAnnOn) click(el.bAnnOn, () => { settings.announcements = true; saveSettings(); syncSettingsUI(); });
+if (el.rSteer) el.rSteer.addEventListener('input', () => { comfortSettings.steerSens = clamp(parseFloat(el.rSteer.value) || 1.0, 0.6, 1.4); if (el.oSteer) el.oSteer.value = comfortSettings.steerSens.toFixed(2) + 'x'; saveComfort(); });
 click(el.bNext, nextAction); click(el.bRetry, retryCurrent); click(el.bMenuE, goMenu);
 click(el.bDaily, startDaily); click(el.bA11y, () => { if (window.Arena) Arena.openSettings(); }); click(el.bShare, shareResult);
 function shareResult() {
-  const r = G.lastResult; if (!r || !window.Arena) return;
+  const r = G.lastResult; if (!r) return;
   const sh = SIM.shift || currentShiftDef();
-  const name = sh && sh.daily ? t('sD') + ' ' + sh.daily : sh && sh.endless ? t('sE', sh.endless) : t('s' + r.shift);
-  return Arena.share({ title: 'Boğaz Vapuru', lines: [name, t('shareStars', r.stars, r.score), t('sharePax', r.pax)], url: 'https://furkiozknn.github.io/bogaz-vapuru/' + (sh && sh.daily ? '?d=' + sh.daily : '') });
+  if (G.mode === 'daily' || (sh && sh.daily)) {
+    const day = (sh && sh.daily) || getDayKey();
+    const streak = (G.dailyRec && G.dailyRec.streak) || (G.daily && G.daily.streak) || 1;
+    return shareDaily(day, r.score, streak);
+  }
+  if (!window.Arena) return;
+  const name = sh && sh.endless ? t('sE', sh.endless) : t('s' + r.shift);
+  return Arena.share({ title: 'Boğaz Vapuru', lines: [name, t('shareStars', r.stars, r.score), t('sharePax', r.pax)], url: 'https://furkiozknn.github.io/bogaz-vapuru/' });
 }
 for (const [r, k, o] of [[el.rMaster, 'master', el.oMaster], [el.rMusic, 'music', el.oMusic], [el.rSfx, 'sfx', el.oSfx]]) r.addEventListener('input', () => { settings[k] = r.value / 100; o.value = r.value; AUD.init(); AUD.applyGains(); saveSettings(); });
 window.addEventListener('resize', resize);
 document.addEventListener('visibilitychange', () => { if (document.hidden && G.state === 'play') pauseGame(); });
 // arena-kit: the game already pauses (and suspends audio) when the tab is hidden; the kit event does the same, and on
-// 'resume' the pause menu stays up so the captain resumes by hand. The game has no reduced-motion flag of its own to map.
+// 'resume' the pause menu stays up so the captain resumes by hand.
 if (window.Arena) Arena.on('pause', () => { if (G.state === 'play') pauseGame(); });
-if (window.Arena) Arena.on('settings', () => { if (calm()) { lightning = 0; lastSkyHour = -99; hurtA = 0; el.hurt.style.opacity = 0; CAM.cine = 0; } });   // "reduce motion" switched on mid-shift: stop a running flash now
+if (window.Arena) Arena.on('settings', () => { applyReducedMotion(); syncSettingsUI(); });
 
 // ---------------------------------------------------------------- assets: none are shipped (every sound is synthesised), the hook stays for ?noassets and window.vapur.assets
 const ASSETS = { loaded: [], failed: [], snd: 0, enabled: !FLAG.noassets, started: false };
@@ -4698,7 +6446,7 @@ function botTick(dt) {
   BOT.uiT += dt;
   const act = (th, fn) => { if (BOT.uiT > th) { BOT.uiT = 0; fn(); } };
   if (G.done) return;
-  if (G.state === 'title') { act(0.6, () => { if (Q.get('mode') === 'endless') startEndless(); else if (Q.get('mode') === 'daily' && window.Arena) startDaily(); else startCampaign(false); }); return; }
+  if (G.state === 'title') { act(0.6, () => { if (Q.get('mode') === 'endless') startEndless(); else if (Q.get('mode') === 'daily') startDaily(); else startCampaign(false); }); return; }
   if (G.state === 'intro') { act(0.6, beginShift); return; }
   if (G.state === 'paused') { resumeGame(); return; }
   if (G.state === 'end') {
@@ -4852,17 +6600,67 @@ function botTick(dt) {
   const e = (vT + (Math.abs(vT) < 2.5 ? curAlong : 0)) - P.u;
   input.throttle = e > 0 ? clamp(e * 0.45, 0, 1) : clamp(e * 0.7, -1, 0);
   if (vT === 0 && Math.abs(P.u) < 0.15) input.throttle = 0;
+  // engine thermal management: prevent bot overheat on long legs
+  if ((P.tempP > 94 || P.tempS > 94 || P.overheatP || P.overheatS) && input.throttle > 0.70) {
+    input.throttle = 0.70;
+  }
   BOT.dbg = { boost: +(BOT.boost||0).toFixed(1), back: BOT.back, out: BOT.backOut, lane: inLane, pin: +BOT.pinT.toFixed(1), rem: +rem.toFixed(0), hdErr: Math.round(hdErr * 57.3), final, vT: +vT.toFixed(2), hdWant: Math.round(hdWant * 57.3), hd: Math.round(P.hd * 57.3), err: Math.round(err * 57.3), rud: +input.rudder.toFixed(2), thr: +input.throttle.toFixed(2), lat: +lat.toFixed(1), along: +along.toFixed(1), dir: BOT.dockDir, gap, d: Math.round(d) };
   // stuck: no progress for a while -> back out and plan again
   if (Math.abs(P.u) < 0.25 && Math.abs(vT) > 0.5) BOT.stuck += dt; else BOT.stuck = 0;
   if (BOT.stuck > 8) { BOT.stuck = 0; BOT.rev = 3; BOT.wp = []; }
 }
 
+// ---------------------------------------------------------------- transit warp (3x speed in open water)
+function canWarp() {
+  if (G.state !== 'play' || SIM.docked || SIM.ended) return false;
+  const P = player;
+  if (depth(P.x, P.z) < 10) return false;
+  const ns = nextStop();
+  if (ns && PIERS[ns.id]) {
+    const pr = PIERS[ns.id];
+    if (hyp(pr.bx - P.x, pr.bz - P.z) <= 500) return false;
+  }
+  for (const id of Object.keys(PIERS)) {
+    const pr = PIERS[id];
+    if (hyp(pr.bx - P.x, pr.bz - P.z) < 120) return false;
+  }
+  for (const b of SIM.traffic) {
+    if (b.delay > 0) continue;
+    if (hyp(b.x - P.x, b.z - P.z) < 250) return false;
+  }
+  return true;
+}
+function setWarp(on, isAuto = false) {
+  if (on && !canWarp()) {
+    toast(t('warpUnavailable'), 'bad');
+    AUD.bump(0.2);
+    return;
+  }
+  if (SIM.warp === !!on) return;
+  SIM.warp = !!on;
+  if (el.bWarp) el.bWarp.classList.toggle('on', SIM.warp);
+  if (el.warpBadge) el.warpBadge.classList.toggle('show', SIM.warp);
+  if (SIM.warp) {
+    AUD.click();
+    toast(t('warpOn'), 'good', 1600);
+  } else {
+    AUD.click();
+    if (isAuto) toast(t('warpAutoOff'), 'info', 1800);
+    else toast(t('warpOff'), 'info', 1400);
+  }
+}
+function toggleWarp() {
+  if (SIM.warp) setWarp(false, false);
+  else setWarp(true, false);
+}
+
 // ---------------------------------------------------------------- main loop
-let lastT = performance.now(), acc = 0, fpsS = 60, frameN = 0, ambT = 8;
+let lastT = performance.now(), lastRenderT = 0, acc = 0, fpsS = 60, frameN = 0, ambT = 8;
 const FIXED = 1 / 60;
 function frame(now) {
   requestAnimationFrame(frame);
+  if (isLowPower() && (now - lastRenderT < 30)) return;
+  lastRenderT = now;
   let dt = (now - lastT) / 1000; lastT = now; if (!(dt > 0)) dt = 0.016; dt = Math.min(dt, 0.1);
   if (document.hidden) return;
   if (G.state === 'loading') return;
@@ -4870,9 +6668,18 @@ function frame(now) {
   if (G.state === 'play') { if (FLAG.auto) botTick(dt); else readInput(dt); }
   else if (FLAG.auto) botTick(dt);
   if (G.state === 'play' || G.state === 'title') {
-    acc += dt; let n = 0;
-    while (acc >= FIXED && n < 4) { if (G.state === 'play') stepSim(FIXED); else stepTitle(FIXED); acc -= FIXED; n++; }
-    if (acc > FIXED * 4) acc = 0;
+    if (SIM.warp && !canWarp()) setWarp(false, true);
+    const warpMult = (G.state === 'play' && SIM.warp) ? 3 : 1;
+    acc += dt * warpMult; let n = 0;
+    const maxN = warpMult * 4;
+    while (acc >= FIXED && n < maxN) {
+      if (G.state === 'play') {
+        if (SIM.warp && !canWarp()) { setWarp(false, true); acc = Math.min(acc, FIXED * 4); }
+        stepSim(FIXED);
+      } else stepTitle(FIXED);
+      acc -= FIXED; n++;
+    }
+    if (acc > FIXED * maxN) acc = 0;
   }
   const active = G.state === 'play';
   if (active && input.horn && !player.horn) { player.horn = true; AUD.hornStart(); } else if ((!input.horn || !active) && player.horn) { player.horn = false; AUD.hornStop(); }
@@ -4889,9 +6696,9 @@ function debugOverlay() {
   el.dbg.style.display = 'block';
   el.dbg.textContent = 'fps ' + fpsS.toFixed(0) + ' · calls ' + i.calls + ' · tris ' + i.triangles + ' · pts ' + i.points + '\n' +
     'state ' + G.state + ' · shift ' + (SIM.shift ? SIM.shift.id : '-') + ' · t ' + SIM.t.toFixed(1) + ' · ' + fmtClock(SIM.hour) + ' · score ' + shiftScore() + '/' + SIM.target + '\n' +
-    'pos ' + player.x.toFixed(0) + ',' + player.z.toFixed(0) + ' hd ' + (player.hd * 180 / Math.PI).toFixed(0) + ' u ' + player.u.toFixed(2) + ' spd ' + player.speed.toFixed(2) + ' thr ' + player.thr.toFixed(2) + ' rud ' + player.rud.toFixed(2) + '\n' +
+    'pos ' + player.x.toFixed(0) + ',' + player.z.toFixed(0) + ' hd ' + (player.hd * 180 / Math.PI).toFixed(0) + ' u ' + player.u.toFixed(2) + ' spd ' + player.speed.toFixed(2) + ' thr ' + player.thr.toFixed(2) + ' rud ' + player.rud.toFixed(2) + ' temp ' + (player.tempP || 60).toFixed(0) + '°/' + (player.tempS || 60).toFixed(0) + '°' + (player.overheatP || player.overheatS ? ' HOT!' : '') + '\n' +
     'next ' + (ns ? ns.id + ' (' + SIM.stopIdx + '/' + (SIM.stops.length - 1) + ')' : '-') + ' docked ' + (SIM.docked ? SIM.docked.id : '-') + ' gap ' + DOCK.gap.toFixed(1) + ' along ' + DOCK.along.toFixed(1) + ' ang ' + (DOCK.ang * 57.3).toFixed(0) + '\n' +
-    'colreg ' + (COLREG.giveWay ? (COLREG.targetKind + ' ' + (COLREG.inDanger ? 'DANGER' : 'give-way') + ' cpa:' + COLREG.cpa.toFixed(0) + 'm') : 'clear') + ' · aboard ' + SIM.aboardN + ' delivered ' + SIM.delivered + ' lost ' + SIM.lost + ' comfort ' + SIM.comfort.toFixed(0) + ' hull ' + player.hull.toFixed(0) + ' traffic ' + SIM.traffic.length + ' walkers ' + SIM.walkers.length + '\n' +
+    'colreg ' + (COLREG.giveWay ? (COLREG.targetKind + ' ' + (COLREG.inDanger ? 'DANGER' : 'give-way') + ' cpa:' + COLREG.cpa.toFixed(0) + 'm') : 'clear') + ' · aboard ' + SIM.aboardN + ' delivered ' + SIM.delivered + ' lost ' + SIM.lost + ' comfort ' + SIM.comfort.toFixed(0) + ' hull ' + player.hull.toFixed(0) + ' deck ' + (SIM.deckLife ? (SIM.deckLife.simitActive ? 'simit' : SIM.deckLife.teaActive ? 'tea' : 'idle') : '-') + ' traffic ' + SIM.traffic.length + ' walkers ' + SIM.walkers.length + '\n' +
     'bot wp ' + BOT.wp.length + ' stuck ' + BOT.stuck.toFixed(1) + ' · assets ' + ASSETS.loaded.length + '/' + (ASSETS.loaded.length + ASSETS.failed.length) + '\n' +
     'results ' + G.log.map(r => r.shift + ':' + r.stars + '★/' + r.score).join(' ') + (G.done ? (G.failed ? ' · FAILED' : ' · DONE') : '') + '\n' +
     'errors ' + G.errors.length + (G.errors.length ? '\n' + G.errors.slice(-3).join('\n') : '');
@@ -4910,19 +6717,46 @@ window.vapurSim = function (seconds) {
   return window.vapur;
 };
 window.vapur = {
-  G, SIM, player, input, AUD, STR, WORLD, PIERS, SHIFTS, ASSETS, DOCK, BOT, CAM, COLREG, scene, renderer, camera, FOG, fogEchoes, fogHornBlast, fogDockBonus, OBJ,
+  G, SIM, player, input, AUD, STR, WORLD, PIERS, PIER_APPROACH, SHIFTS, ASSETS, DOCK, BOT, CAM, COLREG, scene, renderer, camera, FOG, fogEchoes, fogHornBlast, fogDockBonus, OBJ, currentAt,
   fog(on) { G.fogPick = !!on; },
   get state() { return G.state; }, get shift() { return SIM.shift && SIM.shift.id; }, get time() { return SIM.t; }, get hour() { return SIM.hour; },
   get score() { return shiftScore(); }, get target() { return SIM.target; }, get aboard() { return SIM.aboardN; }, get delivered() { return SIM.delivered; },
-  get hull() { return player.hull; }, get comfort() { return SIM.comfort; }, get log() { return G.log; }, get done() { return G.done; }, get errors() { return G.errors; },
+  get hull() { return player.hull; }, get degraded() { return (player.hull || 0) > 0; }, get comfort() { return SIM.comfort; }, get log() { return G.log; }, get done() { return G.done; }, get errors() { return G.errors; },
+  get tempP() { return player.tempP || 60; }, get tempS() { return player.tempS || 60; }, get overheatP() { return !!player.overheatP; }, get overheatS() { return !!player.overheatS; },
+  get pierApproach() { return PIER_APPROACH; },
   get assets() { return { loaded: ASSETS.loaded.slice(), failed: ASSETS.failed.slice() }; },
   get colreg() { return COLREG; },
+  get ropeTension() { return SIM.ropeTension || 0; },
+  get dockBonus() { return SIM.dockBonus || 0; },
+  get deckLife() { return SIM.deckLife; },
+  get lowPower() { return isLowPower(); },
+  get buoys() { return OBJ.buoys; },
+  moor: throwMooringLines,
   start(n) { G.mode = 'campaign'; G.shiftIdx = clamp((n || 1) - 1, 0, 7); G.selIdx = G.shiftIdx; G.retries = 0; G.totals = { score: 0, pax: 0, stars: [] }; beginShift(); },
   setCam: setCamMode, end: kind => { if (G.state === 'play') endShift(kind || 'clear'); },
   get gpu() { try { const gl = renderer.getContext(), e = gl.getExtension('WEBGL_debug_renderer_info'); return e ? gl.getParameter(e.UNMASKED_RENDERER_WEBGL) : gl.getParameter(gl.RENDERER); } catch (err) { return '?'; } },
   stats() { return { calls: renderer.info.render.calls, tris: renderer.info.render.triangles, fps: fpsS, traffic: SIM.traffic.length }; },
   get missions() { return missionsState || loadMissionsState(); },
   get rank() { return getCaptainRank((missionsState || loadMissionsState()).xp); },
+  get vessel() { return FERRY; },
+  get vessels() { return VESSEL_CLASSES; },
+  get selectedVessel() { return selectedVesselId; },
+  selectVessel(id) { selectVessel(id); },
+  get warp() { return !!SIM.warp; },
+  setWarp(on) { setWarp(on, false); },
+  canWarp() { return canWarp(); },
+  get comfortSettings() { return comfortSettings; },
+  get ghostDocking() { return settings.ghostDocking !== false; },
+  setGhostDocking(on) { settings.ghostDocking = !!on; saveSettings(); syncSettingsUI(); },
+  get announcements() { return settings.announcements !== false; },
+  setAnnouncements(on) { settings.announcements = !!on; saveSettings(); syncSettingsUI(); if (!on && typeof window !== 'undefined' && window.speechSynthesis) window.speechSynthesis.cancel(); },
+  announcePier,
+  haptic,
+  get ghosts() { return GHOSTS; },
+  get ghostState() { return GHOST_STATE; },
+  get dailyData() { return getDailyData(); },
+  startDaily: startDaily,
+  shareDaily: shareDaily,
 };
 
 // ---------------------------------------------------------------- boot
@@ -4930,7 +6764,7 @@ let loadN = 0, loadTotal = 8;
 async function boot() {
   const yieldUI = () => new Promise(r => setTimeout(r, 0));
   const step = async fn => { fn(); loadN++; el.playTxt.textContent = t('loading', loadN, loadTotal); await yieldUI(); };
-  setupTouch(); applyLang(); syncSettingsUI();
+  setupTouch(); applyLang(); syncSettingsUI(); applyReducedMotion();
   WR = mulberry(2024);
   await step(() => { buildPiers(); buildFairway(); });
   await step(() => buildMonuments());
@@ -4938,12 +6772,12 @@ async function boot() {
   await step(() => buildTown());
   await step(() => buildWindowLights());
   await step(() => { buildLand(); buildHills(); });
-  await step(() => { buildScene(); applyQuality(); });
+  await step(() => { buildScene(); applyQuality(); loadSelectedVessel(); });
   await step(() => { buildMinimapBase(); });
   G.state = 'title'; el.bPlay.disabled = false; el.playTxt.setAttribute('data-i', 'play'); el.playTxt.textContent = t('play'); window.__vapurReady = true; if (!lsGet(KEY_SET)) saveSettings();
-  showcase(); applyLang(); updateBestLine(); renderMissionsUI();
+  showcase(); applyLang(); updateBestLine(); renderMissionsUI(); renderVesselSelect();
   if (FLAG.auto || SIM_PRE > 0) {
-    if (Q.get('mode') === 'endless') startEndless(); else if (Q.get('mode') === 'daily' && window.Arena) startDaily(); else startCampaign(false);
+    if (Q.get('mode') === 'endless') startEndless(); else if (Q.get('mode') === 'daily') startDaily(); else startCampaign(false);
     beginShift();
     if (SIM_PRE > 0) window.vapurSim(SIM_PRE);
     lastSkyHour = -99;
