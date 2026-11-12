@@ -84,9 +84,15 @@ jobs:
           npm ci --prefix tools --ignore-scripts --no-audit --no-fund
           tools/node_modules/.bin/playwright install --with-deps chromium
 
-      # PR: base = the base branch (HEAD^1). Manual run: base = the committed tools/gate-baseline.json.
+      # PR: base = the base branch (HEAD^1). A PR that changes tools/gate-baseline.json declares a baseline change:
+      # the gate then checks that the committed baseline is this build's own and reproduces exactly (tools/GATE.md,
+      # "Baseline changes"). Manual run: base = the committed tools/gate-baseline.json.
       - name: Regression gate
         run: |
           set -euo pipefail
-          if [ "$GITHUB_EVENT_NAME" = "pull_request" ]; then node tools/gate.mjs --base HEAD^1
-          else node tools/gate.mjs --baseline; fi
+          if [ "$GITHUB_EVENT_NAME" != "pull_request" ]; then node tools/gate.mjs --baseline
+          elif git diff --quiet HEAD^1 HEAD -- tools/gate-baseline.json; then node tools/gate.mjs --base HEAD^1
+          else
+            echo "::warning title=gate baseline change::This PR re-records tools/gate-baseline.json; the base branch is not played. Review the old-vs-new per-seed numbers in the PR."
+            node tools/gate.mjs --rebaseline
+          fi

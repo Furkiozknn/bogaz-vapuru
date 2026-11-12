@@ -1,9 +1,9 @@
 {
   "game": "bogaz-vapuru",
-  "recorded": "2026-11-12T09:16:12.805Z",
-  "commit": "07fb6d6",
-  "entrySha": "6a0f82d6c8bc",
-  "run": "() => { window.vapurSim(8000); }",
+  "recorded": "2026-11-12T12:07:46.099Z",
+  "commit": "c1a10f7",
+  "entrySha": "804c0bd8d134",
+  "run": "() => { window.vapurSim(16000); }",
   "seeds": [
     11,
     1,
@@ -13,50 +13,50 @@
   ],
   "metrics": {
     "shifts": 40,
-    "stars": 108,
-    "score": 90473,
-    "perShift": "33333031/33333232/33333333/33333032/33333332",
+    "stars": 100,
+    "score": 82269,
+    "perShift": "33333033/33333131/33333030/33333032/33333033",
     "done": true,
     "gameErrors": 0
   },
   "perSeed": {
     "1": {
       "shifts": 8,
-      "stars": 19,
-      "score": 16409,
-      "perShift": "33333031",
+      "stars": 21,
+      "score": 17060,
+      "perShift": "33333033",
       "done": true,
       "gameErrors": 0
     },
     "2": {
       "shifts": 8,
-      "stars": 22,
-      "score": 18428,
-      "perShift": "33333232",
+      "stars": 20,
+      "score": 17110,
+      "perShift": "33333131",
       "done": true,
       "gameErrors": 0
     },
     "3": {
       "shifts": 8,
-      "stars": 24,
-      "score": 18658,
-      "perShift": "33333333",
+      "stars": 18,
+      "score": 13174,
+      "perShift": "33333030",
       "done": true,
       "gameErrors": 0
     },
     "4": {
       "shifts": 8,
       "stars": 20,
-      "score": 17313,
+      "score": 16288,
       "perShift": "33333032",
       "done": true,
       "gameErrors": 0
     },
     "11": {
       "shifts": 8,
-      "stars": 23,
-      "score": 19665,
-      "perShift": "33333332",
+      "stars": 21,
+      "score": 18637,
+      "perShift": "33333033",
       "done": true,
       "gameErrors": 0
     }

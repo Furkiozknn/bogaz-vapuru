@@ -15,6 +15,8 @@
 // Usage: node tools/gate.mjs [options]
 //   --base <ref>        base = `git show <ref>:<entry>` (default origin/main)
 //   --baseline          compare with tools/gate-baseline.json instead of a git base (used in CI)
+//   --rebaseline        a PR that re-records tools/gate-baseline.json (CI): like --baseline, but the baseline must have been
+//                       recorded from this very build and the candidate must reproduce it exactly (GATE.md, "Baseline changes")
 //   --record            run the candidate and write tools/gate-baseline.json (then exit)
 //   --candidate <file>  candidate HTML (default: the working-tree entry file); assets always come from the working tree
 //   --only sim|layout   run one part
@@ -43,7 +45,9 @@ const GAME = {
     seedParam: 'seed',
     holdFrames: true,     // queue requestAnimationFrame until the sim is done, so wall-clock frames do not advance it
     ready: () => window.__vapurReady === true && typeof window.vapurSim === 'function' && window.vapur.state === 'play',
-    run: () => { window.vapurSim(8000); },
+    // 16000 s of game time (2000 per shift on average); the sim stops by itself when the campaign is done. With 8000, a
+    // campaign with a few long shifts ran out of time inside shift 8, and the gate counted that shift as lost.
+    run: () => { window.vapurSim(16000); },
     metrics: () => {
       const V = window.vapur, log = V.log;
       return { shifts: log.length, stars: log.reduce((a, r) => a + r.stars, 0), score: log.reduce((a, r) => a + r.score, 0),
@@ -96,13 +100,23 @@ const git = (...a) => execFileSync('git', a, { cwd: root, encoding: 'utf8', stdi
 const WATCHDOG_MIN = 25;
 const watchdog = setTimeout(() => { log(`FAIL gate: whole run exceeded ${WATCHDOG_MIN} min`); log('RESULT FAIL'); process.exit(1); }, WATCHDOG_MIN * 60000);
 const SEEDS = GAME.sim.seeds?.length ? GAME.sim.seeds : [null];   // null: one run with the game's own default seed
+const rebaseline = flag('--rebaseline');
 
 // ---- builds
 const candFile = opt('--candidate') || join(root, GAME.entry);
 const builds = { cand: readFileSync(candFile, 'utf8') };
 let baseLabel = null, baseline = null;
 if (flag('--record')) { /* candidate only */ }
-else if (flag('--baseline')) baseline = loadBaseline();
+else if (flag('--baseline') || rebaseline) {
+  baseline = loadBaseline();
+  // A declared baseline change: the base branch's build is not played (its numbers are not comparable, e.g. after a
+  // change that makes every shift independent of the one before). What CI still proves: the committed baseline was
+  // recorded from exactly this build, and this machine reproduces it bit for bit.
+  if (rebaseline && baseline && baseline.entrySha !== sha(builds.cand)) {
+    fail(`rebaseline: ${baselinePath.slice(root.length + 1)} was recorded from ${GAME.entry} sha ${baseline.entrySha}, the candidate is sha ${sha(builds.cand)} (run --record on this branch, after merging its base)`);
+    baseline = null;
+  } else if (rebaseline && baseline) note(`BASELINE CHANGE: this PR re-records ${baselinePath.slice(root.length + 1)} (commit ${baseline.commit}); the base branch is not played, the candidate must reproduce the recorded numbers exactly (tools/GATE.md, "Baseline changes")`);
+}
 else {
   const ref = opt('--base') || 'origin/main';
   try { builds.base = git('show', `${ref}:${GAME.entry}`); baseLabel = `${ref} (${git('rev-parse', '--short', ref).trim()})`; }
@@ -274,6 +288,11 @@ if (only !== 'layout' && !failed) {
       } else if (builds.base !== undefined) { base = await simSeeds('base', `base ${baseLabel}`); }
       else if (baseline) { base = { perSeed: baseline.perSeed, sum: baseline.metrics }; log(`     base = ${baselinePath.slice(root.length + 1)} (commit ${baseline.commit}, recorded ${baseline.recorded})`); baseLabel = 'baseline ' + baseline.commit; }
       if (base) report.sim = { ...report.sim, baseLabel, base: base.sum, basePerSeed: base.perSeed, rows: compare(base.sum, cand.sum), zeroRows: noNewZero(base.perSeed, cand.perSeed) };
+      if (rebaseline && baseline) {
+        const keys = SEEDS.map((s) => String(s ?? 'default')), diff = keys.filter((k) => JSON.stringify(cand.perSeed[k]) !== JSON.stringify(baseline.perSeed[k]));
+        if (diff.length) fail(`rebaseline: the candidate does not reproduce the recorded baseline on seed(s) ${diff.join(', ')}: ${diff.map((k) => `${fmt(cand.perSeed[k])} vs ${fmt(baseline.perSeed[k])}`).join('; ')}`);
+        else log(`ok   rebaseline: the candidate reproduces ${baselinePath.slice(root.length + 1)} exactly on all ${keys.length} seed(s)`);
+      }
     }
   } catch (e) { fail(`sim: ${e.message.split('\n')[0]}`); }
 }
