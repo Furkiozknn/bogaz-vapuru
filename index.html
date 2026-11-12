@@ -285,6 +285,25 @@ a.btn { text-decoration: none; }
   color: var(--c-red); font-weight: 700;
   display: inline-block; padding: 1px 4px; border: 1px dashed var(--c-red); border-radius: 2px;
 }
+/* Pier approach note & recommended side/heading */
+.nc-approach {
+  margin: 5px 0 3px; padding: 4px 6px; border-radius: 3px;
+  background: var(--c-cream-l); border: 1px dashed var(--c-teak); text-align: left;
+}
+.nc-note {
+  font-family: var(--font-mono); font-size: 10px; font-weight: 600;
+  color: var(--c-deep); line-height: 1.25; margin-bottom: 3px;
+}
+.nc-badges { display: flex; gap: 4px; align-items: center; }
+.nc-badge {
+  font-family: var(--font-mono); font-size: 8.5px; font-weight: 800;
+  letter-spacing: 0.5px; padding: 1.5px 5px; border-radius: 2px;
+  border: 1px solid var(--c-deep); text-transform: uppercase;
+}
+.nc-badge.port { background: rgba(193, 68, 46, 0.14); color: #8a241e; border-color: var(--c-red); }
+.nc-badge.starboard { background: rgba(46, 125, 107, 0.14); color: #1e6348; border-color: var(--c-green); }
+.nc-badge.hd { background: var(--c-cream); color: var(--c-deep); border-color: var(--c-deep); font-variant-numeric: tabular-nums; }
+.bar.hull.degraded { border-color: var(--c-red); animation: colregPulse 1s infinite alternate ease-in-out; }
 
 /* Gauges / Engine Order Telegraph */
 #gauges {
@@ -530,6 +549,7 @@ body.touch #dock .g b { font-size: 17px; }
 body.compact #minimap { display: none; }
 body.compact #nextCard { padding: 4px 10px; min-width: 0; } body.compact #nextCard small, body.compact #nextCard::before { display: none; }
 body.compact #nextCard b { font-size: 15px; } body.compact #nextCard .l2 { font-size: 11px; }
+body.compact .nc-approach { margin: 2px 0; padding: 2px 4px; } body.compact .nc-note { display: none; } body.compact .nc-badge { font-size: 7.5px; padding: 1px 3px; }
 body.compact #gauges { transform: scale(.72); transform-origin: 100% 100%; }
 body.compact.touch #gauges { transform: scale(.85); transform-origin: 100% 0; }
 body.compact #tWheel { width: 112px; height: 112px; } body.compact #tWheel svg { width: 94px; height: 94px; }
@@ -1520,7 +1540,7 @@ input[type=range] { width: 100%; height: 44px; accent-color: var(--c-teal); back
   <div id="toasts" role="status" aria-live="polite"></div>
   <div id="colregBadge" class="glass" role="status" aria-live="polite"><svg class="ic arrow" id="colregArrow" viewBox="0 0 24 24"><path d="M12 3l5 6h-3.5v11h-3V9H7z"/></svg><span id="colregTxt">YOL VER</span><small id="colregSub" class="colreg-sub"></small></div>
   <div id="warpBadge" class="glass" role="status" aria-live="polite"><svg class="ic" viewBox="0 0 24 24"><use href="#i-warp"/></svg><span id="warpBadgeTxt">3x TRANSİT</span></div>
-  <div id="nextCard" class="glass"><small data-i="nextStop"></small><b id="ncName">—</b><div class="l2" id="ncL2"></div><div id="ncRope" class="rope-wrap hidden"><div class="rope-lbl-row"><small><svg class="ic" style="width:11px;height:11px"><use href="#i-anchor"/></svg><span data-i="ropeTension"></span></small><b id="ncRopeVal">0%</b></div><div class="bar tension" id="ncRopeBar"><i></i></div></div><div class="l2" id="ncL3"></div></div>
+  <div id="nextCard" class="glass"><small data-i="nextStop"></small><b id="ncName">—</b><div class="l2" id="ncL2"></div><div id="ncApproach" class="nc-approach"><div class="nc-note" id="ncNote">—</div><div class="nc-badges"><span class="nc-badge side" id="ncSide">—</span><span class="nc-badge hd" id="ncHd">—</span></div></div><div id="ncRope" class="rope-wrap hidden"><div class="rope-lbl-row"><small><svg class="ic" style="width:11px;height:11px"><use href="#i-anchor"/></svg><span data-i="ropeTension"></span></small><b id="ncRopeVal">0%</b></div><div class="bar tension" id="ncRopeBar"><i></i></div></div><div class="l2" id="ncL3"></div></div>
   <div id="camLbl" class="glass"></div>
   <canvas id="minimap" width="300" height="460"></canvas>
   <div id="gauges">
@@ -1776,6 +1796,15 @@ const STR = {
     newRecord: 'Yeni rekor!', camChase: 'Takip kamerası', camBridge: 'Köprüüstü', camTop: 'Kuş bakışı', camDock: 'Yanaşma kamerası', badgeGiveWay: 'YOL VER', toastGiveWay: 'Yol ver! Tehlike bölgesinde hızını 2 kn altına düşür', c_tanker: 'TANKER', c_ferry: 'VAPUR',
     hintSlow: 'Yavaşla', hintAlign: 'Paralel yanaş', hintCloser: 'Daha yakına', hintOk: 'Yanaşıyor…', hintStop: 'Dur ve bekle', hintFast: 'Çok hızlı!',
     dockDone: 'Yanaşma tamam', pierNames: { eminonu: 'Eminönü', karakoy: 'Karaköy', uskudar: 'Üsküdar', besiktas: 'Beşiktaş', kadikoy: 'Kadıköy', kanlica: 'Kanlıca' },
+    p_app_eminonu: 'Yoğun trafik · Çapraz hatlara dikkat',
+    p_app_karakoy: 'Dar rıhtım · Yavaş ve dikkatli gir',
+    p_app_uskudar: 'Sert akıntı · Pruvayı akıntıya ver',
+    p_app_besiktas: 'Burgaç ve solugan · Rıhtıma paralel kal',
+    p_app_kadikoy: 'Rüzgâra açık · Bordadan sürüklenmeye dikkat',
+    p_app_kanlica: 'Sığ bank · Kıyı sığlığına dikkat et',
+    sidePort: 'İSKELE', sideStarboard: 'SANCAK',
+    degradedState: 'Gövde hasarlı: Hız ve makine tepkisi kısıtlandı',
+    toastDegraded: 'Hasar alındı! Makine tepkisi ve azami hız kısıtlandı.',
     hintLeave: '<b>W</b> ile kalk', hintLeaveTouch: '<b>Kolu yukarı it</b>, kalk', unitKn: 'kn',
     daily: 'Günün Seferi', sD: 'Günün Seferi', dD: 'Bugünün seferi herkes için aynı: aynı rota, aynı hava, aynı trafik. Bitir, seriyi sürdür.',
     dailyTitle: 'Günün Seferi', dailyDescBrief: 'Bugünün rotası, havası ve akıntısı herkes için aynı.',
@@ -1857,6 +1886,15 @@ const STR = {
     newRecord: 'New record!', camChase: 'Chase camera', camBridge: 'Bridge', camTop: 'Top view', camDock: 'Docking camera', badgeGiveWay: 'GIVE WAY', toastGiveWay: 'Give way! Keep speed under 2 kn in the danger zone', c_tanker: 'TANKER', c_ferry: 'FERRY',
     hintSlow: 'Slow down', hintAlign: 'Come parallel', hintCloser: 'Closer', hintOk: 'Coming alongside…', hintStop: 'Stop and hold', hintFast: 'Too fast!',
     dockDone: 'Docked', pierNames: { eminonu: 'Eminönü', karakoy: 'Karaköy', uskudar: 'Üsküdar', besiktas: 'Beşiktaş', kadikoy: 'Kadıköy', kanlica: 'Kanlıca' },
+    p_app_eminonu: 'Heavy traffic · Watch crossing ferries',
+    p_app_karakoy: 'Tight basin · Slow entry, mind quayside',
+    p_app_uskudar: 'Strong current · Stem into the flow',
+    p_app_besiktas: 'Eddies & swell · Keep parallel to berth',
+    p_app_kadikoy: 'Wind-exposed · Watch lateral wind drift',
+    p_app_kanlica: 'Shallow bank · Mind the shoals',
+    sidePort: 'PORT', sideStarboard: 'STARBOARD',
+    degradedState: 'Hull damaged: Speed & engine response degraded',
+    toastDegraded: 'Damage sustained! Engine response & top speed restricted.',
     hintLeave: 'Cast off with <b>W</b>', hintLeaveTouch: '<b>Push the lever up</b> to cast off', unitKn: 'kn',
     daily: 'Daily Run', sD: 'Daily Run', dD: 'Today\'s shift is the same for everyone: same route, same weather, same traffic. Finish it to keep your streak.',
     dailyTitle: 'Daily Run', dailyDescBrief: 'Daily route, weather and current are the same for everyone.',
@@ -1902,6 +1940,15 @@ const PIER_DEF = {
   besiktas: { side: 'w', z: -400, len: 46 },
   kadikoy:  { side: 'e', z: 560,  len: 50 },
   kanlica:  { side: 'e', z: -820, len: 36 },
+};
+// Pier approach character: approach note, recommended berth side & heading (TR + EN)
+const PIER_APPROACH = {
+  eminonu:  { side: 'port', hd: 345, hdStr: '345°', noteKey: 'p_app_eminonu' },
+  karakoy:  { side: 'port', hd: 15,  hdStr: '015°', noteKey: 'p_app_karakoy' },
+  uskudar:  { side: 'starboard', hd: 30, hdStr: '030°', noteKey: 'p_app_uskudar' },
+  besiktas: { side: 'port', hd: 15,  hdStr: '015°', noteKey: 'p_app_besiktas' },
+  kadikoy:  { side: 'starboard', hd: 60, hdStr: '060°', noteKey: 'p_app_kadikoy' },
+  kanlica:  { side: 'starboard', hd: 25, hdStr: '025°', noteKey: 'p_app_kanlica' },
 };
 // One table: timetable (stops; schedule = distance / pace + dwell), conditions and difficulty per shift.
 const SHIFTS = [
@@ -3398,7 +3445,7 @@ function startShiftSim(sh) {
   SIM.shift = sh; SIM.t = 0; SIM.hour = sh.hour; SIM.cur = sh.current; SIM.fog = sh.fog; SIM.storm = sh.storm; SIM.rain = 0; SIM.swell = sh.storm ? 1 : 0.2;
   SIM.wind.a = sh.wind; SIM.wind.dir = rr(0, TAU); SIM.wind.gust = 0;
   SIM.aboard = {}; SIM.aboardN = 0; SIM.delivered = 0; SIM.lost = 0; SIM.comfort = 100; SIM.punct = []; SIM.score = 0; SIM.stopIdx = 1;
-  SIM.docked = null; SIM.dockT = 0; SIM.dockOk = 0; SIM.boardQ = []; SIM.boardDone = false; SIM.ropes = false; SIM.depAllowed = false; SIM.walkers = []; SIM.toasted = {}; SIM.ended = false; SIM.dockBonus = 0; SIM.fogRun = false; SIM.fogBonus = 0; SIM.ropeTension = 0; SIM.warp = false;
+  SIM.docked = null; SIM.dockT = 0; SIM.dockOk = 0; SIM.boardQ = []; SIM.boardDone = false; SIM.ropes = false; SIM.depAllowed = false; SIM.walkers = []; SIM.toasted = {}; SIM.ended = false; SIM.dockBonus = 0; SIM.fogRun = false; SIM.fogBonus = 0; SIM.ropeTension = 0; SIM.warp = false; SIM.degradedToast = false;
   approachRec.length = 0; GHOST_STATE.active = false; GHOST_STATE.time = 0; GHOST_STATE.pierId = null;
   if (el.bWarp) el.bWarp.classList.remove('on'); if (el.warpBadge) el.warpBadge.classList.remove('show');
   SIM.deckLife = {
@@ -3539,18 +3586,26 @@ function stepFerry(dt) {
     P.gearDirS = 0;
   }
 
+  // Degraded state: speed limit & slower engine response when damaged (until hull reaches 100%)
+  const hullPct = clamp(P.hull / 100, 0, 1);
+  const degradedSpd = P.hull > 0 ? clamp(1.0 - 0.40 * hullPct, 0.60, 0.88) : 1.0;
+  const degradedResp = P.hull > 0 ? clamp(1.0 - 0.50 * hullPct, 0.45, 0.85) : 1.0;
+  const degradedAccel = P.hull > 0 ? clamp(1.0 - 0.35 * hullPct, 0.65, 0.90) : 1.0;
+  const slewP = 0.7 * degradedResp * dt;
+  const slewS = 0.7 * degradedResp * dt;
+
   if (P.gearPauseP > 0) {
     P.gearPauseP -= dt;
     P.thrP = (P.thrP || 0) + clamp(0 - (P.thrP || 0), -1.8 * dt, 1.8 * dt);
   } else {
-    P.thrP = (P.thrP || 0) + clamp(input.thrP - (P.thrP || 0), -0.7 * dt, 0.7 * dt);
+    P.thrP = (P.thrP || 0) + clamp(input.thrP - (P.thrP || 0), -slewP, slewP);
   }
 
   if (P.gearPauseS > 0) {
     P.gearPauseS -= dt;
     P.thrS = (P.thrS || 0) + clamp(0 - (P.thrS || 0), -1.8 * dt, 1.8 * dt);
   } else {
-    P.thrS = (P.thrS || 0) + clamp(input.thrS - (P.thrS || 0), -0.7 * dt, 0.7 * dt);
+    P.thrS = (P.thrS || 0) + clamp(input.thrS - (P.thrS || 0), -slewS, slewS);
   }
 
   P.thr = (P.thrP + P.thrS) / 2;
@@ -3560,8 +3615,8 @@ function stepFerry(dt) {
   P.rpmP = (P.gearPauseP > 0 || Math.abs(P.thrP) < 0.03) ? 0 : Math.round(Math.abs(P.thrP) * 380);
   P.rpmS = (P.gearPauseS > 0 || Math.abs(P.thrS) < 0.03) ? 0 : Math.round(Math.abs(P.thrS) * 380);
   if (SIM.docked) { P.u = P.v = P.r = 0; P.vx = P.vz = 0; P.speed = 0; P.heel *= 0.95; return; }
-  const maxV = FERRY.maxV, k = (FERRY.accel || 0.62) / (maxV * maxV);
-  const thrust = P.thr > 0 ? P.thr * (FERRY.accel || 0.62) : P.thr * (FERRY.reverseAccel || 0.42);
+  const maxV = FERRY.maxV * degradedSpd, k = (FERRY.accel || 0.62) / (maxV * maxV);
+  const thrust = (P.thr > 0 ? P.thr * (FERRY.accel || 0.62) : P.thr * (FERRY.reverseAccel || 0.42)) * degradedAccel;
   const load = 1 - 0.1 * SIM.aboardN / FERRY.cap;
   const du = (thrust * load - k * P.u * Math.abs(P.u) - 0.02 * P.u) * dt;
   P.u += du;
@@ -3640,15 +3695,23 @@ function impact(nx, nz, pen, kind) {
     const hit = -vn;
     if (hit > 0.7 && SIM.bumpCd <= 0) {
       SIM.bumpCd = kind === 'ground' ? 2.5 : 1.2;
-      const dmg = kind === 'ground' ? (hit - 0.5) * 16 : (hit - 0.6) * 12;
-      P.hull = Math.min(100, P.hull + Math.max(2, dmg));
+      const rawDmg = kind === 'ground' ? (hit - 0.5) * 16 : (hit - 0.6) * 12;
+      // Soft failures: a single bump never ends a shift (capped single hit, degraded state until 100%)
+      const dmg = Math.min(38, Math.max(2, rawDmg));
+      const prevHull = P.hull;
+      P.hull = Math.min(prevHull < 92 ? 92 : 100, prevHull + dmg);
       SIM.comfort = Math.max(0, SIM.comfort - clamp((hit - 0.4) * 14, 4, 35));
       if (kind === 'ground') { toast(t('toastGround'), 'bad'); AUD.crash(Math.min(1, hit / 4)); }
       else if (hit > 2.2) { toast(t('toastCrash'), 'bad'); AUD.crash(Math.min(1, hit / 5)); }
       else { toast(t('toastBump'), 'bad'); AUD.bump(Math.min(1, hit / 3)); }
       hurtFlash(Math.min(1, hit / 4));
       if (!calm() && typeof CAM !== 'undefined') CAM.shake = Math.min(1.4, hit * 0.35);
-      if (P.hull >= 100) endShift('wreck');
+      if (P.hull >= 100) {
+        endShift('wreck');
+      } else if (P.hull > 0 && !SIM.degradedToast) {
+        SIM.degradedToast = true;
+        toast(t('toastDegraded'), 'bad', 4000);
+      }
     }
   }
   // friction along the pier
@@ -5325,7 +5388,7 @@ function setCamMode(m) {
 
 // ---------------------------------------------------------------- UI: elements, toasts, HUD
 const el = {};
-for (const id of ['hud', 'topbar', 'stShift', 'stClock', 'stPlan', 'stPax', 'comfBar', 'hullBar', 'stStars', 'bWarp', 'warpBadge', 'warpBadgeTxt', 'bPanel', 'bCamH', 'bPause', 'bSound', 'bLang', 'toasts', 'colregBadge', 'colregArrow', 'colregTxt', 'colregSub', 'nextCard', 'ncName', 'ncL2', 'ncL3', 'ncRope', 'ncRopeVal', 'ncRopeBar', 'camLbl', 'minimap', 'lvThr', 'lvThrS', 'lvRud', 'rpmP', 'rpmS', 'speedo', 'spArc', 'spVal', 'spUnit', 'dock', 'dkDist', 'dkSpd', 'dkAng', 'dkHint', 'bMoor', 'floaters', 'touch', 'tWheel', 'tWheelSvg', 'tThr', 'tRpmP', 'tRpmS', 'tHorn', 'tCam',
+for (const id of ['hud', 'topbar', 'stShift', 'stClock', 'stPlan', 'stPax', 'comfBar', 'hullBar', 'stStars', 'bWarp', 'warpBadge', 'warpBadgeTxt', 'bPanel', 'bCamH', 'bPause', 'bSound', 'bLang', 'toasts', 'colregBadge', 'colregArrow', 'colregTxt', 'colregSub', 'nextCard', 'ncName', 'ncL2', 'ncApproach', 'ncNote', 'ncSide', 'ncHd', 'ncL3', 'ncRope', 'ncRopeVal', 'ncRopeBar', 'camLbl', 'minimap', 'lvThr', 'lvThrS', 'lvRud', 'rpmP', 'rpmS', 'speedo', 'spArc', 'spVal', 'spUnit', 'dock', 'dkDist', 'dkSpd', 'dkAng', 'dkHint', 'bMoor', 'floaters', 'touch', 'tWheel', 'tWheelSvg', 'tThr', 'tRpmP', 'tRpmS', 'tHorn', 'tCam',
   'sTitle', 'sIntro', 'sPause', 'sSettings', 'sEnd', 'bPlay', 'playTxt', 'bCont', 'bEndless', 'bSettingsT', 'bLangT', 'langTxt', 'bestLine', 'cmap', 'inTitle', 'inDesc', 'inCond', 'inTT', 'inTarget', 'bStart', 'bFog', 'fogTxt', 'bIntroBack',
   'bResume', 'bRestart', 'bSettingsP', 'bMenuP', 'rMaster', 'rMusic', 'rSfx', 'oMaster', 'oMusic', 'oSfx', 'rSteer', 'oSteer', 'bMotOff', 'bMotOn', 'bGhostOff', 'bGhostOn', 'bTR', 'bEN', 'bQLow', 'bQHigh', 'bLPAuto', 'bLPOn', 'bLPOff', 'bFull', 'bSetBack', 'enTitle', 'enSub', 'enStars', 'enStats', 'enRec', 'bNext', 'nextTxt', 'bRetry', 'bMenuE', 'dbg', 'hurt', 'bDaily', 'dailyLine', 'bA11y', 'bShare', 'aOther', 'enDaily', 'rankName', 'rankXpTxt', 'rankBar', 'missionsDateTag', 'missionsList', 'vesselSelect', 'vesselRankInfo', 'vesselCards']) el[id] = document.getElementById(id);
 function toast(msg, kind = 'info', ms = 2600) {
@@ -5424,6 +5487,7 @@ function updateHUD(dt) {
   el.stPax.textContent = SIM.aboardN + '/' + FERRY.cap;
   el.comfBar.firstChild.style.width = SIM.comfort.toFixed(0) + '%';
   el.hullBar.firstChild.style.width = player.hull.toFixed(0) + '%';
+  el.hullBar.classList.toggle('degraded', player.hull > 0 && player.hull < 100);
   const proj = starsFor(shiftScore() + (SIM.stops.length - 1 - SIM.punct.length) * 0 + 0, SIM.target);   // stars so far (score grows with the stops)
   [...el.stStars.children].forEach((s, i) => s.classList.toggle('on', i < proj));
   // next stop card
@@ -5431,6 +5495,7 @@ function updateHUD(dt) {
     const P = PIERS[ns.id];
     el.ncName.textContent = pierName(ns.id);
     if (SIM.docked) {
+      if (el.ncApproach) el.ncApproach.classList.add('hidden');
       const w = ns.dep - SIM.t;
       el.ncL2.textContent = !SIM.boardDone ? t('boarding') : (w > 0 ? t('waitDep', fmtMS(w)) : t('canLeave'));
       el.ncL2.className = 'l2';
@@ -5452,10 +5517,23 @@ function updateHUD(dt) {
       el.ncL2.className = 'l2';
       el.ncL3.textContent = late > 0 ? t('lateBy', fmtMS(late)) : t('earlyBy', fmtMS(-late));
       el.ncL3.className = 'l2' + (late > 15 ? ' late' : '');
+      if (el.ncApproach) {
+        el.ncApproach.classList.remove('hidden');
+        const app = PIER_APPROACH[ns.id];
+        if (app) {
+          if (el.ncNote) el.ncNote.textContent = t(app.noteKey);
+          if (el.ncSide) {
+            el.ncSide.textContent = t(app.side === 'port' ? 'sidePort' : 'sideStarboard');
+            el.ncSide.className = 'nc-badge side ' + app.side;
+          }
+          if (el.ncHd) el.ncHd.textContent = app.hdStr;
+        }
+      }
     }
   } else {
     SIM.ropeTension = 0;
     if (el.ncRope) el.ncRope.classList.add('hidden');
+    if (el.ncApproach) el.ncApproach.classList.add('hidden');
   }
   // speed and levers
   const kn = player.speed * 1.944, frac = clamp(player.speed / 14, 0, 1);
@@ -5571,6 +5649,33 @@ function drawMinimap() {
     g.fillStyle = '#0F2E33'; g.beginPath(); g.arc(x, z, 6, 0, TAU); g.fill(); g.fillStyle = '#F4EBD9'; g.beginPath(); g.arc(x, z, 2.5, 0, TAU); g.fill();
     g.fillStyle = isNext ? '#C1442E' : '#0F2E33'; g.textAlign = P.side === 'w' ? 'right' : 'left';
     g.fillText(pierName(id), x + (P.side === 'w' ? -15 : 15), z);
+  }
+  // Recommended approach arrow for next stop pier
+  if (ns && !SIM.docked) {
+    const P = PIERS[ns.id], app = PIER_APPROACH[ns.id];
+    if (P && app) {
+      const bx = mmX(P.bx), bz = mmZ(P.bz);
+      const rad = app.hd * Math.PI / 180;
+      const dx = Math.sin(rad), dz = -Math.cos(rad);
+      const arrowLen = 22;
+      const headX = bx - dx * 5, headZ = bz - dz * 5;
+      const tailX = headX - dx * arrowLen, tailZ = headZ - dz * arrowLen;
+      const ang = Math.atan2(dz, dx);
+      g.save();
+      g.strokeStyle = '#0F2E33'; g.lineWidth = 4.5; g.lineCap = 'round';
+      g.beginPath(); g.moveTo(tailX, tailZ); g.lineTo(headX, headZ); g.stroke();
+      g.strokeStyle = app.side === 'port' ? '#C1442E' : '#2E7D6B'; g.lineWidth = 2.4;
+      g.beginPath(); g.moveTo(tailX, tailZ); g.lineTo(headX, headZ); g.stroke();
+      g.translate(headX, headZ);
+      g.rotate(ang);
+      g.fillStyle = app.side === 'port' ? '#C1442E' : '#2E7D6B';
+      g.strokeStyle = '#0F2E33'; g.lineWidth = 1.6;
+      g.beginPath();
+      g.moveTo(5, 0); g.lineTo(-8, -5); g.lineTo(-5, 0); g.lineTo(-8, 5);
+      g.closePath();
+      g.fill(); g.stroke();
+      g.restore();
+    }
   }
   // traffic
   for (const b of SIM.traffic) {
@@ -6330,11 +6435,12 @@ window.vapurSim = function (seconds) {
   return window.vapur;
 };
 window.vapur = {
-  G, SIM, player, input, AUD, STR, WORLD, PIERS, SHIFTS, ASSETS, DOCK, BOT, CAM, COLREG, scene, renderer, camera, FOG, fogEchoes, fogHornBlast, fogDockBonus, OBJ,
+  G, SIM, player, input, AUD, STR, WORLD, PIERS, PIER_APPROACH, SHIFTS, ASSETS, DOCK, BOT, CAM, COLREG, scene, renderer, camera, FOG, fogEchoes, fogHornBlast, fogDockBonus, OBJ,
   fog(on) { G.fogPick = !!on; },
   get state() { return G.state; }, get shift() { return SIM.shift && SIM.shift.id; }, get time() { return SIM.t; }, get hour() { return SIM.hour; },
   get score() { return shiftScore(); }, get target() { return SIM.target; }, get aboard() { return SIM.aboardN; }, get delivered() { return SIM.delivered; },
-  get hull() { return player.hull; }, get comfort() { return SIM.comfort; }, get log() { return G.log; }, get done() { return G.done; }, get errors() { return G.errors; },
+  get hull() { return player.hull; }, get degraded() { return (player.hull || 0) > 0; }, get comfort() { return SIM.comfort; }, get log() { return G.log; }, get done() { return G.done; }, get errors() { return G.errors; },
+  get pierApproach() { return PIER_APPROACH; },
   get assets() { return { loaded: ASSETS.loaded.slice(), failed: ASSETS.failed.slice() }; },
   get colreg() { return COLREG; },
   get ropeTension() { return SIM.ropeTension || 0; },
