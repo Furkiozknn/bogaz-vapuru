@@ -359,6 +359,45 @@ a.btn { text-decoration: none; }
   background: var(--c-teal); border: 1.5px solid var(--c-deep);
   box-shadow: 0 1px 3px rgba(15, 46, 51, 0.4);
 }
+/* Engine Heat Gauge by the levers */
+.lever.heat {
+  width: 40px; display: flex; flex-direction: column; align-items: center; justify-content: space-between;
+  padding: 2px 2px 3px; background: var(--c-cream);
+}
+.lever.heat::before { display: none; }
+.lever.heat .heat-title {
+  font-family: var(--font-mono); font-size: 8px; font-weight: 800;
+  letter-spacing: 0.5px; text-transform: uppercase; color: var(--c-teal);
+  line-height: 12px; margin-top: 1px; z-index: 2;
+}
+.lever.heat .heat-bars {
+  display: flex; gap: 3px; width: 100%; flex: 1; padding: 1px 2px;
+  justify-content: center; align-items: stretch; margin-bottom: 12px; z-index: 2;
+}
+.lever.heat .heat-col {
+  flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px;
+}
+.lever.heat .heat-track {
+  width: 10px; flex: 1; background: var(--c-deep-faint); border-radius: 2px;
+  border: 1px solid rgba(15, 46, 51, 0.25); position: relative; overflow: hidden;
+  display: flex; align-items: flex-end;
+}
+.lever.heat .heat-track i {
+  display: block; width: 100%; height: 0%;
+  background: var(--c-green); border-radius: 1px;
+  transition: height 0.15s ease-out, background-color 0.2s;
+}
+.lever.heat .heat-col.warm .heat-track i { background: var(--c-gold); }
+.lever.heat .heat-col.hot .heat-track i { background: var(--c-red); animation: colregPulse 0.5s infinite alternate ease-in-out; }
+.lever.heat .heat-num {
+  font-family: var(--font-mono); font-size: 7.5px; font-weight: 800;
+  font-variant-numeric: tabular-nums; color: var(--c-deep); line-height: 1;
+}
+.lever.heat .heat-col.hot .heat-num { color: var(--c-red); font-weight: 800; }
+.lever.heat small {
+  position: absolute; left: 0; right: 0; bottom: 2px;
+  text-align: center; font-size: 8.5px; font-weight: 700; color: var(--c-deep-mid);
+}
 .lever.rud::before { top: 50%; bottom: auto; left: 6px; right: 6px; width: auto; height: 3px; margin: 0; }
 .lever.rud i { top: 8px; bottom: 14px; width: 8px; left: 50%; }
 .lever small {
@@ -496,6 +535,21 @@ body.touch #touch { display: block; }
 .t-thr-rpm .rpm-tag.astern { border-color: var(--c-red); }
 .t-thr-rpm .rpm-tag.ahead { border-color: var(--c-green); }
 .t-thr-rpm .rpm-tag.gear-pause { background: rgba(232, 161, 58, 0.3); color: var(--c-gold-d); }
+.t-thr-heat {
+  position: absolute; left: 4px; right: 4px; top: 20px; height: 13px;
+  display: flex; gap: 3px; justify-content: space-between; z-index: 2; pointer-events: none;
+}
+.t-thr-heat .heat-tag {
+  flex: 1; height: 13px; line-height: 13px; text-align: center;
+  font-family: var(--font-mono); font-size: 8px; font-weight: 800;
+  border-radius: 2px; border: 1px solid var(--c-deep);
+  font-variant-numeric: tabular-nums; white-space: nowrap; overflow: hidden;
+  background: var(--c-cream-l); color: var(--c-teal);
+}
+.t-thr-heat .heat-tag.p { color: #8a241e; }
+.t-thr-heat .heat-tag.s { color: #1e6348; }
+.t-thr-heat .heat-tag.warm { background: rgba(232, 161, 58, 0.25); color: var(--c-gold-d); border-color: var(--c-gold-d); }
+.t-thr-heat .heat-tag.hot { background: rgba(193, 68, 46, 0.25); color: var(--c-red); border-color: var(--c-red); animation: colregPulse 0.5s infinite alternate ease-in-out; }
 #tThr u { position: absolute; left: 10px; right: 10px; top: 50%; height: 2px; background: var(--c-deep); }
 #tThr i {
   position: absolute; left: 11px; width: 52px; height: 52px; top: 50%; margin-top: -26px;
@@ -557,7 +611,9 @@ body.compact #tThr { width: 62px; height: 160px; } body.compact #tThr i { width:
 body.compact #tThr::before { top: 30px; bottom: 18px; }
 body.compact .t-thr-rpm { top: 2px; height: 14px; }
 body.compact .t-thr-rpm .rpm-tag { height: 14px; line-height: 14px; font-size: 8px; }
-body.compact #tThr small[data-i="ahead"] { top: 18px !important; }
+body.compact .t-thr-heat { top: 17px; height: 12px; }
+body.compact .t-thr-heat .heat-tag { height: 12px; line-height: 12px; font-size: 7.5px; }
+body.compact #tThr small[data-i="ahead"] { top: 30px !important; }
 body.compact #bMoor { min-height: 36px; padding: 4px 10px; font-size: 11px; }
 body.compact .rope-wrap { margin: 2px 0; padding: 2px 4px; }
 body.compact .tb { width: 48px; height: 42px; }
@@ -1547,6 +1603,14 @@ input[type=range] { width: 100%; height: 44px; accent-color: var(--c-teal); back
     <div id="levers">
       <div class="lever thr thr-p" title="iskele makine / port engine"><span class="rpm-lbl" id="rpmP">0</span><i id="lvThr"></i><small>İ T/G</small></div>
       <div class="lever thr thr-s" title="sancak makine / starboard engine"><span class="rpm-lbl" id="rpmS">0</span><i id="lvThrS"></i><small>S Y/H</small></div>
+      <div class="lever heat" id="lvHeat" title="makine harareti / engine heat">
+        <span class="heat-title" data-i="tempShort">ISI</span>
+        <div class="heat-bars">
+          <div class="heat-col p" id="heatColP" title="iskele / port"><div class="heat-track"><i id="heatBarP"></i></div><span class="heat-num" id="heatValP">60°</span></div>
+          <div class="heat-col s" id="heatColS" title="sancak / starboard"><div class="heat-track"><i id="heatBarS"></i></div><span class="heat-num" id="heatValS">60°</span></div>
+        </div>
+        <small id="heatUnit">°C</small>
+      </div>
       <div class="lever rud" title="rudder"><i id="lvRud"></i><small>A/D</small></div>
     </div>
     <div id="speedo"><svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="42" stroke="rgba(15,46,51,.15)" stroke-dasharray="198 264"/><circle class="ticks" cx="50" cy="50" r="35" stroke-dasharray="1.5 9.5"/><circle id="spArc" cx="50" cy="50" r="42" stroke-dasharray="0 264"/></svg><div><b id="spVal">0</b><small id="spUnit">kn</small></div></div>
@@ -1563,7 +1627,7 @@ input[type=range] { width: 100%; height: 44px; accent-color: var(--c-teal); back
   <div id="floaters"></div>
   <div id="touch">
     <div id="tWheel" class="glass" role="slider" aria-label="Rudder"><svg viewBox="0 0 100 100" id="tWheelSvg"><use href="#i-wheel"/></svg></div>
-    <div id="tThr" class="glass" role="slider" aria-label="Throttle"><div id="tThrRpm" class="t-thr-rpm"><span id="tRpmP" class="rpm-tag p">0</span><span id="tRpmS" class="rpm-tag s">0</span></div><small style="top:22px" data-i="ahead"></small><u></u><i class="p"><svg class="ic" style="width:22px;height:22px;transform:rotate(-90deg)"><use href="#i-play"/></svg></i><i class="s"><svg class="ic" style="width:22px;height:22px;transform:rotate(-90deg)"><use href="#i-play"/></svg></i><small style="bottom:4px" data-i="astern"></small></div>
+    <div id="tThr" class="glass" role="slider" aria-label="Throttle"><div id="tThrRpm" class="t-thr-rpm"><span id="tRpmP" class="rpm-tag p">0</span><span id="tRpmS" class="rpm-tag s">0</span></div><div id="tThrHeat" class="t-thr-heat"><span id="tHeatP" class="heat-tag p">60°</span><span id="tHeatS" class="heat-tag s">60°</span></div><small style="top:36px" data-i="ahead"></small><u></u><i class="p"><svg class="ic" style="width:22px;height:22px;transform:rotate(-90deg)"><use href="#i-play"/></svg></i><i class="s"><svg class="ic" style="width:22px;height:22px;transform:rotate(-90deg)"><use href="#i-play"/></svg></i><small style="bottom:4px" data-i="astern"></small></div>
     <div id="tHorn" class="tb glass" aria-label="Horn"><svg class="ic" style="width:26px;height:26px"><use href="#i-horn"/></svg></div>
     <div id="tCam" class="tb glass" aria-label="Camera"><svg class="ic" style="width:26px;height:26px"><use href="#i-cam"/></svg></div>
   </div>
@@ -1765,6 +1829,8 @@ const STR = {
     nextStop: 'Sonraki iskele', distance: 'Mesafe', speed: 'Hız', angle: 'Açı', ahead: 'İLERİ', astern: 'TORN.',
     moorBtn: 'HALAT AT', hintMoor: 'HALAT AT (E)', hintMoorTouch: 'HALAT AT', toastMoorFail: 'Yanaşma pozisyonu uygun değil! Hız ve açıyı ayarla.',
     sDockBonus: 'Yanaşma puanı', ropeTension: 'Halat gerilimi', dirAhead: 'İ', dirAstern: 'T', gearPause: 'BEKL.',
+    tempShort: 'ISI', overheatP: 'İskele makine aşırı ısındı! Güç düşürüldü.', overheatS: 'Sancak makine aşırı ısındı! Güç düşürüldü.',
+    coolP: 'İskele makine soğudu (tam güç)', coolS: 'Sancak makine soğudu (tam güç)',
     waiting: '{0} bekliyor', planned: 'plan {0}', lateBy: '{0} geç', earlyBy: '{0} erken', depart: 'kalkış {0}', waitDep: 'kalkışa {0}', boarding: 'yolcu alınıyor…', canLeave: 'kalkabilirsin!',
     campaign: 'Sefer planı', endlessShort: 'Sonsuz',
     bestLine: 'En iyi: {0} puan · {1}/24 yıldız · Sonsuz: {2} sefer', bestNone: 'Henüz rekor yok.',
@@ -1857,6 +1923,8 @@ const STR = {
     nextStop: 'Next pier', distance: 'Distance', speed: 'Speed', angle: 'Angle', ahead: 'AHEAD', astern: 'ASTERN',
     moorBtn: 'THROW LINES', hintMoor: 'THROW LINES (E)', hintMoorTouch: 'THROW LINES', toastMoorFail: 'Not in docking position! Check speed and angle.',
     sDockBonus: 'Docking score', ropeTension: 'Rope tension', dirAhead: 'A', dirAstern: 'AS', gearPause: 'GEAR',
+    tempShort: 'TEMP', overheatP: 'Port engine overheated! Power reduced.', overheatS: 'Starboard engine overheated! Power reduced.',
+    coolP: 'Port engine cooled (full power)', coolS: 'Starboard engine cooled (full power)',
     waiting: '{0} waiting', planned: 'due {0}', lateBy: '{0} late', earlyBy: '{0} early', depart: 'depart {0}', waitDep: 'departs in {0}', boarding: 'boarding…', canLeave: 'you may leave!',
     campaign: 'Shift plan', endlessShort: 'Endless',
     bestLine: 'Best: {0} points · {1}/24 stars · Endless: {2} shifts', bestNone: 'No record yet.',
@@ -3439,7 +3507,7 @@ const SIM = {
   docked: null, dockT: 0, dockOk: 0, boardQ: [], boardT: 0, boardDone: false, offN: 0, onN: 0, ropes: false, depAllowed: false, leaveToast: false, lateToast: false, wrongT: 0,
   walkers: [], heelT: 0, lastThrSign: 0, bumpCd: 0, toasted: {}, thunderT: 0, hornT: 0, ended: false, lostT: 0, gullT: 4, ropeTension: 0, warp: false,
 };
-const player = { x: 0, z: 0, hd: 0, u: 0, v: 0, r: 0, thr: 0, thrP: 0, thrS: 0, gearDirP: 0, gearDirS: 0, gearPauseP: 0, gearPauseS: 0, rpmP: 0, rpmS: 0, rud: 0, hull: 0, vx: 0, vz: 0, speed: 0, heel: 0, pitch: 0, wakeT: 0, smokeT: 0, horn: false };
+const player = { x: 0, z: 0, hd: 0, u: 0, v: 0, r: 0, thr: 0, thrP: 0, thrS: 0, gearDirP: 0, gearDirS: 0, gearPauseP: 0, gearPauseS: 0, rpmP: 0, rpmS: 0, tempP: 60, tempS: 60, overheatP: false, overheatS: false, rud: 0, hull: 0, vx: 0, vz: 0, speed: 0, heel: 0, pitch: 0, wakeT: 0, smokeT: 0, horn: false };
 let lastPlayerX = 0, lastPlayerZ = 0;
 const input = {
   thrP: 0, thrS: 0, rudder: 0, horn: false,   // port / starboard engine telegraphs -1..1; rudder > 0 turns to port
@@ -3447,11 +3515,30 @@ const input = {
   set throttle(v) { this.thrP = this.thrS = v; },
 };
 const _v = { x: 0, z: 0 };
-/** current vector at a point: along the channel, towards Marmara (+z), strongest in the middle */
+/** current vector at a point: Bosphorus profile with strong southward surface flow mid-strait,
+ *  fastest around promontories (Akıntıburnu, Kanlıca), and weaker northward counter-currents (orkoz) near shores */
 function currentAt(x, z, out) {
   const c = chanCenter(z), h = chanHalf(z), u = clamp(Math.abs(x - c) / h, 0, 1);
   const horn = x < -130 && depth(x, z) > 0 && (hornHalf(x) - Math.abs(z - hornZ(x))) > 0 && (h - Math.abs(x - c)) < 30;   // inside the Golden Horn: still water
-  let mag = SIM.cur * 2.2 * (0.3 + 0.7 * (1 - u * u)) * (1 - sstep(700, 1100, z)) * (1 - sstep(-1000, -1400, z));
+
+  // Bosphorus cross-strait profile: main southward flow mid-strait, weaker counter-current (anafor/orkoz) near shores
+  let prof;
+  if (u < 0.68) {
+    prof = Math.cos((u / 0.68) * (Math.PI / 2));
+  } else {
+    const q = (u - 0.68) / 0.32;
+    prof = -0.28 * Math.sin(q * Math.PI) * clamp(depth(x, z) / 16, 0, 1);
+  }
+
+  // Point acceleration: Akıntıburnu (west shore, z ≈ -520) and Kanlıca Point (east shore, z ≈ -820)
+  const dAkinti = hyp(x - (chanCenter(-520) - chanHalf(-520) * 0.70), z - (-520));
+  const boostAkinti = 0.70 * Math.exp(-(dAkinti * dAkinti) / (2 * 115 * 115));
+  const dKanlica = hyp(x - (chanCenter(-820) + chanHalf(-820) * 0.68), z - (-820));
+  const boostKanlica = 0.65 * Math.exp(-(dKanlica * dKanlica) / (2 * 115 * 115));
+  const pointBoost = boostAkinti + boostKanlica;
+  const speedFactor = prof > 0 ? (prof * (1 + pointBoost * 1.15)) : prof;
+
+  let mag = SIM.cur * 2.2 * speedFactor * (1 - sstep(700, 1100, z)) * (1 - sstep(-1000, -1400, z));
   if (horn) mag = 0;
   const dz = 1, dx = (chanCenter(z + 10) - chanCenter(z - 10)) / 20, l = hyp(dx, dz);
   out.x = mag * dx / l; out.z = mag * dz / l; return out;
@@ -3504,6 +3591,7 @@ function startShiftSim(sh) {
   player.hd = ((P1.bx - P0.bx) * P0.tx + (P1.bz - P0.bz) * P0.tz) >= 0 ? P0.hd : wrapAng(P0.hd + Math.PI);   // moored facing the next pier
   player.u = player.v = player.r = player.thr = player.thrP = player.thrS = player.rud = 0;
   player.gearDirP = player.gearDirS = player.gearPauseP = player.gearPauseS = player.rpmP = player.rpmS = 0;
+  player.tempP = player.tempS = 60; player.overheatP = player.overheatS = false;
   player.hull = 0; player.vx = player.vz = 0; player.heel = 0;
   input.throttle = 0; input.rudder = 0;
   P0.wait = Math.round(14 + sh.pax * 22);
@@ -3523,6 +3611,8 @@ function dockAt(P, idx, initial = false) {
   SIM.docked = P; SIM.dockT = 0; SIM.ropes = true; SIM.boardDone = false; SIM.depAllowed = false; SIM.leaveToast = false; SIM.boardQ = []; SIM.boardT = 0; SIM.offN = 0; SIM.onN = 0;
   player.u = player.v = player.r = 0; player.thr = player.thrP = player.thrS = 0;
   player.gearDirP = player.gearDirS = player.gearPauseP = player.gearPauseS = player.rpmP = player.rpmS = 0;
+  player.overheatP = player.overheatS = false;
+  player.tempP = Math.min(player.tempP || 60, 75); player.tempS = Math.min(player.tempS || 60, 75);
   input.throttle = 0;
   // snap alongside
   player.x = P.bx; player.z = P.bz;
@@ -3652,12 +3742,51 @@ function stepFerry(dt) {
     P.thrS = (P.thrS || 0) + clamp(input.thrS - (P.thrS || 0), -slewS, slewS);
   }
 
-  P.thr = (P.thrP + P.thrS) / 2;
+  // Engine thermal simulation & overheating per engine
+  const absThrP = Math.abs(P.thrP || 0);
+  const tgtTempP = 60 + 55 * Math.pow(absThrP, 2.2);
+  const dTempP = (tgtTempP > (P.tempP || 60) ? (P.overheatP ? 0.5 : 1.0) * (tgtTempP - P.tempP) * 0.045 : (tgtTempP - P.tempP) * 0.08) * dt;
+  P.tempP = clamp((P.tempP || 60) + dTempP, 60, 115);
+
+  if (P.tempP >= 100 && !P.overheatP) {
+    P.overheatP = true;
+    toast(t('overheatP'), 'bad');
+    AUD.bad();
+    haptic([60, 40, 60]);
+  } else if (P.overheatP && P.tempP <= 82) {
+    P.overheatP = false;
+    toast(t('coolP'), 'good');
+    AUD.good();
+  }
+
+  const absThrS = Math.abs(P.thrS || 0);
+  const tgtTempS = 60 + 55 * Math.pow(absThrS, 2.2);
+  const dTempS = (tgtTempS > (P.tempS || 60) ? (P.overheatS ? 0.5 : 1.0) * (tgtTempS - P.tempS) * 0.045 : (tgtTempS - P.tempS) * 0.08) * dt;
+  P.tempS = clamp((P.tempS || 60) + dTempS, 60, 115);
+
+  if (P.tempS >= 100 && !P.overheatS) {
+    P.overheatS = true;
+    toast(t('overheatS'), 'bad');
+    AUD.bad();
+    haptic([60, 40, 60]);
+  } else if (P.overheatS && P.tempS <= 82) {
+    P.overheatS = false;
+    toast(t('coolS'), 'good');
+    AUD.good();
+  }
+
+  // Overheating forces reduced power (max 50% power) until cooled
+  const maxPowP = P.overheatP ? 0.50 : 1.0;
+  const maxPowS = P.overheatS ? 0.50 : 1.0;
+  const effThrP = clamp(P.thrP || 0, -maxPowP, maxPowP);
+  const effThrS = clamp(P.thrS || 0, -maxPowS, maxPowS);
+
+  P.thr = (effThrP + effThrS) / 2;
   P.rud += clamp(input.rudder - P.rud, -1.6 * dt, 1.6 * dt);
 
-  // per-engine RPM readouts (max ~380 RPM)
-  P.rpmP = (P.gearPauseP > 0 || Math.abs(P.thrP) < 0.03) ? 0 : Math.round(Math.abs(P.thrP) * 380);
-  P.rpmS = (P.gearPauseS > 0 || Math.abs(P.thrS) < 0.03) ? 0 : Math.round(Math.abs(P.thrS) * 380);
+  // per-engine RPM readouts (max ~380 RPM; drops with reduced power)
+  P.rpmP = (P.gearPauseP > 0 || Math.abs(effThrP) < 0.03) ? 0 : Math.round(Math.abs(effThrP) * 380);
+  P.rpmS = (P.gearPauseS > 0 || Math.abs(effThrS) < 0.03) ? 0 : Math.round(Math.abs(effThrS) * 380);
   if (SIM.docked) { P.u = P.v = P.r = 0; P.vx = P.vz = 0; P.speed = 0; P.heel *= 0.95; return; }
   const maxV = FERRY.maxV * degradedSpd, k = (FERRY.accel || 0.62) / (maxV * maxV);
   const thrust = (P.thr > 0 ? P.thr * (FERRY.accel || 0.62) : P.thr * (FERRY.reverseAccel || 0.42)) * degradedAccel;
@@ -3666,7 +3795,7 @@ function stepFerry(dt) {
   P.u += du;
   // yaw: rudder works with the water flow over it (speed or prop wash); astern reverses it
   const flow = Math.max(Math.abs(P.u), Math.abs(P.thr) * 6) * Math.sign(P.u || P.thr || 1);
-  const rT = P.rud * (FERRY.rudderPower || 0.14) * clamp(flow / 6, -1, 1) * (SIM.storm ? 0.9 : 1) + (P.thrS - P.thrP) * (FERRY.twinTorque || 0.045);
+  const rT = P.rud * (FERRY.rudderPower || 0.14) * clamp(flow / 6, -1, 1) * (SIM.storm ? 0.9 : 1) + (effThrS - effThrP) * (FERRY.twinTorque || 0.045);
   P.r += (rT - P.r) * Math.min(1, (FERRY.yawDamp || 0.9) * dt);
   // sway: drifts outwards in a turn, damped
   P.v += (-P.r * P.u * (FERRY.swayFactor || 0.35) - 1.1 * P.v) * dt;
@@ -5480,7 +5609,7 @@ function setCamMode(m) {
 
 // ---------------------------------------------------------------- UI: elements, toasts, HUD
 const el = {};
-for (const id of ['hud', 'topbar', 'stShift', 'stClock', 'stPlan', 'stPax', 'comfBar', 'hullBar', 'stStars', 'bWarp', 'warpBadge', 'warpBadgeTxt', 'bPanel', 'bCamH', 'bPause', 'bSound', 'bLang', 'toasts', 'colregBadge', 'colregArrow', 'colregTxt', 'colregSub', 'nextCard', 'ncName', 'ncL2', 'ncApproach', 'ncNote', 'ncSide', 'ncHd', 'ncL3', 'ncRope', 'ncRopeVal', 'ncRopeBar', 'camLbl', 'minimap', 'lvThr', 'lvThrS', 'lvRud', 'rpmP', 'rpmS', 'speedo', 'spArc', 'spVal', 'spUnit', 'dock', 'dkDist', 'dkSpd', 'dkAng', 'dkHint', 'bMoor', 'floaters', 'touch', 'tWheel', 'tWheelSvg', 'tThr', 'tRpmP', 'tRpmS', 'tHorn', 'tCam',
+for (const id of ['hud', 'topbar', 'stShift', 'stClock', 'stPlan', 'stPax', 'comfBar', 'hullBar', 'stStars', 'bWarp', 'warpBadge', 'warpBadgeTxt', 'bPanel', 'bCamH', 'bPause', 'bSound', 'bLang', 'toasts', 'colregBadge', 'colregArrow', 'colregTxt', 'colregSub', 'nextCard', 'ncName', 'ncL2', 'ncApproach', 'ncNote', 'ncSide', 'ncHd', 'ncL3', 'ncRope', 'ncRopeVal', 'ncRopeBar', 'camLbl', 'minimap', 'lvThr', 'lvThrS', 'lvHeat', 'heatColP', 'heatColS', 'heatBarP', 'heatBarS', 'heatValP', 'heatValS', 'lvRud', 'rpmP', 'rpmS', 'speedo', 'spArc', 'spVal', 'spUnit', 'dock', 'dkDist', 'dkSpd', 'dkAng', 'dkHint', 'bMoor', 'floaters', 'touch', 'tWheel', 'tWheelSvg', 'tThr', 'tRpmP', 'tRpmS', 'tThrHeat', 'tHeatP', 'tHeatS', 'tHorn', 'tCam',
   'sTitle', 'sIntro', 'sPause', 'sSettings', 'sEnd', 'bPlay', 'playTxt', 'bCont', 'bEndless', 'bSettingsT', 'bLangT', 'langTxt', 'bestLine', 'cmap', 'inTitle', 'inDesc', 'inCond', 'inTT', 'inTarget', 'bStart', 'bFog', 'fogTxt', 'bIntroBack',
   'bResume', 'bRestart', 'bSettingsP', 'bMenuP', 'rMaster', 'rMusic', 'rSfx', 'oMaster', 'oMusic', 'oSfx', 'rSteer', 'oSteer', 'bMotOff', 'bMotOn', 'bGhostOff', 'bGhostOn', 'bAnnOff', 'bAnnOn', 'bTR', 'bEN', 'bQLow', 'bQHigh', 'bLPAuto', 'bLPOn', 'bLPOff', 'bFull', 'bSetBack', 'enTitle', 'enSub', 'enStars', 'enStats', 'enRec', 'bNext', 'nextTxt', 'bRetry', 'bMenuE', 'dbg', 'hurt', 'bDaily', 'dailyLine', 'bA11y', 'bShare', 'aOther', 'enDaily', 'rankName', 'rankXpTxt', 'rankBar', 'missionsDateTag', 'missionsList', 'vesselSelect', 'vesselRankInfo', 'vesselCards']) el[id] = document.getElementById(id);
 function toast(msg, kind = 'info', ms = 2600) {
@@ -5653,6 +5782,19 @@ function updateHUD(dt) {
   if (el.rpmS) { el.rpmS.textContent = rS.txt; el.rpmS.className = 'rpm-lbl' + (rS.cls ? ' ' + rS.cls : ''); }
   if (el.tRpmP) { el.tRpmP.textContent = rP.txt; el.tRpmP.className = 'rpm-tag p' + (rP.cls ? ' ' + rP.cls : ''); }
   if (el.tRpmS) { el.tRpmS.textContent = rS.txt; el.tRpmS.className = 'rpm-tag s' + (rS.cls ? ' ' + rS.cls : ''); }
+  // engine temperature gauges & touch tags
+  const tP = Math.round(player.tempP || 60), tS = Math.round(player.tempS || 60);
+  const fracP = clamp((tP - 60) / 45, 0, 1), fracS = clamp((tS - 60) / 45, 0, 1);
+  const hotP = !!player.overheatP || tP >= 100, warmP = !hotP && tP >= 85;
+  const hotS = !!player.overheatS || tS >= 100, warmS = !hotS && tS >= 85;
+  if (el.heatBarP) el.heatBarP.style.height = (fracP * 100).toFixed(0) + '%';
+  if (el.heatBarS) el.heatBarS.style.height = (fracS * 100).toFixed(0) + '%';
+  if (el.heatValP) el.heatValP.textContent = tP + '°';
+  if (el.heatValS) el.heatValS.textContent = tS + '°';
+  if (el.heatColP) { el.heatColP.classList.toggle('hot', hotP); el.heatColP.classList.toggle('warm', warmP); }
+  if (el.heatColS) { el.heatColS.classList.toggle('hot', hotS); el.heatColS.classList.toggle('warm', warmS); }
+  if (el.tHeatP) { el.tHeatP.textContent = tP + '°'; el.tHeatP.classList.toggle('hot', hotP); el.tHeatP.classList.toggle('warm', warmP); }
+  if (el.tHeatS) { el.tHeatS.textContent = tS + '°'; el.tHeatS.classList.toggle('hot', hotS); el.tHeatS.classList.toggle('warm', warmS); }
   // docking guide
   if (DOCK.near && !SIM.docked) {
     el.dock.classList.add('show');
@@ -5728,6 +5870,7 @@ function buildMinimapBase() {
 }
 const mmX = x => (x - MM.x0) / (MM.x1 - MM.x0) * el.minimap.width, mmZ = z => (z - MM.z0) / (MM.z1 - MM.z0) * el.minimap.height;
 let mmWp = null, mmWpFor = null, mmWpT = -99;
+const _mmCur = { x: 0, z: 0 };
 function drawMinimap() {
   const g = el.minimap.getContext('2d'), W = el.minimap.width, H = el.minimap.height;
   g.drawImage(MM.base, 0, 0);
@@ -5802,6 +5945,38 @@ function drawMinimap() {
         g.beginPath(); g.moveTo(0, -11); g.lineTo(6, 8); g.lineTo(0, 4); g.lineTo(-6, 8); g.closePath(); g.fill(); g.stroke();
         g.restore();
       }
+    }
+  }
+  // local current field arrows near ferry (teal = southward main flow, amber = counter-current)
+  for (let dz = -160; dz <= 160; dz += 80) {
+    for (let dx = -140; dx <= 140; dx += 70) {
+      if (dx * dx + dz * dz > 36000) continue;
+      const sx = player.x + dx, sz = player.z + dz;
+      if (depth(sx, sz) <= 4) continue;
+      currentAt(sx, sz, _mmCur);
+      const cSpd = hyp(_mmCur.x, _mmCur.z);
+      if (cSpd < 0.12) continue;
+      const mx = mmX(sx), mz = mmZ(sz);
+      const cAng = Math.atan2(_mmCur.z, _mmCur.x);
+      const aLen = clamp(3.5 + cSpd * 5.0, 5, 12.5);
+      const isCounter = _mmCur.z < -0.04;
+      g.save();
+      g.translate(mx, mz);
+      g.rotate(cAng);
+      g.strokeStyle = isCounter ? 'rgba(184, 120, 27, 0.70)' : 'rgba(30, 95, 99, 0.55)';
+      g.fillStyle = isCounter ? 'rgba(184, 120, 27, 0.85)' : 'rgba(30, 95, 99, 0.70)';
+      g.lineWidth = 1.3;
+      g.beginPath();
+      g.moveTo(-aLen * 0.5, 0);
+      g.lineTo(aLen * 0.5 - 2, 0);
+      g.stroke();
+      g.beginPath();
+      g.moveTo(aLen * 0.5 + 1.2, 0);
+      g.lineTo(aLen * 0.5 - 3.2, -2.0);
+      g.lineTo(aLen * 0.5 - 3.2, 2.0);
+      g.closePath();
+      g.fill();
+      g.restore();
     }
   }
   // the player ferry
@@ -6423,6 +6598,10 @@ function botTick(dt) {
   const e = (vT + (Math.abs(vT) < 2.5 ? curAlong : 0)) - P.u;
   input.throttle = e > 0 ? clamp(e * 0.45, 0, 1) : clamp(e * 0.7, -1, 0);
   if (vT === 0 && Math.abs(P.u) < 0.15) input.throttle = 0;
+  // engine thermal management: prevent bot overheat on long legs
+  if ((P.tempP > 94 || P.tempS > 94 || P.overheatP || P.overheatS) && input.throttle > 0.70) {
+    input.throttle = 0.70;
+  }
   BOT.dbg = { boost: +(BOT.boost||0).toFixed(1), back: BOT.back, out: BOT.backOut, lane: inLane, pin: +BOT.pinT.toFixed(1), rem: +rem.toFixed(0), hdErr: Math.round(hdErr * 57.3), final, vT: +vT.toFixed(2), hdWant: Math.round(hdWant * 57.3), hd: Math.round(P.hd * 57.3), err: Math.round(err * 57.3), rud: +input.rudder.toFixed(2), thr: +input.throttle.toFixed(2), lat: +lat.toFixed(1), along: +along.toFixed(1), dir: BOT.dockDir, gap, d: Math.round(d) };
   // stuck: no progress for a while -> back out and plan again
   if (Math.abs(P.u) < 0.25 && Math.abs(vT) > 0.5) BOT.stuck += dt; else BOT.stuck = 0;
@@ -6515,7 +6694,7 @@ function debugOverlay() {
   el.dbg.style.display = 'block';
   el.dbg.textContent = 'fps ' + fpsS.toFixed(0) + ' · calls ' + i.calls + ' · tris ' + i.triangles + ' · pts ' + i.points + '\n' +
     'state ' + G.state + ' · shift ' + (SIM.shift ? SIM.shift.id : '-') + ' · t ' + SIM.t.toFixed(1) + ' · ' + fmtClock(SIM.hour) + ' · score ' + shiftScore() + '/' + SIM.target + '\n' +
-    'pos ' + player.x.toFixed(0) + ',' + player.z.toFixed(0) + ' hd ' + (player.hd * 180 / Math.PI).toFixed(0) + ' u ' + player.u.toFixed(2) + ' spd ' + player.speed.toFixed(2) + ' thr ' + player.thr.toFixed(2) + ' rud ' + player.rud.toFixed(2) + '\n' +
+    'pos ' + player.x.toFixed(0) + ',' + player.z.toFixed(0) + ' hd ' + (player.hd * 180 / Math.PI).toFixed(0) + ' u ' + player.u.toFixed(2) + ' spd ' + player.speed.toFixed(2) + ' thr ' + player.thr.toFixed(2) + ' rud ' + player.rud.toFixed(2) + ' temp ' + (player.tempP || 60).toFixed(0) + '°/' + (player.tempS || 60).toFixed(0) + '°' + (player.overheatP || player.overheatS ? ' HOT!' : '') + '\n' +
     'next ' + (ns ? ns.id + ' (' + SIM.stopIdx + '/' + (SIM.stops.length - 1) + ')' : '-') + ' docked ' + (SIM.docked ? SIM.docked.id : '-') + ' gap ' + DOCK.gap.toFixed(1) + ' along ' + DOCK.along.toFixed(1) + ' ang ' + (DOCK.ang * 57.3).toFixed(0) + '\n' +
     'colreg ' + (COLREG.giveWay ? (COLREG.targetKind + ' ' + (COLREG.inDanger ? 'DANGER' : 'give-way') + ' cpa:' + COLREG.cpa.toFixed(0) + 'm') : 'clear') + ' · aboard ' + SIM.aboardN + ' delivered ' + SIM.delivered + ' lost ' + SIM.lost + ' comfort ' + SIM.comfort.toFixed(0) + ' hull ' + player.hull.toFixed(0) + ' deck ' + (SIM.deckLife ? (SIM.deckLife.simitActive ? 'simit' : SIM.deckLife.teaActive ? 'tea' : 'idle') : '-') + ' traffic ' + SIM.traffic.length + ' walkers ' + SIM.walkers.length + '\n' +
     'bot wp ' + BOT.wp.length + ' stuck ' + BOT.stuck.toFixed(1) + ' · assets ' + ASSETS.loaded.length + '/' + (ASSETS.loaded.length + ASSETS.failed.length) + '\n' +
@@ -6536,11 +6715,12 @@ window.vapurSim = function (seconds) {
   return window.vapur;
 };
 window.vapur = {
-  G, SIM, player, input, AUD, STR, WORLD, PIERS, PIER_APPROACH, SHIFTS, ASSETS, DOCK, BOT, CAM, COLREG, scene, renderer, camera, FOG, fogEchoes, fogHornBlast, fogDockBonus, OBJ,
+  G, SIM, player, input, AUD, STR, WORLD, PIERS, PIER_APPROACH, SHIFTS, ASSETS, DOCK, BOT, CAM, COLREG, scene, renderer, camera, FOG, fogEchoes, fogHornBlast, fogDockBonus, OBJ, currentAt,
   fog(on) { G.fogPick = !!on; },
   get state() { return G.state; }, get shift() { return SIM.shift && SIM.shift.id; }, get time() { return SIM.t; }, get hour() { return SIM.hour; },
   get score() { return shiftScore(); }, get target() { return SIM.target; }, get aboard() { return SIM.aboardN; }, get delivered() { return SIM.delivered; },
   get hull() { return player.hull; }, get degraded() { return (player.hull || 0) > 0; }, get comfort() { return SIM.comfort; }, get log() { return G.log; }, get done() { return G.done; }, get errors() { return G.errors; },
+  get tempP() { return player.tempP || 60; }, get tempS() { return player.tempS || 60; }, get overheatP() { return !!player.overheatP; }, get overheatS() { return !!player.overheatS; },
   get pierApproach() { return PIER_APPROACH; },
   get assets() { return { loaded: ASSETS.loaded.slice(), failed: ASSETS.failed.slice() }; },
   get colreg() { return COLREG; },
