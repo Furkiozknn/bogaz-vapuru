@@ -4162,7 +4162,9 @@ function stepDeckLife(dt) {
       if (Math.random() < 0.25 && OBJ.wake) {
         const s = Math.sin(P.hd), c = Math.cos(P.hd);
         const sternX = P.x - s * 18, sternZ = P.z - c * 18;
-        OBJ.wake.spawn(sternX + c * rr(-3, 3), 0.35, sternZ - s * rr(-3, 3), -P.vx * 0.1, 0, -P.vz * 0.1, 3.5, 0.4, 0.6, 0xE8A13A, 0.7, 0);
+        // cosmetic crumbs: Math.random only, never the seeded gameplay rng R (keeps ?seed sims deterministic)
+        const ox = (Math.random() - 0.5) * 6, oz = (Math.random() - 0.5) * 6;
+        OBJ.wake.spawn(sternX + c * ox, 0.35, sternZ - s * oz, -P.vx * 0.1, 0, -P.vz * 0.1, 3.5, 0.4, 0.6, 0xE8A13A, 0.7, 0);
       }
     }
     if (dl.simitTime >= dl.simitDur || DOCK.near) {
