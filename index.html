@@ -1669,6 +1669,7 @@ input[type=range] { width: 100%; height: 44px; accent-color: var(--c-teal); back
         <label for="rSteer" data-i="steerSens"></label><input type="range" id="rSteer" min="0.6" max="1.4" step="0.05" value="1.0" data-t="steerSens" aria-label="Dümen hassasiyeti"><output id="oSteer">1.0x</output>
         <label data-i="reducedMotion"></label><div class="seg"><button class="btn" id="bMotOff" data-i="motionOff"></button><button class="btn" id="bMotOn" data-i="motionOn"></button></div>
         <label data-i="ghostDocking"></label><div class="seg"><button class="btn" id="bGhostOff" data-i="ghostOff"></button><button class="btn" id="bGhostOn" data-i="ghostOn"></button></div>
+        <label data-i="announcements"></label><div class="seg"><button class="btn" id="bAnnOff" data-i="annOff"></button><button class="btn" id="bAnnOn" data-i="annOn"></button></div>
         <label data-i="language"></label><div class="seg"><button class="btn" id="bTR">Türkçe</button><button class="btn" id="bEN">English</button></div>
         <label data-i="quality"></label><div class="seg"><button class="btn" id="bQLow" data-i="low"></button><button class="btn" id="bQHigh" data-i="high"></button></div>
         <label data-i="lowPower"></label><div class="seg"><button class="btn" id="bLPAuto" data-i="lpAuto"></button><button class="btn" id="bLPOn" data-i="lpOn"></button><button class="btn" id="bLPOff" data-i="lpOff"></button></div>
@@ -1811,6 +1812,8 @@ const STR = {
     dailyLine: 'Günlük seri: {0} gün · en iyi: {1}', dailyDone: 'Bugünkü sefer tamam', dailyScore: 'Günün rekoru: {0} puan', dailyStreak: 'Seri: {0} gün', dailyAllTime: 'En iyi: {0} puan',
     shareDailyHead: 'Günün Seferi · {0}', shareDailyScore: 'Puan: {0}', shareDailyStreak: 'Seri: {0} gün',
     ghostDocking: 'Yanaşma hayaleti', ghostOn: 'Açık', ghostOff: 'Kapalı',
+    announcements: 'İskele anonsları', annOn: 'Açık', annOff: 'Kapalı',
+    announcement: 'Sıradaki iskele: {0}.',
     toastNewGhost: '{0}: Yeni yanaşma hayaleti kaydedildi!',
     a11y: 'Erişilebilirlik', a11yOpen: 'Aç',
     share: 'Paylaş', another: 'Başka oyun', shareStars: '{0}/3 yıldız · {1} puan', sharePax: '{0} yolcu taşındı',
@@ -1901,6 +1904,8 @@ const STR = {
     dailyLine: 'Daily streak: {0} · best: {1}', dailyDone: 'Today\'s shift is done', dailyScore: 'Today\'s best: {0} pts', dailyStreak: 'Streak: {0} days', dailyAllTime: 'Best: {0} pts',
     shareDailyHead: 'Daily Run · {0}', shareDailyScore: 'Score: {0} pts', shareDailyStreak: 'Streak: {0} days',
     ghostDocking: 'Ghost docking', ghostOn: 'On', ghostOff: 'Off',
+    announcements: 'Pier announcements', annOn: 'On', annOff: 'Off',
+    announcement: 'Next stop: {0}.',
     toastNewGhost: '{0}: New docking ghost recorded!',
     a11y: 'Accessibility', a11yOpen: 'Open',
     share: 'Share', another: 'Another game', shareStars: '{0}/3 stars · {1} points', sharePax: '{0} passengers carried',
@@ -2056,7 +2061,7 @@ function endlessShift(n) {     // endless shift n (1-based): random route, growi
 // ---------------------------------------------------------------- settings / save (all in try/catch)
 const KEY_SET = 'arena.vapur.settings', KEY_SAVE = 'arena.vapur.save';
 const isPhone = /Android|iPhone|iPad|iPod|Mobi/i.test(navigator.userAgent) || (matchMedia && matchMedia('(pointer:coarse)').matches && Math.min(screen.width, screen.height) < 800);
-const settings = { master: 0.8, music: 0.6, sfx: 0.8, mute: false, lang: (navigator.language || 'tr').toLowerCase().startsWith('tr') ? 'tr' : 'en', quality: isPhone ? 'low' : 'high', lowPower: 'auto', ghostDocking: true };
+const settings = { master: 0.8, music: 0.6, sfx: 0.8, mute: false, lang: (navigator.language || 'tr').toLowerCase().startsWith('tr') ? 'tr' : 'en', quality: isPhone ? 'low' : 'high', lowPower: 'auto', ghostDocking: true, announcements: true };
 const batteryState = { low: false, charging: false };
 if (typeof navigator !== 'undefined' && navigator.getBattery) {
   navigator.getBattery().then(bat => {
@@ -2096,6 +2101,8 @@ function lsSet(k, v) { if (FLAG.nosave) return; try { localStorage.setItem(k, JS
   if (s && s.mute !== undefined) settings.mute = s.mute; // restore saved mute state
   if (s && s.ghostDocking !== undefined) settings.ghostDocking = s.ghostDocking;
   else if (settings.ghostDocking === undefined) settings.ghostDocking = true;
+  if (s && s.announcements !== undefined) settings.announcements = s.announcements;
+  else if (settings.announcements === undefined) settings.announcements = true;
   LANG = (Q.get('lang') === 'en' || Q.get('lang') === 'tr') ? Q.get('lang') : settings.lang;   // URL override is not saved
 })();
 const saveSettings = () => lsSet(KEY_SET, settings);
@@ -2122,6 +2129,39 @@ const comfortSettings = { reducedMotion: false, steerSens: 1.0 };
   }
 })();
 const saveComfort = () => lsSet(KEY_COMFORT, comfortSettings);
+
+// ---------------------------------------------------------------- Haptics & Pier Announcements
+function haptic(pattern) {
+  if (calm()) return;
+  try {
+    if (typeof navigator !== 'undefined' && navigator.vibrate) {
+      navigator.vibrate(pattern);
+    }
+  } catch (e) {}
+}
+
+function announcePier(pierId) {
+  if (typeof window === 'undefined' || !window.speechSynthesis) return;
+  if (!settings.announcements) return;
+  const vol = (settings.mute || !settings.sfxOn) ? 0 : clamp(settings.master * settings.sfx, 0, 1);
+  if (vol <= 0.01) return;
+  try {
+    window.speechSynthesis.cancel();
+    const text = t('announcement', pierName(pierId));
+    const utt = new SpeechSynthesisUtterance(text);
+    utt.lang = LANG === 'tr' ? 'tr-TR' : 'en-US';
+    utt.volume = vol;
+    utt.rate = 0.95;
+    utt.pitch = 1.0;
+    const voices = window.speechSynthesis.getVoices ? window.speechSynthesis.getVoices() : [];
+    if (voices && voices.length) {
+      const langPrefix = LANG === 'tr' ? 'tr' : 'en';
+      const match = voices.find(v => v.lang && v.lang.toLowerCase().startsWith(langPrefix));
+      if (match) utt.voice = match;
+    }
+    window.speechSynthesis.speak(utt);
+  } catch (e) {}
+}
 
 // ---------------------------------------------------------------- Daily Run (bogaz-vapuru.daily)
 const KEY_DAILY = 'bogaz-vapuru.daily';
@@ -3445,7 +3485,7 @@ function startShiftSim(sh) {
   SIM.shift = sh; SIM.t = 0; SIM.hour = sh.hour; SIM.cur = sh.current; SIM.fog = sh.fog; SIM.storm = sh.storm; SIM.rain = 0; SIM.swell = sh.storm ? 1 : 0.2;
   SIM.wind.a = sh.wind; SIM.wind.dir = rr(0, TAU); SIM.wind.gust = 0;
   SIM.aboard = {}; SIM.aboardN = 0; SIM.delivered = 0; SIM.lost = 0; SIM.comfort = 100; SIM.punct = []; SIM.score = 0; SIM.stopIdx = 1;
-  SIM.docked = null; SIM.dockT = 0; SIM.dockOk = 0; SIM.boardQ = []; SIM.boardDone = false; SIM.ropes = false; SIM.depAllowed = false; SIM.walkers = []; SIM.toasted = {}; SIM.ended = false; SIM.dockBonus = 0; SIM.fogRun = false; SIM.fogBonus = 0; SIM.ropeTension = 0; SIM.warp = false; SIM.degradedToast = false;
+  SIM.docked = null; SIM.dockT = 0; SIM.dockOk = 0; SIM.boardQ = []; SIM.boardDone = false; SIM.ropes = false; SIM.depAllowed = false; SIM.walkers = []; SIM.toasted = {}; SIM.ended = false; SIM.dockBonus = 0; SIM.fogRun = false; SIM.fogBonus = 0; SIM.ropeTension = 0; SIM.warp = false; SIM.degradedToast = false; SIM.announcedStop = -1; SIM.underBridge = false; SIM.bridgeGust = null;
   approachRec.length = 0; GHOST_STATE.active = false; GHOST_STATE.time = 0; GHOST_STATE.pierId = null;
   if (el.bWarp) el.bWarp.classList.remove('on'); if (el.warpBadge) el.warpBadge.classList.remove('show');
   SIM.deckLife = {
@@ -3490,7 +3530,10 @@ function dockAt(P, idx, initial = false) {
   if (!initial) {
     const dq = clamp(1 - DOCK.spd / 1.2, 0, 1) * 0.6 + clamp(1 - Math.abs(DOCK.ang) / 0.36, 0, 1) * 0.4, db = Math.round(dq * 30);
     SIM.dockBonus = (SIM.dockBonus || 0) + db; if (db > 0) { floater('+' + db, false); toast(t(dq > 0.8 ? 'toastDockPro' : 'toastDockOk', db), dq > 0.8 ? 'good' : 'info'); }
-    if (dq > 0.8) recordMissionProgress('master_docks', 1);
+    if (dq > 0.8) {
+      recordMissionProgress('master_docks', 1);
+      haptic([90, 60, 90]); // double pulse on a masterful docking
+    }
     recordMissionProgress('docks', 1);
     if (SIM.fogRun) { const fb = fogDockBonus(dq); SIM.dockBonus += fb; SIM.fogBonus += fb; FOG.docks++; toast(t('toastFogDock', fb), 'good'); }
     recordGhostApproach(P, dq, db);
@@ -3513,6 +3556,7 @@ function dockAt(P, idx, initial = false) {
   if (off) { SIM.score += off * SCORE_K.pax; floater('+' + off * SCORE_K.pax, false); }
 }
 function undock() {
+  if (typeof window !== 'undefined' && window.speechSynthesis) window.speechSynthesis.cancel();
   SIM.docked = null; SIM.ropes = false; SIM.dockOk = 0; SIM.ropeTension = 0;
   approachRec.length = 0; GHOST_STATE.active = false; GHOST_STATE.time = 0; GHOST_STATE.pierId = null;
   const s = SIM.stops[SIM.stopIdx]; if (s) { s.left = true; }
@@ -3706,6 +3750,7 @@ function impact(nx, nz, pen, kind) {
       else { toast(t('toastBump'), 'bad'); AUD.bump(Math.min(1, hit / 3)); }
       hurtFlash(Math.min(1, hit / 4));
       if (!calm() && typeof CAM !== 'undefined') CAM.shake = Math.min(1.4, hit * 0.35);
+      haptic(280); // long pulse on a hard bump (off with reduced motion)
       if (P.hull >= 100) {
         endShift('wreck');
       } else if (P.hull > 0 && !SIM.degradedToast) {
@@ -3941,6 +3986,11 @@ function stepDocking(dt) {
   const dx = player.x - P.ex, dz = player.z - P.ez;
   const gap = dx * P.nx + dz * P.nz - FERRY.beam / 2, along = dx * P.tx + dz * P.tz;
   const dist = hyp(player.x - P.bx, player.z - P.bz);
+  // Pier announcement 300 m before the next pier
+  if (dist <= 300 && SIM.announcedStop !== SIM.stopIdx) {
+    SIM.announcedStop = SIM.stopIdx;
+    announcePier(ns.id);
+  }
   let ang = wrapAng(player.hd - P.hd); if (Math.abs(ang) > Math.PI / 2) ang = wrapAng(ang + Math.PI);
   DOCK.dist = dist; DOCK.gap = gap; DOCK.along = along; DOCK.ang = ang; DOCK.spd = player.speed;
   DOCK.near = dist < 110;
@@ -4135,12 +4185,53 @@ function stepNets(dt) {
   }
   lastPlayerX = P.x; lastPlayerZ = P.z;
 }
+// ---------------------------------------------------------------- bridge passage (side gust & camera tremble)
+function stepBridge(dt) {
+  if (!WORLD.bridge || G.state !== 'play' || SIM.docked) return;
+  const P = player, br = WORLD.bridge;
+  const inSpan = P.x >= br.xl && P.x <= br.xr;
+  const dz = Math.abs(P.z - br.z);
+
+  // Passing under the bridge: trigger once per passage through span
+  if (inSpan && dz < 20) {
+    if (!SIM.underBridge) {
+      SIM.underBridge = true;
+      const sideDir = Math.sin(P.hd) >= 0 ? 1 : -1;
+      SIM.bridgeGust = { time: 0, dur: 2.2, dir: sideDir };
+      if (!calm() && typeof CAM !== 'undefined') {
+        CAM.shake = Math.max(CAM.shake || 0, 0.32);
+      }
+    }
+  } else if (dz > 48) {
+    SIM.underBridge = false;
+  }
+
+  // Active side gust dynamics
+  if (SIM.bridgeGust) {
+    const bg = SIM.bridgeGust;
+    bg.time += dt;
+    if (bg.time < bg.dur) {
+      const gProg = bg.time / bg.dur;
+      const envelope = Math.sin(gProg * Math.PI); // smooth bell curve
+      const gustF = envelope * 1.8;
+      P.v += bg.dir * gustF * 0.85 * dt; // short side gust (lateral sway)
+      P.r += bg.dir * gustF * 0.012 * dt; // slight yaw disturbance
+      P.heel += -bg.dir * gustF * 0.016 * dt; // heel response
+      SIM.wind.gust = Math.max(SIM.wind.gust, envelope * 1.5); // audible wind rush
+      if (!calm() && typeof CAM !== 'undefined' && bg.time < 0.5) {
+        CAM.shake = Math.max(CAM.shake || 0, 0.28 * envelope); // light camera tremble
+      }
+    } else {
+      SIM.bridgeGust = null;
+    }
+  }
+}
 // ---------------------------------------------------------------- shift step and end
 function stepSim(dt) {
   if (SIM.ended) return;
   SIM.ff = SIM.docked && SIM.boardDone && !SIM.depAllowed && SIM.stopIdx < SIM.stops.length - 1 ? 8 : 1;
   SIM.t += dt * SIM.ff; SIM.hour = SIM.shift.hour + SIM.t * TS / 3600;
-  stepFerry(dt); stepTraffic(dt); stepNets(dt); stepColreg(dt); stepFog(dt); stepDocking(dt); stepBoarding(dt); stepPiers(dt * SIM.ff); stepWalkers(dt); stepDeckLife(dt);
+  stepFerry(dt); stepTraffic(dt); stepNets(dt); stepBridge(dt); stepColreg(dt); stepFog(dt); stepDocking(dt); stepBoarding(dt); stepPiers(dt * SIM.ff); stepWalkers(dt); stepDeckLife(dt);
   stepGhost(dt);
   // weather drift: storm rain, thunder; fog that thickens a little over the shift
   if (SIM.storm) { SIM.rain += (1 - SIM.rain) * 0.1 * dt; SIM.thunderT -= dt; if (SIM.thunderT <= 0) { SIM.thunderT = rr(14, 40); AUD.thunder(); lightning = 1; } }
@@ -4166,6 +4257,7 @@ function starsFor(score, target) { const r = score / Math.max(1, target); return
 function endShift(kind) {
   if (SIM.ended) return; SIM.ended = true;
   if (typeof setWarp === 'function' && SIM.warp) setWarp(false, false);
+  if (typeof window !== 'undefined' && window.speechSynthesis) window.speechSynthesis.cancel();
   const score = kind === 'wreck' ? Math.round(shiftScore() * 0.5) : shiftScore();
   const stars = kind === 'wreck' ? 0 : starsFor(score, SIM.target);
   const punctAvg = SIM.punct.length ? SIM.punct.reduce((a, b) => a + b, 0) / SIM.punct.length : 0;
@@ -5390,7 +5482,7 @@ function setCamMode(m) {
 const el = {};
 for (const id of ['hud', 'topbar', 'stShift', 'stClock', 'stPlan', 'stPax', 'comfBar', 'hullBar', 'stStars', 'bWarp', 'warpBadge', 'warpBadgeTxt', 'bPanel', 'bCamH', 'bPause', 'bSound', 'bLang', 'toasts', 'colregBadge', 'colregArrow', 'colregTxt', 'colregSub', 'nextCard', 'ncName', 'ncL2', 'ncApproach', 'ncNote', 'ncSide', 'ncHd', 'ncL3', 'ncRope', 'ncRopeVal', 'ncRopeBar', 'camLbl', 'minimap', 'lvThr', 'lvThrS', 'lvRud', 'rpmP', 'rpmS', 'speedo', 'spArc', 'spVal', 'spUnit', 'dock', 'dkDist', 'dkSpd', 'dkAng', 'dkHint', 'bMoor', 'floaters', 'touch', 'tWheel', 'tWheelSvg', 'tThr', 'tRpmP', 'tRpmS', 'tHorn', 'tCam',
   'sTitle', 'sIntro', 'sPause', 'sSettings', 'sEnd', 'bPlay', 'playTxt', 'bCont', 'bEndless', 'bSettingsT', 'bLangT', 'langTxt', 'bestLine', 'cmap', 'inTitle', 'inDesc', 'inCond', 'inTT', 'inTarget', 'bStart', 'bFog', 'fogTxt', 'bIntroBack',
-  'bResume', 'bRestart', 'bSettingsP', 'bMenuP', 'rMaster', 'rMusic', 'rSfx', 'oMaster', 'oMusic', 'oSfx', 'rSteer', 'oSteer', 'bMotOff', 'bMotOn', 'bGhostOff', 'bGhostOn', 'bTR', 'bEN', 'bQLow', 'bQHigh', 'bLPAuto', 'bLPOn', 'bLPOff', 'bFull', 'bSetBack', 'enTitle', 'enSub', 'enStars', 'enStats', 'enRec', 'bNext', 'nextTxt', 'bRetry', 'bMenuE', 'dbg', 'hurt', 'bDaily', 'dailyLine', 'bA11y', 'bShare', 'aOther', 'enDaily', 'rankName', 'rankXpTxt', 'rankBar', 'missionsDateTag', 'missionsList', 'vesselSelect', 'vesselRankInfo', 'vesselCards']) el[id] = document.getElementById(id);
+  'bResume', 'bRestart', 'bSettingsP', 'bMenuP', 'rMaster', 'rMusic', 'rSfx', 'oMaster', 'oMusic', 'oSfx', 'rSteer', 'oSteer', 'bMotOff', 'bMotOn', 'bGhostOff', 'bGhostOn', 'bAnnOff', 'bAnnOn', 'bTR', 'bEN', 'bQLow', 'bQHigh', 'bLPAuto', 'bLPOn', 'bLPOff', 'bFull', 'bSetBack', 'enTitle', 'enSub', 'enStars', 'enStats', 'enRec', 'bNext', 'nextTxt', 'bRetry', 'bMenuE', 'dbg', 'hurt', 'bDaily', 'dailyLine', 'bA11y', 'bShare', 'aOther', 'enDaily', 'rankName', 'rankXpTxt', 'rankBar', 'missionsDateTag', 'missionsList', 'vesselSelect', 'vesselRankInfo', 'vesselCards']) el[id] = document.getElementById(id);
 function toast(msg, kind = 'info', ms = 2600) {
   const d = document.createElement('div'); d.className = 'toast ' + kind; d.textContent = msg; el.toasts.appendChild(d);
   while (el.toasts.children.length > 4) el.toasts.firstChild.remove();
@@ -5463,6 +5555,13 @@ function syncSettingsUI() {
     el.bGhostOn.classList.toggle('sel', isGhost);
     el.bGhostOff.setAttribute('aria-pressed', String(!isGhost));
     el.bGhostOn.setAttribute('aria-pressed', String(isGhost));
+  }
+  if (el.bAnnOff && el.bAnnOn) {
+    const isAnn = settings.announcements !== false;
+    el.bAnnOff.classList.toggle('sel', !isAnn);
+    el.bAnnOn.classList.toggle('sel', isAnn);
+    el.bAnnOff.setAttribute('aria-pressed', String(!isAnn));
+    el.bAnnOn.setAttribute('aria-pressed', String(isAnn));
   }
   el.bQLow.classList.toggle('sel', settings.quality === 'low'); el.bQHigh.classList.toggle('sel', settings.quality === 'high');
   const lp = settings.lowPower || 'auto';
@@ -5998,7 +6097,7 @@ function beginShift() {
   toast(t('toastStart', pierName(SIM.stops[1] ? SIM.stops[1].id : SIM.stops[0].id)), 'info', 3200);
   AUD.init(); AUD.resume();
 }
-function pauseGame() { if (G.state !== 'play') return; if (typeof setWarp === 'function' && SIM.warp) setWarp(false, false); G.state = 'paused'; show('sPause'); el.bResume.focus(); AUD.hornStop(); }
+function pauseGame() { if (G.state !== 'play') return; if (typeof setWarp === 'function' && SIM.warp) setWarp(false, false); if (typeof window !== 'undefined' && window.speechSynthesis) window.speechSynthesis.cancel(); G.state = 'paused'; show('sPause'); el.bResume.focus(); AUD.hornStop(); }
 function resumeGame() { if (G.state !== 'paused') return; G.state = 'play'; show(null); lastT = performance.now(); }
 function retryCurrent() { G.retries++; beginShift(); }
 function goMenu() {
@@ -6131,6 +6230,8 @@ if (el.bMotOff) click(el.bMotOff, () => { comfortSettings.reducedMotion = false;
 if (el.bMotOn) click(el.bMotOn, () => { comfortSettings.reducedMotion = true; saveComfort(); applyReducedMotion(); syncSettingsUI(); });
 if (el.bGhostOff) click(el.bGhostOff, () => { settings.ghostDocking = false; saveSettings(); syncSettingsUI(); if (OBJ.ghostBody) OBJ.ghostBody.visible = false; if (OBJ.ghostWin) OBJ.ghostWin.visible = false; GHOST_STATE.active = false; });
 if (el.bGhostOn) click(el.bGhostOn, () => { settings.ghostDocking = true; saveSettings(); syncSettingsUI(); });
+if (el.bAnnOff) click(el.bAnnOff, () => { settings.announcements = false; saveSettings(); syncSettingsUI(); if (typeof window !== 'undefined' && window.speechSynthesis) window.speechSynthesis.cancel(); });
+if (el.bAnnOn) click(el.bAnnOn, () => { settings.announcements = true; saveSettings(); syncSettingsUI(); });
 if (el.rSteer) el.rSteer.addEventListener('input', () => { comfortSettings.steerSens = clamp(parseFloat(el.rSteer.value) || 1.0, 0.6, 1.4); if (el.oSteer) el.oSteer.value = comfortSettings.steerSens.toFixed(2) + 'x'; saveComfort(); });
 click(el.bNext, nextAction); click(el.bRetry, retryCurrent); click(el.bMenuE, goMenu);
 click(el.bDaily, startDaily); click(el.bA11y, () => { if (window.Arena) Arena.openSettings(); }); click(el.bShare, shareResult);
@@ -6465,6 +6566,10 @@ window.vapur = {
   get comfortSettings() { return comfortSettings; },
   get ghostDocking() { return settings.ghostDocking !== false; },
   setGhostDocking(on) { settings.ghostDocking = !!on; saveSettings(); syncSettingsUI(); },
+  get announcements() { return settings.announcements !== false; },
+  setAnnouncements(on) { settings.announcements = !!on; saveSettings(); syncSettingsUI(); if (!on && typeof window !== 'undefined' && window.speechSynthesis) window.speechSynthesis.cancel(); },
+  announcePier,
+  haptic,
   get ghosts() { return GHOSTS; },
   get ghostState() { return GHOST_STATE; },
   get dailyData() { return getDailyData(); },
