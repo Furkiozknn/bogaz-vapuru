@@ -715,6 +715,90 @@ body.compact #colregBadge svg.arrow { width: 14px; height: 14px; }
   transform: rotate(-1.5deg);
 }
 
+/* Vessel Class Selection Cards (Shift Screen) */
+.vessel-select-wrap {
+  margin: 8px 0 10px; padding: 8px 10px;
+  background: var(--c-cream-l); border: 1.5px solid var(--c-deep);
+  border-radius: var(--r); box-shadow: 2px 2px 0 var(--c-deep);
+  text-align: left;
+}
+.vessel-select-head {
+  display: flex; justify-content: space-between; align-items: baseline;
+  border-bottom: 1.5px dashed var(--c-teak);
+  padding-bottom: 4px; margin-bottom: 8px;
+  font-family: var(--font-mono); font-size: 10px; font-weight: 700;
+  letter-spacing: 1px; text-transform: uppercase; color: var(--c-teak);
+}
+.vessel-rank-info {
+  font-size: 9.5px; color: var(--c-teal); font-weight: 700; font-variant-numeric: tabular-nums;
+}
+.vessel-cards {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;
+}
+.vessel-card {
+  position: relative;
+  display: flex; flex-direction: column; align-items: stretch;
+  padding: 8px 8px 6px;
+  background: var(--c-cream); border: 2px solid var(--c-deep);
+  border-radius: var(--r); box-shadow: 2px 2px 0 var(--c-deep);
+  cursor: pointer;
+  transition: transform 0.08s ease, box-shadow 0.08s ease, background-color 0.12s ease;
+  text-align: center; color: var(--c-deep); user-select: none;
+}
+.vessel-card:hover:not(.locked) { background: var(--c-cream-d); }
+.vessel-card:active:not(.locked) { transform: translate(2px, 2px); box-shadow: 0 0 0 transparent; }
+.vessel-card.sel {
+  background: var(--c-gold); border-color: var(--c-deep);
+  box-shadow: 3px 3px 0 var(--c-deep);
+}
+.vessel-card.locked {
+  opacity: 0.58; background: var(--c-cream-d);
+  filter: grayscale(0.6); cursor: not-allowed;
+}
+.vessel-card-header {
+  display: flex; align-items: center; justify-content: space-between; gap: 4px;
+  margin-bottom: 3px;
+}
+.vessel-tag {
+  font-family: var(--font-mono); font-size: 8.5px; font-weight: 800;
+  text-transform: uppercase; letter-spacing: 0.5px;
+  padding: 1px 4px; border-radius: 2px; border: 1px solid currentColor;
+  color: var(--c-teal); white-space: nowrap;
+}
+.vessel-card.sel .vessel-tag {
+  color: var(--c-deep); border-color: var(--c-deep); background: rgba(15,46,51,0.1);
+}
+.vessel-lock-icon { font-size: 11px; color: var(--c-red); font-weight: 800; }
+.vessel-icon {
+  width: 100%; height: 32px; display: flex; align-items: center; justify-content: center;
+  margin: 1px 0 3px;
+}
+.vessel-icon svg {
+  max-width: 52px; max-height: 28px; filter: drop-shadow(1px 1px 0 rgba(15,46,51,0.18));
+}
+.vessel-name {
+  font-family: var(--font-display); font-size: 14.5px; font-weight: 800;
+  line-height: 1.15; color: var(--c-deep); margin-bottom: 4px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.vessel-stats {
+  display: flex; flex-direction: column; gap: 2px;
+  font-family: var(--font-mono); font-size: 9.5px; font-weight: 600;
+  color: var(--c-deep-mid); border-top: 1px dashed rgba(15,46,51,0.25);
+  padding-top: 4px;
+}
+.vessel-card.sel .vessel-stats {
+  color: var(--c-deep); border-top-color: rgba(15,46,51,0.4); font-weight: 700;
+}
+.vessel-stat-row { display: flex; justify-content: space-between; align-items: center; }
+.vessel-stat-row b { font-variant-numeric: tabular-nums; }
+.vessel-req {
+  margin-top: 4px; padding: 2px 3px;
+  font-family: var(--font-mono); font-size: 8.5px; font-weight: 800;
+  color: var(--c-red); border: 1px dashed var(--c-red); border-radius: 2px;
+  background: rgba(193,68,46,0.08); text-transform: uppercase;
+}
+
 /* Timetable Ledger */
 .timetable {
   display: grid; grid-template-columns: auto 1fr auto; gap: 4px 14px;
@@ -820,12 +904,20 @@ input[type=range] { width: 100%; height: 44px; accent-color: var(--c-teal); back
   .mission-item { gap: 6px 8px; padding: 5px 6px; }
   .mission-title { font-size: 11px; }
   .mission-tag { font-size: 8.5px; padding: 1px 4px; }
+  .vessel-cards { gap: 6px; }
+  .vessel-card { padding: 6px 4px 4px; }
+  .vessel-name { font-size: 12.5px; }
+  .vessel-stats { font-size: 8.5px; }
+  .vessel-tag { font-size: 7.5px; }
 }
 @media (max-height: 520px) {
   .card { padding: 12px 16px; } .card h1 { font-size: 26px; } #logoBig { width: 100px; height: 75px; }
   #minimap { width: 100px; height: 150px; }
   .missions-ledger { margin: 8px 0 4px; padding: 6px 8px; }
   .missions-list { gap: 4px; }
+  .vessel-select-wrap { margin: 4px 0 6px; padding: 4px 6px; }
+  .vessel-icon { height: 22px; }
+  .vessel-icon svg { max-height: 20px; }
 }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .01s !important; transition-duration: 0s !important; }
@@ -1346,6 +1438,38 @@ input[type=range] { width: 100%; height: 44px; accent-color: var(--c-teal); back
       <circle cx="36" cy="82" r="3" fill="#E8A13A" stroke="#0F2E33" stroke-width="1.5"/>
       <circle cx="64" cy="82" r="3" fill="#E8A13A" stroke="#0F2E33" stroke-width="1.5"/>
     </symbol>
+    <symbol id="v-icon-classic" viewBox="0 0 60 30">
+      <path d="M6 18 h48 l-5 6 H11 z" fill="#0F2E33"/>
+      <rect x="6" y="16" width="48" height="2" fill="#C1442E"/>
+      <rect x="10" y="11" width="40" height="5" rx="1" fill="#F4EBD9" stroke="#0F2E33" stroke-width="1.2"/>
+      <rect x="13" y="12.5" width="34" height="2" fill="#1E5F63"/>
+      <rect x="16" y="6" width="26" height="5" rx="1" fill="#F4EBD9" stroke="#0F2E33" stroke-width="1.2"/>
+      <rect x="19" y="7.5" width="18" height="2" fill="#1E5F63"/>
+      <rect x="27" y="1" width="5" height="5" fill="#E8A13A" stroke="#0F2E33" stroke-width="1"/>
+      <rect x="27" y="1" width="5" height="1.8" fill="#0F2E33"/>
+    </symbol>
+    <symbol id="v-icon-launch" viewBox="0 0 60 30">
+      <path d="M8 20 Q24 22 52 17 L50 22 Q24 25 12 24 z" fill="#0F2E33"/>
+      <path d="M8 18 Q24 20 54 16 L52 18 Q24 22 10 20 z" fill="#C1442E"/>
+      <path d="M12 18 L16 11 L40 11 L46 17 L12 18 z" fill="#F4EBD9" stroke="#0F2E33" stroke-width="1.2"/>
+      <path d="M22 13 L26 8 L36 8 L38 13 z" fill="#F4EBD9" stroke="#0F2E33" stroke-width="1.2"/>
+      <rect x="18" y="13" width="22" height="2.5" rx="0.5" fill="#1E5F63"/>
+      <rect x="27" y="9.5" width="8" height="2" rx="0.5" fill="#1E5F63"/>
+      <line x1="32" y1="8" x2="32" y2="4" stroke="#0F2E33" stroke-width="1.2"/>
+      <rect x="12" y="14" width="8" height="1.2" fill="#B98A5A"/>
+    </symbol>
+    <symbol id="v-icon-car" viewBox="0 0 60 30">
+      <path d="M4 20 L10 23 L50 23 L56 20 L58 17 L2 17 z" fill="#0F2E33"/>
+      <rect x="3" y="15.5" width="54" height="1.5" fill="#C1442E"/>
+      <rect x="8" y="11" width="44" height="4.5" fill="#F4EBD9" stroke="#0F2E33" stroke-width="1.2"/>
+      <rect x="12" y="12" width="36" height="2.2" fill="#1E5F63"/>
+      <rect x="22" y="4" width="16" height="7" rx="1" fill="#F4EBD9" stroke="#0F2E33" stroke-width="1.2"/>
+      <rect x="24" y="5.5" width="12" height="2.5" fill="#1E5F63"/>
+      <rect x="16" y="6" width="3.5" height="5" fill="#E8A13A" stroke="#0F2E33" stroke-width="1"/>
+      <rect x="16" y="6" width="3.5" height="1.5" fill="#0F2E33"/>
+      <rect x="40.5" y="6" width="3.5" height="5" fill="#E8A13A" stroke="#0F2E33" stroke-width="1"/>
+      <rect x="40.5" y="6" width="3.5" height="1.5" fill="#0F2E33"/>
+    </symbol>
   </defs>
 </svg>
 
@@ -1456,6 +1580,13 @@ input[type=range] { width: 100%; height: 44px; accent-color: var(--c-teal); back
       <h2 data-i="campaign"></h2>
       <div class="rope" aria-hidden="true" style="margin:4px auto 8px"></div>
       <div id="cmap"></div>
+      <div id="vesselSelect" class="vessel-select-wrap">
+        <div class="vessel-select-head">
+          <span class="vessel-select-lbl" data-i="vesselTitle">VAPUR SINIFI</span>
+          <span id="vesselRankInfo" class="vessel-rank-info"></span>
+        </div>
+        <div id="vesselCards" class="vessel-cards" role="radiogroup" aria-label="Vapur Sınıfı"></div>
+      </div>
       <h2 id="inTitle" style="font-size:22px"></h2>
       <p id="inDesc"></p>
       <div class="cond" id="inCond"></div>
@@ -1630,6 +1761,16 @@ const STR = {
     m_punctual_shift_t: '{0} dakik sefer (%85+)', m_punctual_shift_d: 'En az %85 dakiklik ile {0} sefer tamamla.',
     m_stars_earned_t: '{0} yıldız topla', m_stars_earned_d: 'Tamamlanan seferlerden toplam {0} yıldız kazan.',
     m_docks_t: '{0} iskeleye yanaş', m_docks_d: 'Boğaz iskelelerine toplam {0} kez başarıyla yanaş.',
+    vesselTitle: 'Vapur Sınıfı', vesselClass: 'Vapur',
+    vesselRankUnlock: 'Rütbe: {0} ({1}★)',
+    vesselLockedToast: 'Bu vapur {0} rütbesinde ({1} yıldız) açılır!',
+    vesselUnlockedToast: 'Yeni vapur sınıfı açıldı: {0}!',
+    v_tag_classic: 'Klasik', v_tag_launch: 'Motor', v_tag_car: 'Feribot',
+    v_classic_name: 'Şehir Hatları Vapuru', v_classic_sub: 'Dengeli klasik vapur · Çift güverte & sarı baca',
+    v_launch_name: 'Hızlı Motor', v_launch_sub: 'Çevik motor launch · Az kapasite, seri dümen',
+    v_car_name: 'Araba Vapuru', v_car_sub: 'Ağır feribot · Yüksek kapasite, geniş dönüş',
+    v_speed: 'Hız', v_pax: 'Kapasite', v_helm: 'Dümen',
+    v_helm_balanced: 'Dengeli', v_helm_twitchy: 'Seri / Çevik', v_helm_heavy: 'Ağır / Geniş',
   },
   en: {
     subtitle: 'Captain a city ferry on the Bosphorus: dock at the piers, carry passengers, keep the timetable.',
@@ -1693,6 +1834,16 @@ const STR = {
     m_punctual_shift_t: '{0} punctual shifts (85%+)', m_punctual_shift_d: 'Complete {0} shifts with at least 85% punctuality.',
     m_stars_earned_t: 'Earn {0} stars', m_stars_earned_d: 'Collect a total of {0} stars from completed shifts.',
     m_docks_t: 'Dock at {0} piers', m_docks_d: 'Successfully dock at Bosphorus piers {0} times.',
+    vesselTitle: 'Vessel Class', vesselClass: 'Vessel',
+    vesselRankUnlock: 'Rank: {0} ({1}★)',
+    vesselLockedToast: 'Requires {0} rank ({1} stars)!',
+    vesselUnlockedToast: 'New vessel class unlocked: {0}!',
+    v_tag_classic: 'Classic', v_tag_launch: 'Launch', v_tag_car: 'Car Ferry',
+    v_classic_name: 'City Line Ferry', v_classic_sub: 'Balanced classic ferry · Twin deck & yellow funnel',
+    v_launch_name: 'Motor Launch', v_launch_sub: 'Fast agile launch · Less capacity, twitchy helm',
+    v_car_name: 'Car Ferry', v_car_sub: 'Heavy car ferry · High capacity, wide turns',
+    v_speed: 'Speed', v_pax: 'Capacity', v_helm: 'Helm',
+    v_helm_balanced: 'Balanced', v_helm_twitchy: 'Twitchy', v_helm_heavy: 'Heavy',
   },
 };
 let LANG = 'tr';
@@ -1721,7 +1872,86 @@ const SHIFTS = [
   { id: 8, hour: 19.0, stops: ['eminonu', 'uskudar', 'besiktas', 'kanlica', 'besiktas', 'karakoy'], pace: 9.0, current: 0.7, wind: 0.5, fog: 0, storm: 0, tankers: 5, fish: 6, ferries: 4, pax: 1.0, convoy: true },
 ];
 const SCORE_K = { pax: 10, punct: 100, comfort: 3, lost: -5, stars: [0.4, 0.65, 0.85] };
-const FERRY = { len: 36, beam: 9, cap: 150, maxV: 12.5 };
+// Vessel Classes: 3 distinct classes with their own handling, dimensions, capacities and procedural hulls
+const VESSEL_CLASSES = {
+  classic: {
+    id: 'classic',
+    nameKey: 'v_classic_name',
+    subKey: 'v_classic_sub',
+    tagKey: 'v_tag_classic',
+    icon: 'v-icon-classic',
+    unlockStars: 0,
+    rankKey: 'r1',
+    len: 36,
+    beam: 9.0,
+    cap: 150,
+    maxV: 12.5,
+    accel: 0.62,
+    reverseAccel: 0.42,
+    rudderPower: 0.14,
+    yawDamp: 0.9,
+    twinTorque: 0.045,
+    swayFactor: 0.35,
+    circ: [[0, 5.0], [10, 4.4], [15.5, 2.4], [-11, 4.6], [-16, 2.6]],
+    funnelPos: [0, 12.6, -3.5],
+    bridgeCamPos: [0, 7.9, 8.6],
+    statSpeed: '12.5 kn',
+    statPax: '150',
+    statHelmKey: 'v_helm_balanced',
+  },
+  launch: {
+    id: 'launch',
+    nameKey: 'v_launch_name',
+    subKey: 'v_launch_sub',
+    tagKey: 'v_tag_launch',
+    icon: 'v-icon-launch',
+    unlockStars: 6,
+    rankKey: 'r3',
+    len: 19,
+    beam: 5.4,
+    cap: 45,
+    maxV: 16.5,
+    accel: 0.92,
+    reverseAccel: 0.60,
+    rudderPower: 0.22,
+    yawDamp: 1.6,
+    twinTorque: 0.075,
+    swayFactor: 0.45,
+    circ: [[0, 2.7], [5.5, 2.4], [8.5, 1.4], [-5.5, 2.5], [-8.5, 1.5]],
+    funnelPos: [0, 4.2, -4.5],
+    bridgeCamPos: [0, 3.4, 2.8],
+    statSpeed: '16.5 kn',
+    statPax: '45',
+    statHelmKey: 'v_helm_twitchy',
+  },
+  car: {
+    id: 'car',
+    nameKey: 'v_car_name',
+    subKey: 'v_car_sub',
+    tagKey: 'v_tag_car',
+    icon: 'v-icon-car',
+    unlockStars: 14,
+    rankKey: 'r7',
+    len: 48,
+    beam: 14.0,
+    cap: 260,
+    maxV: 10.2,
+    accel: 0.42,
+    reverseAccel: 0.30,
+    rudderPower: 0.09,
+    yawDamp: 0.6,
+    twinTorque: 0.032,
+    swayFactor: 0.30,
+    circ: [[0, 7.0], [12, 6.8], [21, 5.0], [-12, 6.8], [-21, 5.0]],
+    funnelPos: [4.8, 11.2, 0],
+    bridgeCamPos: [0, 11.2, 0],
+    statSpeed: '10.2 kn',
+    statPax: '260',
+    statHelmKey: 'v_helm_heavy',
+  },
+};
+const FERRY = Object.assign({}, VESSEL_CLASSES.classic);
+let HULL_C = VESSEL_CLASSES.classic.circ.map(p => [...p]);
 const TS = 12;                 // game seconds per real second (12: a 5-minute shift is one game hour)
 const DWELL = 22;              // scheduled dwell per stop (real seconds)
 function endlessShift(n) {     // endless shift n (1-based): random route, growing difficulty
@@ -1782,6 +2012,115 @@ const SAVED = lsGet(KEY_SAVE) || {};
 const best = Object.assign({ total: 0, stars: [0, 0, 0, 0, 0, 0, 0, 0], score: [0, 0, 0, 0, 0, 0, 0, 0], endless: 0, endlessPax: 0 }, SAVED.best || {});
 let runSave = SAVED.run || null;
 const writeSave = () => lsSet(KEY_SAVE, { best, run: runSave });
+
+// ---------------------------------------------------------------- Vessel Storage & Star Rank Unlocks (bogaz-vapuru.vessel)
+const KEY_VESSEL = 'bogaz-vapuru.vessel';
+let selectedVesselId = 'classic';
+
+const STAR_RANKS = [
+  { level: 1, minStars: 0,  titleKey: 'r1' },
+  { level: 2, minStars: 3,  titleKey: 'r2' },
+  { level: 3, minStars: 6,  titleKey: 'r3' },
+  { level: 4, minStars: 8,  titleKey: 'r4' },
+  { level: 5, minStars: 10, titleKey: 'r5' },
+  { level: 6, minStars: 12, titleKey: 'r6' },
+  { level: 7, minStars: 14, titleKey: 'r7' },
+  { level: 8, minStars: 20, titleKey: 'r8' },
+];
+
+function getTotalStars() {
+  return (best.stars || []).reduce((a, b) => a + (Number(b) || 0), 0);
+}
+
+function getStarCaptainRank(stars = getTotalStars()) {
+  let cur = STAR_RANKS[0];
+  for (let i = 0; i < STAR_RANKS.length; i++) {
+    if (stars >= STAR_RANKS[i].minStars) cur = STAR_RANKS[i];
+    else break;
+  }
+  return cur;
+}
+
+function isVesselUnlocked(id) {
+  const v = VESSEL_CLASSES[id];
+  if (!v) return false;
+  return getTotalStars() >= v.unlockStars;
+}
+
+function updateDeckSlots(vesselId) {
+  OBJ.deckSlots = [];
+  if (vesselId === 'launch') {
+    for (let z = -6; z <= 4; z += 2.0) for (const x of [-1.5, 1.5]) OBJ.deckSlots.push([x, 1.4, z]);
+    for (let z = -7; z <= 2; z += 2.2) OBJ.deckSlots.push([0, 1.4, z]);
+  } else if (vesselId === 'car') {
+    for (let z = -18; z <= 18; z += 2.5) for (const x of [-5.2, 5.2]) OBJ.deckSlots.push([x, 7.2, z]);
+    for (let z = -16; z <= 16; z += 2.8) for (const x of [-2.4, 2.4]) OBJ.deckSlots.push([x, 2.4, z]);
+  } else {
+    // classic
+    for (let z = -11; z <= 9; z += 2.6) for (const x of [-3.3, 3.3]) OBJ.deckSlots.push([x, 2.9, z]);
+    for (let z = -8; z <= 4; z += 2.6) for (const x of [-2.4, 2.4]) OBJ.deckSlots.push([x, 5.8, z]);
+    for (let z = -13; z <= 11; z += 3) OBJ.deckSlots.push([0, 2.9, z]);
+  }
+}
+
+function applyVessel(id) {
+  const v = VESSEL_CLASSES[id] || VESSEL_CLASSES.classic;
+  selectedVesselId = v.id;
+  Object.assign(FERRY, v);
+  HULL_C = v.circ.map(p => [...p]);
+
+  // Update pier berth targets for changed beam
+  if (typeof PIERS !== 'undefined') {
+    for (const pid in PIERS) {
+      const P = PIERS[pid];
+      if (P && P.ex !== undefined) {
+        P.bx = P.ex + P.nx * (FERRY.beam / 2 + 1.2);
+        P.bz = P.ez + P.nz * (FERRY.beam / 2 + 1.2);
+      }
+    }
+  }
+
+  // Update berth marker geometry if created
+  if (OBJ.berth && typeof THREE !== 'undefined') {
+    OBJ.berth.geometry.dispose();
+    OBJ.berth.geometry = new THREE.PlaneGeometry(FERRY.beam + 6, FERRY.len + 6).rotateX(-Math.PI / 2);
+  }
+
+  // Update passenger deck slots
+  updateDeckSlots(v.id);
+
+  // Update 3D player mesh geometries if created
+  if (OBJ.playerBody && v.geo) {
+    OBJ.playerBody.geometry = v.geo.body;
+    OBJ.playerWin.geometry = v.geo.win;
+    OBJ.playerNav.geometry = v.geo.nav;
+  }
+}
+
+function loadSelectedVessel() {
+  const saved = lsGet(KEY_VESSEL);
+  if (saved && VESSEL_CLASSES[saved] && isVesselUnlocked(saved)) {
+    selectedVesselId = saved;
+  } else {
+    selectedVesselId = 'classic';
+  }
+  applyVessel(selectedVesselId);
+}
+
+function selectVessel(id) {
+  if (!VESSEL_CLASSES[id]) return;
+  if (!isVesselUnlocked(id)) {
+    const v = VESSEL_CLASSES[id];
+    toast(t('vesselLockedToast', t(v.rankKey), v.unlockStars), 'bad');
+    AUD.bad();
+    return;
+  }
+  selectedVesselId = id;
+  lsSet(KEY_VESSEL, id);
+  applyVessel(id);
+  AUD.click();
+  renderVesselSelect();
+}
 
 // ---------------------------------------------------------------- Captain Rank & Date-Seeded Missions (bogaz-vapuru.missions)
 const KEY_MISSIONS = 'bogaz-vapuru.missions';
@@ -2915,7 +3254,6 @@ function stepPiers(dt) {
   }
 }
 // ---------------------------------------------------------------- the ferry
-const HULL_C = [[0, 5.0], [10, 4.4], [15.5, 2.4], [-11, 4.6], [-16, 2.6]];   // collision circles: [along, radius] (hull half-width at each station)
 function circleAt(k, out) { const [a, r] = HULL_C[k]; out.x = player.x + Math.sin(player.hd) * a; out.z = player.z + Math.cos(player.hd) * a; out.r = r; return out; }
 const _c1 = { x: 0, z: 0, r: 0 }, _g = { x: 0, z: 0 };
 function stepFerry(dt) {
@@ -2962,17 +3300,17 @@ function stepFerry(dt) {
   P.rpmP = (P.gearPauseP > 0 || Math.abs(P.thrP) < 0.03) ? 0 : Math.round(Math.abs(P.thrP) * 380);
   P.rpmS = (P.gearPauseS > 0 || Math.abs(P.thrS) < 0.03) ? 0 : Math.round(Math.abs(P.thrS) * 380);
   if (SIM.docked) { P.u = P.v = P.r = 0; P.vx = P.vz = 0; P.speed = 0; P.heel *= 0.95; return; }
-  const maxV = FERRY.maxV, k = 0.62 / (maxV * maxV);
-  const thrust = P.thr > 0 ? P.thr * 0.62 : P.thr * 0.42;
+  const maxV = FERRY.maxV, k = (FERRY.accel || 0.62) / (maxV * maxV);
+  const thrust = P.thr > 0 ? P.thr * (FERRY.accel || 0.62) : P.thr * (FERRY.reverseAccel || 0.42);
   const load = 1 - 0.1 * SIM.aboardN / FERRY.cap;
   const du = (thrust * load - k * P.u * Math.abs(P.u) - 0.02 * P.u) * dt;
   P.u += du;
   // yaw: rudder works with the water flow over it (speed or prop wash); astern reverses it
   const flow = Math.max(Math.abs(P.u), Math.abs(P.thr) * 6) * Math.sign(P.u || P.thr || 1);
-  const rT = P.rud * 0.14 * clamp(flow / 6, -1, 1) * (SIM.storm ? 0.9 : 1) + (P.thrS - P.thrP) * 0.045;
-  P.r += (rT - P.r) * Math.min(1, 0.9 * dt);
+  const rT = P.rud * (FERRY.rudderPower || 0.14) * clamp(flow / 6, -1, 1) * (SIM.storm ? 0.9 : 1) + (P.thrS - P.thrP) * (FERRY.twinTorque || 0.045);
+  P.r += (rT - P.r) * Math.min(1, (FERRY.yawDamp || 0.9) * dt);
   // sway: drifts outwards in a turn, damped
-  P.v += (-P.r * P.u * 0.35 - 1.1 * P.v) * dt;
+  P.v += (-P.r * P.u * (FERRY.swayFactor || 0.35) - 1.1 * P.v) * dt;
   P.hd = wrapAng(P.hd + P.r * dt);
   // wind: gusts on top of the base, slow direction wander
   const W = SIM.wind; W.dir += (rr(-1, 1)) * 0.04 * dt; W.gust += (rr(-1, 1) * 0.6 - W.gust * 0.3) * dt;
@@ -3661,6 +3999,99 @@ function buildFerryGeo() {
   nv.sphere(0, 10.6, 15.2, 0.3, 0xffffff, 6); nv.sphere(0, 3.6, -18.1, 0.26, 0xffffff, 6);
   return { body: g.build(), win: w.build(), nav: nv.build() };
 }
+/** small fast motor launch: sleek wooden/fiberglass passenger motor, single cabin, wheelhouse forward (bow = +z) */
+function buildLaunchGeo() {
+  const g = new GB(), w = new GB(), nv = new GB();
+  const st = [[-9.5, 1.6], [-6.5, 2.4], [-2, 2.7], [3, 2.6], [7, 2.0], [9.2, 0.9], [9.5, 0.2]];
+  const { lower, upper } = hullRings(st, -1.8, -0.3, 0.5, 0.65);
+  g.loft(lower, 0x142028, true, true, true);
+  g.loft(upper, 0xf4efe4, true, true, true);
+  // red waterline stripe
+  g.loft(st.map(([z, w0]) => { const ww = Math.max(0.15, w0) * 1.015; return [[-ww, -0.5, z], [-ww, -0.2, z], [ww, -0.2, z], [ww, -0.5, z]]; }), 0xb3232a, true, false, false);
+  // teak main deck
+  g.box(0, 1.4, 0, 5.1, 0.2, 18.5, 0xb88854);
+  // passenger salon
+  g.box(0, 1.6, -1.2, 4.2, 1.8, 10.5, 0xf7f7f2);
+  w.box(0, 2.2, -1.2, 4.35, 0.75, 9.8, 0x163b4a);
+  g.box(0, 3.4, -1.2, 4.4, 0.18, 11.2, 0xf4efe4); // salon roof
+  // forward raised wheelhouse
+  g.box(0, 1.6, 4.8, 3.6, 2.4, 3.2, 0xf7f7f2);
+  w.box(0, 2.5, 4.9, 3.75, 1.0, 3.0, 0x163b4a);
+  g.box(0, 4.0, 4.8, 3.9, 0.2, 3.5, 0xe6e2d8); // wheelhouse roof
+  // searchlight, horn & mast
+  g.cyl(0, 4.2, 5.2, 0.08, 2.2, 0xd9d4c8, 4);
+  g.sphere(0, 4.3, 3.8, 0.22, 0x222222, 6); // horn
+  g.cyl(0, 4.3, 6.2, 0.16, 0.35, 0xfff1c8, 6); // searchlight
+  // aft open cockpit with mahogany benches
+  for (const z of [-7.2, -5.4]) g.box(0, 1.6, z, 3.6, 0.45, 0.5, 0x8a5a3c);
+  // handrails
+  for (const s of [-1, 1]) {
+    g.box(s * 2.4, 1.6, 0, 0.06, 0.8, 17.5, 0xd0d4d8);
+    for (let z = -8; z <= 8; z += 3.2) g.box(s * 2.4, 1.6, z, 0.08, 0.8, 0.08, 0xd0d4d8);
+  }
+  // tyre fenders
+  for (const s of [-1, 1]) for (const z of [-6, -1.5, 3.5]) g.box(s * 2.65, 0.9, z, 0.35, 0.65, 0.65, 0x222222);
+  // small aft ensign / flag
+  g.cyl(0, 1.6, -9.0, 0.06, 2.0, 0xd9d4c8, 4);
+  g.box(0, 3.1, -9.0, 0.04, 0.8, 1.2, 0xd8322a);
+  // navigation lights
+  nv.sphere(2.65, 2.6, 5.0, 0.22, 0xff2a2a, 6); // port (red)
+  nv.sphere(-2.65, 2.6, 5.0, 0.22, 0x2aff6a, 6); // starboard (green)
+  nv.sphere(0, 6.4, 5.2, 0.24, 0xffffff, 6); // masthead (white)
+  nv.sphere(0, 1.9, -9.2, 0.2, 0xffffff, 6); // stern (white)
+  return { body: g.build(), win: w.build(), nav: nv.build() };
+}
+
+/** double-ended car ferry: broad open vehicle deck, side passenger superstructures, elevated cross-bridge (bow = +z) */
+function buildCarFerryGeo() {
+  const g = new GB(), w = new GB(), nv = new GB();
+  const st = [[-24, 4.2], [-18, 6.4], [-10, 7.0], [0, 7.0], [10, 7.0], [18, 6.4], [24, 4.2]];
+  const { lower, upper } = hullRings(st, -2.8, -0.4, 0.8, 0.72);
+  g.loft(lower, 0x1e2024, true, true, true);
+  g.loft(upper, 0xf2ede2, true, true, true);
+  // red waterline band
+  g.loft(st.map(([z, w0]) => { const ww = Math.max(0.18, w0) * 1.012; return [[-ww, -0.8, z], [-ww, -0.3, z], [ww, -0.3, z], [ww, -0.8, z]]; }), 0xb3232a, true, false, false);
+  // main vehicular deck (steel/asphalt)
+  g.box(0, 2.2, 0, 13.6, 0.35, 46.5, 0x42464c);
+  // lane markings on car deck
+  for (let z = -18; z <= 18; z += 4.5) g.box(0, 2.4, z, 0.3, 0.05, 2.4, 0xe8e4d8);
+  for (const s of [-1, 1]) for (let z = -18; z <= 18; z += 4.5) g.box(s * 2.8, 2.4, z, 0.2, 0.05, 2.4, 0xd4a034);
+  // bow and stern loading ramps
+  g.box(0, 2.1, 23.6, 9.2, 0.35, 2.6, 0x33363b);
+  g.box(0, 2.1, -23.6, 9.2, 0.35, 2.6, 0x33363b);
+  // side passenger galleries (port and starboard along car deck)
+  for (const s of [-1, 1]) {
+    g.box(s * 5.3, 2.4, 0, 2.8, 4.2, 34, 0xf7f7f2);
+    w.box(s * 5.3, 4.5, 0, 2.95, 1.1, 30, 0x163b4a);
+    // upper passenger promenade walkway
+    g.box(s * 5.3, 6.6, 0, 3.2, 0.3, 35, 0xcfb58c);
+    g.box(s * 6.8, 6.9, 0, 0.08, 0.9, 34, 0xf7f7f2);
+    for (let z = -15; z <= 15; z += 3.5) g.box(s * 6.8, 6.9, z, 0.1, 0.9, 0.1, 0xd9d4c8);
+    // yellow funnel with black cap on each side
+    g.cyl(s * 5.3, 6.9, -6, 0.95, 4.2, 0xFACC15, 8);
+    g.cyl(s * 5.3, 10.7, -6, 0.97, 0.7, 0x1a1a1a, 8);
+    // lifebuoys along galleries
+    for (const z of [-10, 0, 10]) g.box(s * 5.3, 5.8, z, 0.2, 0.8, 0.8, 0xff7a2a);
+    // fenders
+    for (const z of [-16, -8, 0, 8, 16]) g.box(s * 6.95, 1.6, z, 0.45, 0.9, 0.9, 0x242424);
+  }
+  // elevated cross-bridge superstructure spanning over the car deck
+  g.box(0, 9.5, 0, 13.8, 2.6, 5.4, 0xf7f7f2);
+  w.box(0, 10.3, 0, 13.95, 1.2, 5.55, 0x163b4a);
+  g.box(0, 12.1, 0, 14.2, 0.3, 5.8, 0xe6e2d8); // bridge roof
+  // structural pylons supporting the bridge from side galleries
+  for (const s of [-1, 1]) for (const dz of [-2.0, 2.0]) g.box(s * 5.3, 6.9, dz, 0.7, 2.6, 0.7, 0xd0d4d8);
+  // radar & mast atop central bridge
+  g.cyl(0, 12.4, 0, 0.16, 5.2, 0xd9d4c8, 4);
+  g.box(0, 17.6, 0, 2.4, 0.22, 0.35, 0x333333);
+  // navigation lights
+  nv.sphere(7.1, 10.2, 0, 0.3, 0xff2a2a, 6); // port (red)
+  nv.sphere(-7.1, 10.2, 0, 0.3, 0x2aff6a, 6); // starboard (green)
+  nv.sphere(0, 17.8, 0, 0.32, 0xffffff, 6); // masthead (white)
+  nv.sphere(0, 3.2, 24.0, 0.28, 0xffffff, 6); // bow (white)
+  nv.sphere(0, 3.2, -24.0, 0.28, 0xffffff, 6); // stern (white)
+  return { body: g.build(), win: w.build(), nav: nv.build() };
+}
 /** tanker: long low hull with the superstructure aft. Returns {hull (tinted), top} */
 function buildTankerGeo() {
   const g = new GB(), tp = new GB();
@@ -3908,11 +4339,25 @@ function buildScene() {
   OBJ.trees = mkInst(buildTreeGeo(false), matTint, WORLD.trees, (b, i, m) => { m.setMatrixAt(i, place(b.x, b.y, b.z, 0, b.s, b.s, b.s)); m.setColorAt(i, _c.setHex(b.col)); }, false);
   OBJ.cyp = mkInst(buildTreeGeo(true), matTint, WORLD.cypress, (b, i, m) => { m.setMatrixAt(i, place(b.x, b.y, b.z, 0, b.s, b.s * 1.1, b.s)); m.setColorAt(i, _c.setHex(b.col)); }, false);
   // boats
-  const fg = buildFerryGeo(); OBJ.ferryGeo = fg;
-  const nF = 1 + 6;
+  const fg = buildFerryGeo();
+  const lg = buildLaunchGeo();
+  const cg = buildCarFerryGeo();
+  VESSEL_CLASSES.classic.geo = fg;
+  VESSEL_CLASSES.launch.geo = lg;
+  VESSEL_CLASSES.car.geo = cg;
+  OBJ.ferryGeo = fg;
+  const nF = 6;
   OBJ.ferryB = new THREE.InstancedMesh(fg.body, matLam, nF); OBJ.ferryW = new THREE.InstancedMesh(fg.win, matWin, nF);
-  for (const m of [OBJ.ferryB, OBJ.ferryW]) { m.castShadow = true; m.receiveShadow = true; m.frustumCulled = false; m.count = 1; scene.add(m); }
-  OBJ.ferryN = new THREE.InstancedMesh(fg.nav, new THREE.MeshBasicMaterial({ vertexColors: true }), nF); OBJ.ferryN.frustumCulled = false; OBJ.ferryN.count = 1; OBJ.ferryN.visible = false; scene.add(OBJ.ferryN);
+  for (const m of [OBJ.ferryB, OBJ.ferryW]) { m.castShadow = true; m.receiveShadow = true; m.frustumCulled = false; m.count = 0; scene.add(m); }
+  OBJ.ferryN = new THREE.InstancedMesh(fg.nav, new THREE.MeshBasicMaterial({ vertexColors: true }), nF); OBJ.ferryN.frustumCulled = false; OBJ.ferryN.count = 0; OBJ.ferryN.visible = false; scene.add(OBJ.ferryN);
+  // player vessel meshes (supports distinct hull geometries for each class)
+  OBJ.playerBody = new THREE.Mesh(fg.body, matLam);
+  OBJ.playerBody.castShadow = true; OBJ.playerBody.receiveShadow = true; OBJ.playerBody.matrixAutoUpdate = false;
+  OBJ.playerWin = new THREE.Mesh(fg.win, matWin);
+  OBJ.playerWin.castShadow = true; OBJ.playerWin.receiveShadow = true; OBJ.playerWin.matrixAutoUpdate = false;
+  OBJ.playerNav = new THREE.Mesh(fg.nav, new THREE.MeshBasicMaterial({ vertexColors: true }));
+  OBJ.playerNav.matrixAutoUpdate = false; OBJ.playerNav.visible = false;
+  scene.add(OBJ.playerBody); scene.add(OBJ.playerWin); scene.add(OBJ.playerNav);
   const tg = buildTankerGeo();
   OBJ.tankH = new THREE.InstancedMesh(tg.hull, matTint, 8); OBJ.tankT = new THREE.InstancedMesh(tg.top, matLam, 8);
   for (const m of [OBJ.tankH, OBJ.tankT]) { m.castShadow = true; m.receiveShadow = true; m.frustumCulled = false; m.count = 0; scene.add(m); }
@@ -4034,10 +4479,7 @@ function buildScene() {
   const rg = new THREE.BufferGeometry(); rg.setAttribute('position', new THREE.BufferAttribute(new Float32Array(8 * 3), 3));
   OBJ.ropes = new THREE.LineSegments(rg, matRope); OBJ.ropes.frustumCulled = false; OBJ.ropes.visible = false; scene.add(OBJ.ropes);
   // passenger slots on the ferry decks (local coordinates)
-  OBJ.deckSlots = [];
-  for (let z = -11; z <= 9; z += 2.6) for (const x of [-3.3, 3.3]) OBJ.deckSlots.push([x, 2.9, z]);
-  for (let z = -8; z <= 4; z += 2.6) for (const x of [-2.4, 2.4]) OBJ.deckSlots.push([x, 5.8, z]);
-  for (let z = -13; z <= 11; z += 3) OBJ.deckSlots.push([0, 2.9, z]);
+  updateDeckSlots(selectedVesselId);
 }
 const GULLS = [];
 // ---------------- people: queues on the piers, passengers on the decks, walkers in between
@@ -4157,6 +4599,7 @@ function updateSky(force) {
   OBJ.lights.material.uniforms.uOpacity.value = Math.max(night, dusk * 0.7, storm * 0.5, fogA * 0.4);
   matWin.emissiveIntensity = Math.max(night, dusk * 0.7, storm * 0.5, fogA * 0.4) * 0.9;
   if (OBJ.ferryN) OBJ.ferryN.visible = Math.max(night, dusk, fogA, storm) > 0.35;   // navigation lights
+  if (OBJ.playerNav) OBJ.playerNav.visible = Math.max(night, dusk, fogA, storm) > 0.35;
   OBJ.beacon.material.emissiveIntensity = 0.6 + night;
 }
 
@@ -4177,13 +4620,20 @@ function syncRender(dt) {
   moonDisc.position.copy(camera.position).addScaledVector(_v3.set(-SKY.sunDir.x, Math.abs(SKY.sunDir.y) * 0.8 + 0.2, -SKY.sunDir.z).normalize(), 2500); moonDisc.lookAt(camera.position);
   skyMesh.position.copy(camera.position); stars.position.copy(camera.position); OBJ.clouds.position.set(camera.position.x * 0.9, 0, camera.position.z * 0.9); driftClouds(dt);
   waterU.uSunV.value.copy(SKY.sunDir).transformDirection(camera.matrixWorldInverse);
-  // ferries: the player first
+  // ferries: player ship
+  ferryMatrix(player.x, player.z, player.hd, player.heel, player.pitch, _mat);
+  if (OBJ.playerBody) {
+    OBJ.playerBody.matrix.copy(_mat);
+    OBJ.playerWin.matrix.copy(_mat);
+    OBJ.playerNav.matrix.copy(_mat);
+    OBJ.playerNav.visible = Math.max(SIM.night, SIM.dusk, SIM.fog, SIM.storm) > 0.35;
+  }
+  // traffic ferries
   let n = 0;
-  ferryMatrix(player.x, player.z, player.hd, player.heel, player.pitch, _mat); OBJ.ferryB.setMatrixAt(n, _mat); OBJ.ferryW.setMatrixAt(n, _mat); OBJ.ferryN.setMatrixAt(n, _mat); n++;
   let nt = 0, nf = 0;
   for (const b of SIM.traffic) {
     if (b.delay > 0) continue;
-    if (b.kind === 'ferry' && n < 7) { ferryMatrix(b.x, b.z, b.hd, 0, 0, _mat); OBJ.ferryB.setMatrixAt(n, _mat); OBJ.ferryW.setMatrixAt(n, _mat); OBJ.ferryN.setMatrixAt(n, _mat); n++; }
+    if (b.kind === 'ferry' && n < 6) { ferryMatrix(b.x, b.z, b.hd, 0, 0, _mat); OBJ.ferryB.setMatrixAt(n, _mat); OBJ.ferryW.setMatrixAt(n, _mat); OBJ.ferryN.setMatrixAt(n, _mat); n++; }
     else if (b.kind === 'tanker' && nt < 8) { ferryMatrix(b.x, b.z, b.hd, 0, 0, _mat); OBJ.tankH.setMatrixAt(nt, _mat); OBJ.tankT.setMatrixAt(nt, _mat); OBJ.tankH.setColorAt(nt, _c.setHex(b.col)); nt++; }
     else if (b.kind === 'fish' && nf < 12) { ferryMatrix(b.x, b.z, b.hd, 0.08 * Math.sin(b.bob * 2.1), 0.05 * Math.sin(b.bob * 1.7), _mat); OBJ.fishH.setMatrixAt(nf, _mat); OBJ.fishT.setMatrixAt(nf, _mat); OBJ.fishH.setColorAt(nf, _c.setHex(b.col)); nf++; }
   }
@@ -4220,7 +4670,7 @@ function syncGulls(dt) {
   const m = OBJ.gulls, t = waterU.uTime.value;
   const simit = !!(SIM.deckLife && SIM.deckLife.simitActive);
   const P = player, s = Math.sin(P.hd), c = Math.cos(P.hd);
-  const sternX = P.x - s * 17.5, sternZ = P.z - c * 17.5;
+  const sternX = P.x - s * (FERRY.len * 0.48), sternZ = P.z - c * (FERRY.len * 0.48);
   for (let i = 0; i < GULLS.length; i++) {
     const g = GULLS[i];
     const spot = g.spot < WORLD.gullSpots.length ? WORLD.gullSpots[g.spot] : null;
@@ -4249,7 +4699,7 @@ function syncWakeRibbon(dt) {
   if (!OBJ.wakeRibbon || !OBJ.wakeRibbon.visible) return;
   const P = player, sp = player.speed;
   const s = Math.sin(P.hd), c = Math.cos(P.hd);
-  const sternX = P.x - s * 17.5, sternZ = P.z - c * 17.5;
+  const sternX = P.x - s * (FERRY.len * 0.48), sternZ = P.z - c * (FERRY.len * 0.48);
   const fk = 1 - 0.72 * SIM.night - 0.3 * (SIM.storm ? 1 : 0);
   const alpha0 = clamp((sp - 0.3) / 5.5, 0, 0.55) * fk;
 
@@ -4368,44 +4818,48 @@ function syncParticles(dt) {
         // Twin screw propeller wash: port & starboard churn
         const kP = Math.min(1, 0.25 + sp / 6 + Math.abs(P.thrP || 0) * 0.5);
         const kS = Math.min(1, 0.25 + sp / 6 + Math.abs(P.thrS || 0) * 0.5);
-        const washLen = 17 + sp * 0.5;
+        const sternAlong = FERRY.len * 0.46;
+        const washLen = FERRY.len * 0.47 + sp * 0.5;
+        const propW = FERRY.beam * 0.25;
         if (Math.abs(P.thrP || 0) > 0.1 || sp > 0.5) {
           const sternDir = (P.thrP || 0) < -0.1 ? 1 : -1;
-          wk(P.x + s * sternDir * 16.5 - c * 2.2 + rr(-0.5, 0.5), 0.3, P.z + c * sternDir * 16.5 + s * 2.2 + rr(-0.5, 0.5),
+          wk(P.x + s * sternDir * sternAlong - c * propW + rr(-0.5, 0.5), 0.3, P.z + c * sternDir * sternAlong + s * propW + rr(-0.5, 0.5),
              -P.vx * 0.25 + rr(-0.7, 0.7), 0.2, -P.vz * 0.25 + rr(-0.7, 0.7), 2.2 + sp * 0.25, 2.2, 6 + sp * 0.7, 0xf4fbff, 0.32 * kP);
         }
         if (Math.abs(P.thrS || 0) > 0.1 || sp > 0.5) {
           const sternDir = (P.thrS || 0) < -0.1 ? 1 : -1;
-          wk(P.x + s * sternDir * 16.5 + c * 2.2 + rr(-0.5, 0.5), 0.3, P.z + c * sternDir * 16.5 - s * 2.2 + rr(-0.5, 0.5),
+          wk(P.x + s * sternDir * sternAlong + c * propW + rr(-0.5, 0.5), 0.3, P.z + c * sternDir * sternAlong - s * propW + rr(-0.5, 0.5),
              -P.vx * 0.25 + rr(-0.7, 0.7), 0.2, -P.vz * 0.25 + rr(-0.7, 0.7), 2.2 + sp * 0.25, 2.2, 6 + sp * 0.7, 0xf4fbff, 0.32 * kS);
         }
         // Wide churning foam carpet behind twin screws
         const side = rr(-1, 1);
-        wk(P.x - s * washLen + c * side * (3.5 + sp * 0.3), 0.25, P.z - c * washLen - s * side * (3.5 + sp * 0.3),
+        wk(P.x - s * washLen + c * side * (FERRY.beam * 0.38 + sp * 0.3), 0.25, P.z - c * washLen - s * side * (FERRY.beam * 0.38 + sp * 0.3),
            -P.vx * 0.1 + rr(-0.5, 0.5), 0, -P.vz * 0.1 + rr(-0.5, 0.5), 5 + sp * 0.5, 3.5, 10 + sp * 1.2, 0xd8edf5, 0.12 * Math.max(kP, kS));
         // Bow wave foam & spray: scales dynamically with speed
         if (sp > 1.8) {
           const sd = rr(0, 1) < 0.5 ? -1 : 1;
           const bowSpdScale = clamp(sp / 10, 0.3, 1.2);
-          wk(P.x + s * 14.5 + c * sd * (3.8 + sp * 0.22), 0.3, P.z + c * 14.5 - s * sd * (3.8 + sp * 0.22),
+          const bowAlong = FERRY.len * 0.40;
+          const bowW = FERRY.beam * 0.42;
+          wk(P.x + s * bowAlong + c * sd * (bowW + sp * 0.22), 0.3, P.z + c * bowAlong - s * sd * (bowW + sp * 0.22),
              c * sd * (1.2 + sp * 0.3) + P.vx * 0.45, 0.1, -s * sd * (1.2 + sp * 0.3) + P.vz * 0.45,
              2.0 + sp * 0.2, 1.2 * bowSpdScale, (3.5 + sp * 0.4) * bowSpdScale, 0xffffff, 0.28 * bowSpdScale);
           if (sp > 4.5 && rr(0, 1) < 0.6) {
-            wk(P.x + s * 16.5 + c * sd * 3.2, 1.0, P.z + c * 16.5 - s * sd * 3.2,
+            wk(P.x + s * (FERRY.len * 0.46) + c * sd * (FERRY.beam * 0.35), 1.0, P.z + c * (FERRY.len * 0.46) - s * sd * (FERRY.beam * 0.35),
                c * sd * (2.2 + sp * 0.2) + P.vx * 0.55, 2.5 + sp * 0.3, -s * sd * (2.2 + sp * 0.2) + P.vz * 0.55,
                1.0 + sp * 0.1, 0.8, 1.6 + sp * 0.15, 0xffffff, 0.45, 9);
           }
         }
         // Foam collar along the hull scaling with speed
         if (sp > 1.0) {
-          const sd = rr(0, 1) < 0.5 ? -1 : 1, az = rr(-13, 12);
-          wk(P.x + s * az + c * sd * 4.8, 0.3, P.z + c * az - s * sd * 4.8, P.vx * 0.25, 0, P.vz * 0.25, 1.4, 0.9, 2.8, 0xeaf6fa, 0.2 * Math.min(1, sp / 5));
+          const sd = rr(0, 1) < 0.5 ? -1 : 1, az = rr(-FERRY.len * 0.36, FERRY.len * 0.33);
+          wk(P.x + s * az + c * sd * (FERRY.beam * 0.52), 0.3, P.z + c * az - s * sd * (FERRY.beam * 0.52), P.vx * 0.25, 0, P.vz * 0.25, 1.4, 0.9, 2.8, 0xeaf6fa, 0.2 * Math.min(1, sp / 5));
         }
       }
     }
     // funnel smoke
     P.smokeT += dt * (3 + Math.abs(P.thr) * 10);
-    while (P.smokeT > 1) { P.smokeT -= 1; ferryLocalToWorld([0, 12.6, -3.5], _p3); OBJ.smoke.spawn(_p3[0], _p3[1], _p3[2], SIM.wind.x * 1.5 + rr(-0.4, 0.4) - P.vx * 0.7, 2.2 + rr(0, 1), SIM.wind.z * 1.5 + rr(-0.4, 0.4) - P.vz * 0.7, 3.5 + rr(0, 2), 1.6, 7 + Math.abs(P.thr) * 4, Math.abs(P.thr) > 0.6 ? 0x4a4a4a : 0x9a9a9a, 0.22 + 0.25 * Math.abs(P.thr)); }
+    while (P.smokeT > 1) { P.smokeT -= 1; ferryLocalToWorld(FERRY.funnelPos || [0, 12.6, -3.5], _p3); OBJ.smoke.spawn(_p3[0], _p3[1], _p3[2], SIM.wind.x * 1.5 + rr(-0.4, 0.4) - P.vx * 0.7, 2.2 + rr(0, 1), SIM.wind.z * 1.5 + rr(-0.4, 0.4) - P.vz * 0.7, 3.5 + rr(0, 2), 1.6, 7 + Math.abs(P.thr) * 4, Math.abs(P.thr) > 0.6 ? 0x4a4a4a : 0x9a9a9a, 0.22 + 0.25 * Math.abs(P.thr)); }
   }
   // rain around the camera
   if (SIM.rain > 0.05 && G.state === 'play') {
@@ -4454,7 +4908,8 @@ function syncMarkers(dt) {
     const P = SIM.docked, a = OBJ.ropes.geometry.attributes.position, s = Math.sin(player.hd), c = Math.cos(player.hd);
     // cleats near the bow and the stern on the pier side
     const sideSign = ((P.ex - player.x) * c - (P.ez - player.z) * s) > 0 ? 1 : -1;
-    const cl = [[sideSign * 4.2, 3.0, 13], [sideSign * 4.2, 3.0, -13]];
+    const halfL = FERRY.len * 0.38, halfW = FERRY.beam * 0.46;
+    const cl = [[sideSign * halfW, 3.0, halfL], [sideSign * halfW, 3.0, -halfL]];
     const tension = clamp(SIM.ropeTension || 0.2, 0.1, 1.0);
     const sag = (1 - tension) * 0.65;
     for (let i = 0; i < 2; i++) {
@@ -4547,7 +5002,7 @@ function updateCamera(dt) {
     camera.lookAt(P.x + s * 8 * (1 - CAM.cine), boatY + 5, P.z + c * 8 * (1 - CAM.cine));
     camera.fov = 55 + (still ? 0 : 5 * Math.min(1, P.speed / 12) * (1 - CAM.cine));   // a touch wider at speed
   } else if (camMode === 1) {
-    ferryLocalToWorld([0, 7.9, 8.6], _p3);
+    ferryLocalToWorld(FERRY.bridgeCamPos || [0, 7.9, 8.6], _p3);
     camera.position.set(_p3[0], _p3[1], _p3[2]);
     const ly = P.hd + CAM.lookYaw, lp = CAM.lookPitch;
     camera.lookAt(_p3[0] + Math.sin(ly) * Math.cos(lp) * 50, _p3[1] + Math.sin(lp) * 50 - 1, _p3[2] + Math.cos(ly) * Math.cos(lp) * 50);
@@ -4580,7 +5035,7 @@ function setCamMode(m) {
 const el = {};
 for (const id of ['hud', 'topbar', 'stShift', 'stClock', 'stPlan', 'stPax', 'comfBar', 'hullBar', 'stStars', 'bPanel', 'bCamH', 'bPause', 'bSound', 'bLang', 'toasts', 'colregBadge', 'colregArrow', 'colregTxt', 'colregSub', 'nextCard', 'ncName', 'ncL2', 'ncL3', 'ncRope', 'ncRopeVal', 'ncRopeBar', 'camLbl', 'minimap', 'lvThr', 'lvThrS', 'lvRud', 'rpmP', 'rpmS', 'speedo', 'spArc', 'spVal', 'spUnit', 'dock', 'dkDist', 'dkSpd', 'dkAng', 'dkHint', 'bMoor', 'floaters', 'touch', 'tWheel', 'tWheelSvg', 'tThr', 'tRpmP', 'tRpmS', 'tHorn', 'tCam',
   'sTitle', 'sIntro', 'sPause', 'sSettings', 'sEnd', 'bPlay', 'playTxt', 'bCont', 'bEndless', 'bSettingsT', 'bLangT', 'langTxt', 'bestLine', 'cmap', 'inTitle', 'inDesc', 'inCond', 'inTT', 'inTarget', 'bStart', 'bFog', 'fogTxt', 'bIntroBack',
-  'bResume', 'bRestart', 'bSettingsP', 'bMenuP', 'rMaster', 'rMusic', 'rSfx', 'oMaster', 'oMusic', 'oSfx', 'bTR', 'bEN', 'bQLow', 'bQHigh', 'bLPAuto', 'bLPOn', 'bLPOff', 'bFull', 'bSetBack', 'enTitle', 'enSub', 'enStars', 'enStats', 'enRec', 'bNext', 'nextTxt', 'bRetry', 'bMenuE', 'dbg', 'hurt', 'bDaily', 'dailyLine', 'bA11y', 'bShare', 'aOther', 'enDaily', 'rankName', 'rankXpTxt', 'rankBar', 'missionsDateTag', 'missionsList']) el[id] = document.getElementById(id);
+  'bResume', 'bRestart', 'bSettingsP', 'bMenuP', 'rMaster', 'rMusic', 'rSfx', 'oMaster', 'oMusic', 'oSfx', 'bTR', 'bEN', 'bQLow', 'bQHigh', 'bLPAuto', 'bLPOn', 'bLPOff', 'bFull', 'bSetBack', 'enTitle', 'enSub', 'enStars', 'enStats', 'enRec', 'bNext', 'nextTxt', 'bRetry', 'bMenuE', 'dbg', 'hurt', 'bDaily', 'dailyLine', 'bA11y', 'bShare', 'aOther', 'enDaily', 'rankName', 'rankXpTxt', 'rankBar', 'missionsDateTag', 'missionsList', 'vesselSelect', 'vesselRankInfo', 'vesselCards']) el[id] = document.getElementById(id);
 function toast(msg, kind = 'info', ms = 2600) {
   const d = document.createElement('div'); d.className = 'toast ' + kind; d.textContent = msg; el.toasts.appendChild(d);
   while (el.toasts.children.length > 4) el.toasts.firstChild.remove();
@@ -4936,6 +5391,63 @@ function condChips(sh) {
   if (sh.fog >= 1) out.push('c_fog'); if (sh.current >= 0.7) out.push('c_current'); if (sh.storm) out.push('c_storm'); if (sh.convoy) out.push('c_convoy'); if (sh.tankers + sh.ferries >= 6) out.push('c_traffic');
   return out.map(k => '<span>' + t(k) + '</span>').join('');
 }
+function renderVesselSelect() {
+  if (!el.vesselCards) el.vesselCards = document.getElementById('vesselCards');
+  if (!el.vesselRankInfo) el.vesselRankInfo = document.getElementById('vesselRankInfo');
+  if (!el.vesselCards) return;
+
+  const totalStars = getTotalStars();
+  const rank = getStarCaptainRank(totalStars);
+  if (el.vesselRankInfo) {
+    el.vesselRankInfo.textContent = t('vesselRankUnlock', t(rank.titleKey), totalStars);
+  }
+
+  el.vesselCards.innerHTML = '';
+  const list = ['classic', 'launch', 'car'];
+  list.forEach(id => {
+    const v = VESSEL_CLASSES[id];
+    const unlocked = totalStars >= v.unlockStars;
+    const isSel = (id === selectedVesselId);
+
+    const card = document.createElement('div');
+    card.className = 'vessel-card' + (isSel ? ' sel' : '') + (unlocked ? '' : ' locked');
+    card.setAttribute('role', 'radio');
+    card.setAttribute('aria-checked', String(isSel));
+    card.setAttribute('aria-disabled', String(!unlocked));
+    card.setAttribute('tabindex', unlocked ? '0' : '-1');
+
+    card.innerHTML =
+      '<div class="vessel-tag">' + t(v.tagKey) + '</div>' +
+      '<div class="vessel-icon"><svg viewBox="0 0 60 30"><use href="#' + v.icon + '"/></svg></div>' +
+      '<div class="vessel-name">' + t(v.nameKey) + '</div>' +
+      '<div class="vessel-sub">' + t(v.subKey) + '</div>' +
+      '<div class="vessel-stats">' +
+        '<div class="vessel-stat-pill"><small>' + t('v_speed') + '</small><b>' + v.statSpeed + '</b></div>' +
+        '<div class="vessel-stat-pill"><small>' + t('v_pax') + '</small><b>' + v.statPax + '</b></div>' +
+        '<div class="vessel-stat-pill"><small>' + t('v_helm') + '</small><b>' + t(v.statHelmKey) + '</b></div>' +
+      '</div>' +
+      (!unlocked ? '<div class="vessel-lock-overlay"><svg class="ic lock-svg" viewBox="0 0 24 24"><use href="#i-hull"/></svg><span class="vessel-lock-req">' + t('vesselLockedToast', t(v.rankKey), v.unlockStars) + '</span></div>' : '');
+
+    const activate = () => {
+      if (unlocked) {
+        selectVessel(id);
+      } else {
+        toast(t('vesselLockedToast', t(v.rankKey), v.unlockStars), 'bad');
+        AUD.bad();
+      }
+    };
+
+    card.addEventListener('click', activate);
+    card.addEventListener('keydown', e => {
+      if (e.code === 'Enter' || e.code === 'Space') {
+        e.preventDefault();
+        activate();
+      }
+    });
+
+    el.vesselCards.appendChild(card);
+  });
+}
 function renderIntro() {
   const sh = G.mode !== 'campaign' ? G.curEndless : SHIFTS[G.selIdx];
   // campaign map: the 8 shifts and endless
@@ -4949,6 +5461,7 @@ function renderIntro() {
   });
   const e = document.createElement('button'); e.className = 'cnode endless' + (G.mode === 'endless' ? ' sel' : ''); e.innerHTML = '<b>∞</b><small style="font-size:10px">' + t('endlessShort') + '</small>'; e.disabled = G.mode === 'endless';
   e.addEventListener('click', () => { AUD.click(); startEndless(); }); el.cmap.appendChild(e);
+  renderVesselSelect();
   el.inTitle.textContent = sh.endless ? t('sE', sh.endless) : t('s' + sh.id);
   const fogRun = isFogRun(sh), forced = FLAG.fog || sh.fog >= 1;
   el.inDesc.textContent = (sh.endless ? t('dE') : t('d' + sh.id)) + (fogRun ? ' ' + tT('fogDesc') : '');
@@ -4981,6 +5494,7 @@ function finishShiftUI(res) {
   G.state = 'end';
   const idx = G.shiftIdx;
   let rec = false;
+  const starsBefore = getTotalStars();
   if (res.stars > 0) {
     recordMissionProgress('stars_earned', res.stars);
     if (res.hull <= 0) {
@@ -5005,6 +5519,13 @@ function finishShiftUI(res) {
     if (res.stars > 0 && G.endlessN > best.endless) { best.endless = G.endlessN; best.endlessPax = G.totals.pax; rec = true; }
   }
   writeSave();
+  const starsAfter = getTotalStars();
+  if (starsBefore < 6 && starsAfter >= 6) {
+    toast(t('vesselUnlockedToast', t(VESSEL_CLASSES.launch.nameKey)), 'good', 4500);
+  }
+  if (starsBefore < 14 && starsAfter >= 14) {
+    toast(t('vesselUnlockedToast', t(VESSEL_CLASSES.car.nameKey)), 'good', 4500);
+  }
   if (window.Arena && res.stars > 0) {
     Arena.award('bogaz-vapuru:first-shift', t('awFirst'));
     if (G.mode === 'campaign' && idx >= 7) Arena.award('bogaz-vapuru:campaign', t('awCampaign'));
@@ -5336,6 +5857,10 @@ window.vapur = {
   stats() { return { calls: renderer.info.render.calls, tris: renderer.info.render.triangles, fps: fpsS, traffic: SIM.traffic.length }; },
   get missions() { return missionsState || loadMissionsState(); },
   get rank() { return getCaptainRank((missionsState || loadMissionsState()).xp); },
+  get vessel() { return FERRY; },
+  get vessels() { return VESSEL_CLASSES; },
+  get selectedVessel() { return selectedVesselId; },
+  selectVessel(id) { selectVessel(id); },
 };
 
 // ---------------------------------------------------------------- boot
@@ -5351,10 +5876,10 @@ async function boot() {
   await step(() => buildTown());
   await step(() => buildWindowLights());
   await step(() => { buildLand(); buildHills(); });
-  await step(() => { buildScene(); applyQuality(); });
+  await step(() => { buildScene(); applyQuality(); loadSelectedVessel(); });
   await step(() => { buildMinimapBase(); });
   G.state = 'title'; el.bPlay.disabled = false; el.playTxt.setAttribute('data-i', 'play'); el.playTxt.textContent = t('play'); window.__vapurReady = true; if (!lsGet(KEY_SET)) saveSettings();
-  showcase(); applyLang(); updateBestLine(); renderMissionsUI();
+  showcase(); applyLang(); updateBestLine(); renderMissionsUI(); renderVesselSelect();
   if (FLAG.auto || SIM_PRE > 0) {
     if (Q.get('mode') === 'endless') startEndless(); else if (Q.get('mode') === 'daily' && window.Arena) startDaily(); else startCampaign(false);
     beginShift();
