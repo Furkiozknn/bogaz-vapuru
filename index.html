@@ -2984,6 +2984,7 @@ function closestApproach(x, z, vx, vz, horizon, self) {
 // they do not hold up the shift, and parting them sends more traffic across the ferry's path.
 const DEADLOCK_T = 8, HOLD_V = 1.0;
 const DEADLOCK = { n: 0, log: [] };
+const ORBIT = { n: 0, log: [] };   // autopilot re-approaches after circling a line-up/approach point (see botTick)
 const dlRank = o => o === BOT_SELF ? 2 : o.kind === 'tanker' ? 3 : o.kind === 'ferry' ? 1 : 0;
 const dlKind = o => o === BOT_SELF ? 'player' : o.kind;
 const dlHeld = o => o === BOT_SELF ? (FLAG.auto ? BOT.heldBy : null) : (o.delay > 0 ? null : o.heldBy);
@@ -4845,7 +4846,7 @@ function botTick(dt) {
   // the approach lane is a glide slope: 0.35 m of gap for every metre still to go beyond the last 50 m (about 19 degrees)
   const slope = Math.max(2, 0.35 * (rem - 50));
   const inLane = rem > -8 && lat > -3 && rem < 420 && ((latRel <= 6 && Math.abs(hdErr) < 0.7) || (lat < slope + 40 && Math.abs(hdErr) < 1.0));
-  let vT, aimX, aimZ, alignHd = null;
+  let vT, aimX, aimZ, alignHd = null, steerPt = false;
   if (near) {
     final = true;
     BOT.finalT += dt; BOT.backT = BOT.back ? BOT.backT + dt : 0;
@@ -4877,8 +4878,8 @@ function botTick(dt) {
         // not in the lane: go round by the line-up point (or straight to the approach point when it is ahead of us)
         const apX = Pr.bx + Pr.nx * 35 - Pr.tx * dir * 180, apZ = Pr.bz + Pr.nz * 35 - Pr.tz * dir * 180;
         const dAP = hyp(apX - P.x, apZ - P.z), usePre = rem < 150 || dAP < 50 || Math.abs(hdErr) > 1.3;
-        aimX = usePre ? preX : apX; aimZ = usePre ? preZ : apZ;
-        if (lat < 15 && Math.abs(rem) < 70) { aimX = P.x + Pr.nx * 50 - Pr.tx * dir * 30; aimZ = P.z + Pr.nz * 50 - Pr.tz * dir * 30; }   // next to the pier: get clear of it first
+        aimX = usePre ? preX : apX; aimZ = usePre ? preZ : apZ; steerPt = true;
+        if (lat < 15 && Math.abs(rem) < 70) { aimX = P.x + Pr.nx * 50 - Pr.tx * dir * 30; aimZ = P.z + Pr.nz * 50 - Pr.tz * dir * 30; steerPt = false; }   // next to the pier: get clear of it first
         if (!clearLine(P.x, P.z, aimX, aimZ, 10)) { BOT.near = false; BOT.wp = []; BOT.wpFor = null; input.throttle = 0; return; }        // land in the way: plan a route instead
         const dd = hyp(aimX - P.x, aimZ - P.z);
         vT = Math.min(7, Math.sqrt(2 * 0.3 * Math.max(dd - 15, 0)) + 2.0);
@@ -4886,6 +4887,21 @@ function botTick(dt) {
       }
     }
   } else { aimX = tg[0]; aimZ = tg[1]; vT = Math.min(FERRY.maxV * 0.92, Math.sqrt(2 * 0.3 * Math.max(d - 20, 0)) + 2.5); BOT.finalT = 0; }
+  // orbit guard. Steering at a point (line-up or approach point) off the pier, the ferry turns on a circle of radius turnR
+  // (~43 m below 6 m/s, wider above); a point that lies inside that circle can only be orbited. A full net turn (360
+  // degrees) without getting into the berth lane means exactly that, so the ferry stops chasing the point and re-approaches
+  // on a wider arc: it follows the line-up line (line-of-sight guidance, look-ahead 2 turning radii), sweeps any big turn
+  // on the side with water, slowly, and keeps its stopping distance from the shore. Inert in a normal approach.
+  const turnR = Math.max(6, Math.abs(P.u)) / (0.14 * (P.u > 7.5 ? 0.75 : 1));
+  if (steerPt) {
+    BOT.orbNet = (BOT.orbNet || 0) + P.r * dt;
+    if (!BOT.reapp && Math.abs(BOT.orbNet) >= 2 * Math.PI) { BOT.reapp = true; BOT.boost = 0; ORBIT.n++; ORBIT.log.push({ t: Math.round(SIM.t), shift: SIM.shift && SIM.shift.id, x: Math.round(P.x), z: Math.round(P.z) }); }
+  } else { BOT.orbNet = 0; BOT.reapp = false; BOT.turnSide = 0; }
+  if (BOT.reapp) {
+    const eLine = lat - 70, la = 2 * turnR;   // cross-track error from the line-up line, positive = outwards
+    aimX = P.x + Pr.tx * dir * la - Pr.nx * eLine; aimZ = P.z + Pr.tz * dir * la - Pr.nz * eLine;
+    vT = Math.min(vT, 5);
+  }
   // compensate the current and wind: steer the water-relative velocity, not the ground track
   currentAt(P.x, P.z, _v);
   const wantX = aimX - P.x, wantZ = aimZ - P.z, wl = hyp(wantX, wantZ) || 1;
@@ -4921,19 +4937,35 @@ function botTick(dt) {
   // land ahead? look along the heading, slow if shallow
   if (depth(P.x + s * look, P.z + c * look) < 18 && !final) vT = Math.min(vT, 2.5);
   // rudder: proportional on the heading error with yaw-rate damping; no steering while going astern
-  const err = wrapAng(hdWant - P.hd), maxRud = P.u > 7.5 ? 0.75 : 1;   // gentle on the rudder at speed (comfort)
+  let err = wrapAng(hdWant - P.hd); const maxRud = P.u > 7.5 ? 0.75 : 1;   // gentle on the rudder at speed (comfort)
+  if (BOT.reapp) {
+    if (Math.abs(err) < Math.PI / 4) BOT.turnSide = 0;
+    else if (BOT.turnSide || Math.abs(err) > Math.PI / 2) {
+      // a big turn: sweep the turning circle on the side with the deeper water (chosen once per turn), and slowly
+      if (!BOT.turnSide) {
+        const sideDepth = sd => { const px = c * sd, pz = -s * sd; return Math.min(depth(P.x + px * turnR, P.z + pz * turnR), depth(P.x + px * 2 * turnR, P.z + pz * 2 * turnR), depth(P.x + px * turnR + s * turnR, P.z + pz * turnR + c * turnR)); };
+        const sd0 = Math.sign(err) || 1; BOT.turnSide = sideDepth(-sd0) > sideDepth(sd0) ? -sd0 : sd0;
+      }
+      if (Math.sign(err) !== BOT.turnSide) err += BOT.turnSide * 2 * Math.PI;   // the long way round
+      vT = Math.min(vT, 2.5);
+    }
+    // shore ahead within the stopping distance (full astern brakes at ~0.4 m/s^2, plus ~10 m for the telegraph): slow down
+    const stopD = P.u * P.u / 0.8 + 10 + FERRY.len / 2;
+    for (let k = 1; k <= 4; k++) { const dk = stopD * k / 4; if (depth(P.x + s * dk, P.z + c * dk) < 8) { vT = Math.min(vT, Math.sqrt(0.8 * Math.max(dk - 10 - FERRY.len / 2, 0)) + 0.5); break; } }
+  }
   input.rudder = P.u < -0.3 ? clamp(-err * 1.5, -0.5, 0.5) : clamp(err * 2.6 - P.r * 5, -maxRud, maxRud);
   // throttle: ground-speed target turned into a surge target (hold against the current), astern to brake
   const curAlong = -((_v.x + SIM.wind.x * 0.3) * s + (_v.z + SIM.wind.z * 0.3) * c);
   // progress boost: when the ferry is not closing on its aim (wind or current holding it off), push harder for a while
   const closing = ((aimX - P.x) * P.vx + (aimZ - P.z) * P.vz) / (hyp(aimX - P.x, aimZ - P.z) || 1);
-  if (vT > 0.2 && closing < 0.25 && !BOT.back) { BOT.slowT = (BOT.slowT || 0) + dt; if (BOT.slowT > 4) { BOT.boost = Math.min(2.5, (BOT.boost || 0) + 0.5); BOT.slowT = 0; } }
+  if (BOT.reapp) { BOT.slowT = 0; BOT.boost = 0; }   // re-approaching: no progress boost (more speed only widens the turns)
+  else if (vT > 0.2 && closing < 0.25 && !BOT.back) { BOT.slowT = (BOT.slowT || 0) + dt; if (BOT.slowT > 4) { BOT.boost = Math.min(2.5, (BOT.boost || 0) + 0.5); BOT.slowT = 0; } }
   else if (closing > 0.8 || vT <= 0.2) { BOT.slowT = 0; BOT.boost = Math.max(0, (BOT.boost || 0) - dt * 0.3); }
   if (vT > 0.2 && BOT.boost > 0) vT += BOT.boost;
   const e = (vT + (Math.abs(vT) < 2.5 ? curAlong : 0)) - P.u;
   input.throttle = e > 0 ? clamp(e * 0.45, 0, 1) : clamp(e * 0.7, -1, 0);
   if (vT === 0 && Math.abs(P.u) < 0.15) input.throttle = 0;
-  BOT.dbg = { boost: +(BOT.boost||0).toFixed(1), back: BOT.back, out: BOT.backOut, lane: inLane, pin: +BOT.pinT.toFixed(1), rem: +rem.toFixed(0), hdErr: Math.round(hdErr * 57.3), final, vT: +vT.toFixed(2), hdWant: Math.round(hdWant * 57.3), hd: Math.round(P.hd * 57.3), err: Math.round(err * 57.3), rud: +input.rudder.toFixed(2), thr: +input.throttle.toFixed(2), lat: +lat.toFixed(1), along: +along.toFixed(1), dir: BOT.dockDir, gap, d: Math.round(d) };
+  BOT.dbg = { reapp: !!BOT.reapp, orb: Math.round((BOT.orbNet || 0) * 57.3), boost: +(BOT.boost||0).toFixed(1), back: BOT.back, out: BOT.backOut, lane: inLane, pin: +BOT.pinT.toFixed(1), rem: +rem.toFixed(0), hdErr: Math.round(hdErr * 57.3), final, vT: +vT.toFixed(2), hdWant: Math.round(hdWant * 57.3), hd: Math.round(P.hd * 57.3), err: Math.round(err * 57.3), rud: +input.rudder.toFixed(2), thr: +input.throttle.toFixed(2), lat: +lat.toFixed(1), along: +along.toFixed(1), dir: BOT.dockDir, gap, d: Math.round(d) };
   // stuck: no progress for a while -> back out and plan again
   if (Math.abs(P.u) < 0.25 && Math.abs(vT) > 0.5) BOT.stuck += dt; else BOT.stuck = 0;
   if (BOT.stuck > 8) { BOT.stuck = 0; BOT.rev = 3; BOT.wp = []; }
@@ -4973,7 +5005,7 @@ function debugOverlay() {
     'pos ' + player.x.toFixed(0) + ',' + player.z.toFixed(0) + ' hd ' + (player.hd * 180 / Math.PI).toFixed(0) + ' u ' + player.u.toFixed(2) + ' spd ' + player.speed.toFixed(2) + ' thr ' + player.thr.toFixed(2) + ' rud ' + player.rud.toFixed(2) + '\n' +
     'next ' + (ns ? ns.id + ' (' + SIM.stopIdx + '/' + (SIM.stops.length - 1) + ')' : '-') + ' docked ' + (SIM.docked ? SIM.docked.id : '-') + ' gap ' + DOCK.gap.toFixed(1) + ' along ' + DOCK.along.toFixed(1) + ' ang ' + (DOCK.ang * 57.3).toFixed(0) + '\n' +
     'colreg ' + (COLREG.giveWay ? (COLREG.targetKind + ' ' + (COLREG.inDanger ? 'DANGER' : 'give-way') + ' cpa:' + COLREG.cpa.toFixed(0) + 'm') : 'clear') + ' · aboard ' + SIM.aboardN + ' delivered ' + SIM.delivered + ' lost ' + SIM.lost + ' comfort ' + SIM.comfort.toFixed(0) + ' hull ' + player.hull.toFixed(0) + ' traffic ' + SIM.traffic.length + ' walkers ' + SIM.walkers.length + '\n' +
-    'bot wp ' + BOT.wp.length + ' stuck ' + BOT.stuck.toFixed(1) + ' · deadlocks ' + DEADLOCK.n + ' · assets ' + ASSETS.loaded.length + '/' + (ASSETS.loaded.length + ASSETS.failed.length) + '\n' +
+    'bot wp ' + BOT.wp.length + ' stuck ' + BOT.stuck.toFixed(1) + ' · deadlocks ' + DEADLOCK.n + ' · orbits ' + ORBIT.n + ' · assets ' + ASSETS.loaded.length + '/' + (ASSETS.loaded.length + ASSETS.failed.length) + '\n' +
     'results ' + G.log.map(r => r.shift + ':' + r.stars + '★/' + r.score).join(' ') + (G.done ? (G.failed ? ' · FAILED' : ' · DONE') : '') + '\n' +
     'errors ' + G.errors.length + (G.errors.length ? '\n' + G.errors.slice(-3).join('\n') : '');
 }
@@ -4991,7 +5023,7 @@ window.vapurSim = function (seconds) {
   return window.vapur;
 };
 window.vapur = {
-  G, SIM, player, input, AUD, STR, WORLD, PIERS, SHIFTS, ASSETS, DOCK, BOT, CAM, COLREG, DEADLOCK, scene, renderer, camera, FOG, fogEchoes, fogHornBlast, fogDockBonus, OBJ,
+  G, SIM, player, input, AUD, STR, WORLD, PIERS, SHIFTS, ASSETS, DOCK, BOT, CAM, COLREG, DEADLOCK, ORBIT, scene, renderer, camera, FOG, fogEchoes, fogHornBlast, fogDockBonus, OBJ,
   fog(on) { G.fogPick = !!on; },
   get state() { return G.state; }, get shift() { return SIM.shift && SIM.shift.id; }, get time() { return SIM.t; }, get hour() { return SIM.hour; },
   get score() { return shiftScore(); }, get target() { return SIM.target; }, get aboard() { return SIM.aboardN; }, get delivered() { return SIM.delivered; },
