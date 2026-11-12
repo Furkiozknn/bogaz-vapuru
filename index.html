@@ -2707,7 +2707,7 @@ function startShiftSim(sh) {
   SIM.wind.a = sh.wind; SIM.wind.dir = rr(0, TAU); SIM.wind.gust = 0;
   SIM.aboard = {}; SIM.aboardN = 0; SIM.delivered = 0; SIM.lost = 0; SIM.comfort = 100; SIM.punct = []; SIM.score = 0; SIM.stopIdx = 1;
   SIM.docked = null; SIM.dockT = 0; SIM.dockOk = 0; SIM.boardQ = []; SIM.boardDone = false; SIM.ropes = false; SIM.depAllowed = false; SIM.walkers = []; SIM.toasted = {}; SIM.ended = false; SIM.dockBonus = 0; SIM.fogRun = false; SIM.fogBonus = 0;
-  SIM.lastThrSign = 0; SIM.bumpCd = 0; SIM.heelT = 0; SIM.hornT = 0; SIM.lostT = 0; SIM.wrongT = 0; SIM.thunderT = 20;
+  SIM.touch = null; SIM.lastThrSign = 0; SIM.bumpCd = 0; SIM.heelT = 0; SIM.hornT = 0; SIM.lostT = 0; SIM.wrongT = 0; SIM.thunderT = 20;
   for (const id of Object.keys(PIERS)) { const P = PIERS[id]; P.wait = 0; P.wait0 = 0; P.cap = 90; P.lostToast = false; }
   planShift(sh);
   // initial queues: every stop on the route that is not the first one
@@ -3115,6 +3115,7 @@ function stepTraffic(dt) {
           const nx = dx / d, nz = dz / d;
           if (SIM.fogRun && !(b.fogHitT > FOG.clock - 3)) { b.fogHitT = FOG.clock; FOG.hits++; if (FOG.clock - (b.fogCueT ?? -1e9) < 40) FOG.hitsCued++; }   // was it heard first?
           player.vx -= bvx; player.vz -= bvz; impact(nx, nz, pen, b.kind === 'fish' ? 'bump' : 'crash'); player.vx += bvx; player.vz += bvz;
+          SIM.touch = { b, nx, nz, t: SIM.t };   // the last hull contact with a boat (the autopilot fends off from it)
           // the smaller boat loses way; a 130 m tanker does not: braking it here on every overlapping step held it
           // dead in the water for as long as a ferry leaned on it, and a bot giving way to it then waited forever
           if (b.kind !== 'tanker') b.v *= 0.7;
@@ -4934,6 +4935,18 @@ function botTick(dt) {
     if (gap < 12) BOT.rev = 2.5;     // touching: back off first
   }
   if (BOT.detour && BOT.blockT > 3) vT = Math.max(vT, 1.0);   // creep out of a deadlock towards the detour point
+  // fending off: a moving boat has touched the hull within the last second. The rules above hold the ferry still for a
+  // hull that overlaps its bow, but a boat that is moving just shoves and rams a ferry that holds still, for as long as it
+  // takes to pass (a crossing tanker dragged it ~60 m sideways and cost 20 hull). So keep steerage way and steer along the
+  // other boat's side, away from it; a detour point on its far side is dropped. Not while docking.
+  const T = SIM.touch;
+  if (T && !final && SIM.t - T.t < 1 && SIM.t >= T.t && Math.abs(T.b.v) > 0.8 && SIM.traffic.includes(T.b)) {
+    if (BOT.detour && BOT.wp.length > 1 && (BOT.wp[0][0] - P.x) * T.nx + (BOT.wp[0][1] - P.z) * T.nz < 0) { BOT.wp.shift(); BOT.detour = false; }
+    const fx = BOT.wp.length ? BOT.wp[0][0] : aimX, fz = BOT.wp.length ? BOT.wp[0][1] : aimZ;
+    let ax = fx - P.x, az = fz - P.z; const al = hyp(ax, az) || 1; ax /= al; az /= al;
+    const into = ax * T.nx + az * T.nz; if (into < 0) { ax -= into * T.nx; az -= into * T.nz; }   // drop the part that points into it
+    hdWant = Math.atan2(ax + T.nx * 0.6, az + T.nz * 0.6); vT = Math.max(vT, 2.5); BOT.blockT = 0;
+  }
   // land ahead? look along the heading, slow if shallow
   if (depth(P.x + s * look, P.z + c * look) < 18 && !final) vT = Math.min(vT, 2.5);
   // rudder: proportional on the heading error with yaw-rate damping; no steering while going astern
