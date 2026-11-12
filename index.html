@@ -544,6 +544,26 @@ body.compact #tHorn, body.compact #tCam { right: calc(max(16px, env(safe-area-in
 body.compact #tCam { bottom: calc(max(16px, env(safe-area-inset-bottom)) + 50px); }
 body.compact.touch #dock { bottom: calc(max(14px, env(safe-area-inset-bottom)) + 100px); }
 #bPanel.on { background: var(--c-gold); }
+#bWarp.on { background: var(--c-gold); color: var(--c-deep); border-color: var(--c-deep); font-weight: 800; }
+#warpBadge {
+  position: absolute; left: 50%; transform: translateX(-50%);
+  top: calc(var(--barh, 56px) + max(10px, env(safe-area-inset-top)) + 10px);
+  display: none; align-items: center; gap: 7px;
+  padding: 6px 14px; border-radius: var(--r);
+  background: var(--c-gold); color: var(--c-deep);
+  border: var(--border-press); box-shadow: var(--shadow-press);
+  font-family: var(--font-display); font-weight: 800; font-size: 16px;
+  letter-spacing: 1px; text-transform: uppercase;
+  z-index: 11; pointer-events: none;
+  animation: colregPop .22s cubic-bezier(.2,.8,.2,1);
+}
+#warpBadge.show { display: inline-flex; }
+#warpBadge svg.ic { width: 18px; height: 18px; fill: currentColor; }
+body.compact #warpBadge {
+  padding: 3px 8px; font-size: 12px;
+  top: calc(var(--barh, 40px) + max(6px, env(safe-area-inset-top)) + 6px);
+}
+body.compact #warpBadge svg.ic { width: 14px; height: 14px; }
 body.compact #topbar { padding: 3px 8px; gap: 4px; top: max(6px, env(safe-area-inset-top)); }
 body.compact #topbar .brand, body.compact .stat small { display: none; }
 body.compact .stat { min-width: 0; padding: 0 7px; } body.compact .stat.wide { min-width: 54px; } body.compact .stat b { font-size: 14px; }
@@ -1386,6 +1406,7 @@ input[type=range] { width: 100%; height: 44px; accent-color: var(--c-teal); back
     <symbol id="i-home" viewBox="0 0 24 24"><path d="M3.5 11L12 4l8.5 7M6 9.5V20h12V9.5M10 20v-6h4v6"/></symbol>
     <symbol id="i-restart" viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.6-5.9M20 4v5h-5"/></symbol>
     <symbol id="i-horn" viewBox="0 0 24 24"><path d="M3 10v4h3l7 4V6L6 10z" fill="currentColor"/><path d="M16 8l3-2M16 12h4M16 16l3 2"/></symbol>
+    <symbol id="i-warp" viewBox="0 0 24 24"><path d="M4 5v14l8-7zM12 5v14l8-7z" fill="currentColor"/></symbol>
     <symbol id="i-panel" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 15h18M9 15v5"/></symbol>
     <symbol id="i-cam" viewBox="0 0 24 24"><rect x="3" y="7" width="13" height="11" rx="2"/><path d="M16 11l5-3v9l-5-3z"/></symbol>
     <symbol id="i-person" viewBox="0 0 24 24"><circle cx="12" cy="7.5" r="3" fill="currentColor"/><path d="M5 20c0-3.5 3-5.5 7-5.5s7 2 7 5.5z" fill="currentColor"/></symbol>
@@ -1487,6 +1508,7 @@ input[type=range] { width: 100%; height: 44px; accent-color: var(--c-teal); back
     <div class="stat wide"><small><svg class="ic"><use href="#i-hull"/></svg><span data-i="hull"></span></small><div class="bar hull" id="hullBar"><i></i></div></div>
     <div class="stat"><small><svg class="ic"><use href="#i-star"/></svg><span data-i="score"></span></small><div class="stars-sm" id="stStars"><svg viewBox="0 0 24 24"><use href="#i-star"/></svg><svg viewBox="0 0 24 24"><use href="#i-star"/></svg><svg viewBox="0 0 24 24"><use href="#i-star"/></svg></div></div>
     <div class="btns">
+      <button class="btn icon" id="bWarp" data-t="warp" aria-label="Transit (3x) · Z" title="Transit (3x) · Z"><svg class="ic"><use href="#i-warp"/></svg></button>
       <button class="btn icon" id="bPanel" data-t="panel" aria-label="Panel"><svg class="ic"><use href="#i-panel"/></svg></button>
       <button class="btn icon" id="bCamH" data-t="camera" aria-label="Camera"><svg class="ic"><use href="#i-cam"/></svg></button>
       <button class="btn icon" id="bPause" data-t="pause" aria-label="Pause"><svg class="ic"><use href="#i-pause"/></svg></button>
@@ -1496,6 +1518,7 @@ input[type=range] { width: 100%; height: 44px; accent-color: var(--c-teal); back
   </div>
   <div id="toasts" role="status" aria-live="polite"></div>
   <div id="colregBadge" class="glass" role="status" aria-live="polite"><svg class="ic arrow" id="colregArrow" viewBox="0 0 24 24"><path d="M12 3l5 6h-3.5v11h-3V9H7z"/></svg><span id="colregTxt">YOL VER</span><small id="colregSub" class="colreg-sub"></small></div>
+  <div id="warpBadge" class="glass" role="status" aria-live="polite"><svg class="ic" viewBox="0 0 24 24"><use href="#i-warp"/></svg><span id="warpBadgeTxt">3x TRANSİT</span></div>
   <div id="nextCard" class="glass"><small data-i="nextStop"></small><b id="ncName">—</b><div class="l2" id="ncL2"></div><div id="ncRope" class="rope-wrap hidden"><div class="rope-lbl-row"><small><svg class="ic" style="width:11px;height:11px"><use href="#i-anchor"/></svg><span data-i="ropeTension"></span></small><b id="ncRopeVal">0%</b></div><div class="bar tension" id="ncRopeBar"><i></i></div></div><div class="l2" id="ncL3"></div></div>
   <div id="camLbl" class="glass"></div>
   <canvas id="minimap" width="300" height="460"></canvas>
@@ -1622,6 +1645,8 @@ input[type=range] { width: 100%; height: 44px; accent-color: var(--c-teal); back
         <label for="rMaster" data-i="master"></label><input type="range" id="rMaster" min="0" max="100" data-t="master" aria-label="Genel ses"><output id="oMaster"></output>
         <label for="rMusic" data-i="music"></label><input type="range" id="rMusic" min="0" max="100" data-t="music" aria-label="Müzik"><output id="oMusic"></output>
         <label for="rSfx" data-i="effects"></label><input type="range" id="rSfx" min="0" max="100" data-t="effects" aria-label="Efektler"><output id="oSfx"></output>
+        <label for="rSteer" data-i="steerSens"></label><input type="range" id="rSteer" min="0.6" max="1.4" step="0.05" value="1.0" data-t="steerSens" aria-label="Dümen hassasiyeti"><output id="oSteer">1.0x</output>
+        <label data-i="reducedMotion"></label><div class="seg"><button class="btn" id="bMotOff" data-i="motionOff"></button><button class="btn" id="bMotOn" data-i="motionOn"></button></div>
         <label data-i="language"></label><div class="seg"><button class="btn" id="bTR">Türkçe</button><button class="btn" id="bEN">English</button></div>
         <label data-i="quality"></label><div class="seg"><button class="btn" id="bQLow" data-i="low"></button><button class="btn" id="bQHigh" data-i="high"></button></div>
         <label data-i="lowPower"></label><div class="seg"><button class="btn" id="bLPAuto" data-i="lpAuto"></button><button class="btn" id="bLPOn" data-i="lpOn"></button><button class="btn" id="bLPOff" data-i="lpOff"></button></div>
@@ -1707,8 +1732,11 @@ const STR = {
     language: 'Dil', paused: 'Duraklatıldı', resume: 'Devam et', restart: 'Yeniden başla', menu: 'Ana menü',
     startShift: 'Sefere çık', master: 'Genel ses', music: 'Müzik', effects: 'Efektler', quality: 'Kalite',
     low: 'Düşük', high: 'Yüksek', lowPower: 'Düşük güç modu', lpAuto: 'Otomatik', lpOn: 'Açık', lpOff: 'Kapalı', fullscreen: 'Tam ekran', toggle: 'Aç / kapat', back: 'Geri',
-    keysHelp: 'P / Esc duraklat · M müzik · X efekt · L dil · C kamera · Boşluk düdük (dokun/tut) · W/S makineler · T/G iskele · Y/H sancak · A/D dümen · E halat at',
-    keysHelpTouch: 'Sağdaki kol gaz (yukarı ileri, aşağı tornistan; sol ya da sağ kenarı tek makine) · soldaki simit dümen · korna düğmesi düdük · kamera düğmesi görünüm · HALAT AT düğmesi yanaşma · üst çubuk duraklat, ses, dil',
+    steerSens: 'Dümen hassasiyeti', reducedMotion: 'Hareketi azalt', motionOff: 'Kapalı', motionOn: 'Açık',
+    warp: 'Transit (3x) · Z', warpBadge: '3x TRANSİT', warpOn: 'Transit modu devrede (3x)', warpOff: 'Transit modu kapatıldı (1x)',
+    warpAutoOff: 'Açık deniz bitti: 1x normal hız', warpUnavailable: 'Sadece açık denizde (trafik >250m, iskele >500m)',
+    keysHelp: 'P / Esc duraklat · M müzik · X efekt · L dil · C kamera · Z transit (3x) · Boşluk düdük (dokun/tut) · W/S makineler · T/G iskele · Y/H sancak · A/D dümen · E halat at',
+    keysHelpTouch: 'Sağdaki kol gaz (yukarı ileri, aşağı tornistan; sol ya da sağ kenarı tek makine) · soldaki simit dümen · korna düğmesi düdük · kamera düğmesi görünüm · HALAT AT düğmesi yanaşma · üst çubuk duraklat, transit (3x), ses, dil',
     retry: 'Tekrar dene', next: 'Sonraki sefer', playAgain: 'Tekrar oyna', nextShift: 'Sonraki sefer',
     shift: 'Sefer', clock: 'Saat', passengers: 'Yolcu', comfort: 'Konfor', hull: 'Gövde', score: 'Puan', panel: 'Paneli küçült / büyüt (V)', pause: 'Duraklat', sound: 'Ses', camera: 'Kamera',
     nextStop: 'Sonraki iskele', distance: 'Mesafe', speed: 'Hız', angle: 'Açı', ahead: 'İLERİ', astern: 'TORN.',
@@ -1780,8 +1808,11 @@ const STR = {
     language: 'Language', paused: 'Paused', resume: 'Resume', restart: 'Restart', menu: 'Main menu',
     startShift: 'Start the shift', master: 'Master', music: 'Music', effects: 'Effects', quality: 'Quality',
     low: 'Low', high: 'High', lowPower: 'Low-power mode', lpAuto: 'Auto', lpOn: 'On', lpOff: 'Off', fullscreen: 'Fullscreen', toggle: 'Toggle', back: 'Back',
-    keysHelp: 'P / Esc pause · M music · X effects · L language · C camera · Space horn (tap/hold) · W/S engines · T/G port · Y/H starboard · A/D rudder · E throw lines',
-    keysHelpTouch: 'Right lever is the throttle (up ahead, down astern; its left or right edge drives one engine) · wheel on the left steers · horn button sounds the horn · camera button changes the view · THROW LINES button to moor · top bar: pause, sound, language',
+    steerSens: 'Steering sensitivity', reducedMotion: 'Reduce motion', motionOff: 'Off', motionOn: 'On',
+    warp: 'Transit (3x) · Z', warpBadge: '3x TRANSIT', warpOn: 'Transit warp engaged (3x)', warpOff: 'Transit warp disengaged (1x)',
+    warpAutoOff: 'Exited open water: returned to 1x', warpUnavailable: 'Open water only (traffic >250m, pier >500m)',
+    keysHelp: 'P / Esc pause · M music · X effects · L language · C camera · Z transit (3x) · Space horn (tap/hold) · W/S engines · T/G port · Y/H starboard · A/D rudder · E throw lines',
+    keysHelpTouch: 'Right lever is the throttle (up ahead, down astern; its left or right edge drives one engine) · wheel on the left steers · horn button sounds the horn · camera button changes the view · THROW LINES button to moor · top bar: pause, transit (3x), sound, language',
     retry: 'Retry', next: 'Next shift', playAgain: 'Play again', nextShift: 'Next shift',
     shift: 'Shift', clock: 'Clock', passengers: 'Pax', comfort: 'Comfort', hull: 'Hull', score: 'Score', panel: 'Compact / full panel (V)', pause: 'Pause', sound: 'Sound', camera: 'Camera',
     nextStop: 'Next pier', distance: 'Distance', speed: 'Speed', angle: 'Angle', ahead: 'AHEAD', astern: 'ASTERN',
@@ -2012,6 +2043,24 @@ const SAVED = lsGet(KEY_SAVE) || {};
 const best = Object.assign({ total: 0, stars: [0, 0, 0, 0, 0, 0, 0, 0], score: [0, 0, 0, 0, 0, 0, 0, 0], endless: 0, endlessPax: 0 }, SAVED.best || {});
 let runSave = SAVED.run || null;
 const writeSave = () => lsSet(KEY_SAVE, { best, run: runSave });
+
+// ---------------------------------------------------------------- Comfort Settings (bogaz-vapuru.comfort)
+const KEY_COMFORT = 'bogaz-vapuru.comfort';
+const comfortSettings = { reducedMotion: false, steerSens: 1.0 };
+(function loadComfort() {
+  const c = lsGet(KEY_COMFORT);
+  if (c && typeof c === 'object') {
+    if (typeof c.reducedMotion === 'boolean') comfortSettings.reducedMotion = c.reducedMotion;
+    if (typeof c.steerSens === 'number' && !isNaN(c.steerSens)) comfortSettings.steerSens = clamp(c.steerSens, 0.6, 1.4);
+  } else {
+    try {
+      if (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        comfortSettings.reducedMotion = true;
+      }
+    } catch (e) {}
+  }
+})();
+const saveComfort = () => lsSet(KEY_COMFORT, comfortSettings);
 
 // ---------------------------------------------------------------- Vessel Storage & Star Rank Unlocks (bogaz-vapuru.vessel)
 const KEY_VESSEL = 'bogaz-vapuru.vessel';
@@ -3095,7 +3144,7 @@ const SIM = {
   t: 0, hour: 15, shift: null, stops: [], stopIdx: 0, cur: 0.3, wind: { x: 0, z: 0, a: 0, dir: 0, gust: 0 }, fog: 0, storm: 0, rain: 0, swell: 0, night: 0, dusk: 0,
   traffic: [], aboard: {}, aboardN: 0, delivered: 0, lost: 0, comfort: 100, punct: [], score: 0, target: 1000, potential: 0,
   docked: null, dockT: 0, dockOk: 0, boardQ: [], boardT: 0, boardDone: false, offN: 0, onN: 0, ropes: false, depAllowed: false, leaveToast: false, lateToast: false, wrongT: 0,
-  walkers: [], heelT: 0, lastThrSign: 0, bumpCd: 0, toasted: {}, thunderT: 0, hornT: 0, ended: false, lostT: 0, gullT: 4, ropeTension: 0,
+  walkers: [], heelT: 0, lastThrSign: 0, bumpCd: 0, toasted: {}, thunderT: 0, hornT: 0, ended: false, lostT: 0, gullT: 4, ropeTension: 0, warp: false,
 };
 const player = { x: 0, z: 0, hd: 0, u: 0, v: 0, r: 0, thr: 0, thrP: 0, thrS: 0, gearDirP: 0, gearDirS: 0, gearPauseP: 0, gearPauseS: 0, rpmP: 0, rpmS: 0, rud: 0, hull: 0, vx: 0, vz: 0, speed: 0, heel: 0, pitch: 0, wakeT: 0, smokeT: 0, horn: false };
 let lastPlayerX = 0, lastPlayerZ = 0;
@@ -3143,7 +3192,8 @@ function startShiftSim(sh) {
   SIM.shift = sh; SIM.t = 0; SIM.hour = sh.hour; SIM.cur = sh.current; SIM.fog = sh.fog; SIM.storm = sh.storm; SIM.rain = 0; SIM.swell = sh.storm ? 1 : 0.2;
   SIM.wind.a = sh.wind; SIM.wind.dir = rr(0, TAU); SIM.wind.gust = 0;
   SIM.aboard = {}; SIM.aboardN = 0; SIM.delivered = 0; SIM.lost = 0; SIM.comfort = 100; SIM.punct = []; SIM.score = 0; SIM.stopIdx = 1;
-  SIM.docked = null; SIM.dockT = 0; SIM.dockOk = 0; SIM.boardQ = []; SIM.boardDone = false; SIM.ropes = false; SIM.depAllowed = false; SIM.walkers = []; SIM.toasted = {}; SIM.ended = false; SIM.dockBonus = 0; SIM.fogRun = false; SIM.fogBonus = 0; SIM.ropeTension = 0;
+  SIM.docked = null; SIM.dockT = 0; SIM.dockOk = 0; SIM.boardQ = []; SIM.boardDone = false; SIM.ropes = false; SIM.depAllowed = false; SIM.walkers = []; SIM.toasted = {}; SIM.ended = false; SIM.dockBonus = 0; SIM.fogRun = false; SIM.fogBonus = 0; SIM.ropeTension = 0; SIM.warp = false;
+  if (el.bWarp) el.bWarp.classList.remove('on'); if (el.warpBadge) el.warpBadge.classList.remove('show');
   SIM.deckLife = {
     simitActive: false, simitTimer: 18 + rr(6, 12), simitTime: 0, simitDur: 14, simitBonusAcc: 0, gullSfxT: 0,
     teaActive: false, teaTimer: 32 + rr(8, 16), teaTime: 0, teaDur: 16, teaSpilled: false, teaBonusAcc: 0, teaClinkT: 0,
@@ -3175,6 +3225,7 @@ function destFor(fromIdx) {   // destination stop index for a passenger boarding
 }
 function dockAt(P, idx, initial = false) {
   const s = SIM.stops[idx];
+  if (typeof setWarp === 'function' && SIM.warp) setWarp(false, true);
   SIM.docked = P; SIM.dockT = 0; SIM.ropes = true; SIM.boardDone = false; SIM.depAllowed = false; SIM.leaveToast = false; SIM.boardQ = []; SIM.boardT = 0; SIM.offN = 0; SIM.onN = 0;
   player.u = player.v = player.r = 0; player.thr = player.thrP = player.thrS = 0;
   player.gearDirP = player.gearDirS = player.gearPauseP = player.gearPauseS = player.rpmP = player.rpmS = 0;
@@ -3324,9 +3375,9 @@ function stepFerry(dt) {
   // wind yaw: a side wind pushes the bow around slowly
   P.r += (W.x * c - W.z * s) * 0.004 * dt;
   // heel from the turn and the waves
-  const heelT = -P.r * P.u * 0.08 + SIM.swell * 0.03 * Math.sin(SIM.t * 1.3 + P.x * 0.01);
+  const heelT = -P.r * P.u * 0.08 + SIM.swell * 0.03 * Math.sin(SIM.t * 1.3 + P.x * 0.01) * (calm() ? 0.35 : 1.0);
   P.heel += (heelT - P.heel) * Math.min(1, 2 * dt);
-  P.pitch = SIM.swell * 0.025 * Math.sin(SIM.t * 1.1 + P.z * 0.02) + 0.004 * P.thr;
+  P.pitch = SIM.swell * 0.025 * Math.sin(SIM.t * 1.1 + P.z * 0.02) * (calm() ? 0.35 : 1.0) + 0.004 * P.thr;
   // comfort: hard rudder at speed, throttle reversal, storm speed
   if (Math.abs(P.r * P.u) > 1.25) { SIM.heelT += dt; if (SIM.heelT > 0.8) { SIM.comfort = Math.max(0, SIM.comfort - 1.2 * dt); if (!SIM.toasted.heel) { SIM.toasted.heel = true; toast(t('toastHeel'), 'bad'); } } } else SIM.heelT = 0;
   const sg = Math.sign(P.thr); if (sg && sg !== SIM.lastThrSign && SIM.lastThrSign && Math.abs(P.u) > 4) { SIM.comfort = Math.max(0, SIM.comfort - 2); } if (sg) SIM.lastThrSign = sg;
@@ -3387,6 +3438,7 @@ function impact(nx, nz, pen, kind) {
       else if (hit > 2.2) { toast(t('toastCrash'), 'bad'); AUD.crash(Math.min(1, hit / 5)); }
       else { toast(t('toastBump'), 'bad'); AUD.bump(Math.min(1, hit / 3)); }
       hurtFlash(Math.min(1, hit / 4));
+      if (!calm() && typeof CAM !== 'undefined') CAM.shake = Math.min(1.4, hit * 0.35);
       if (P.hull >= 100) endShift('wreck');
     }
   }
@@ -3826,11 +3878,21 @@ function stepSim(dt) {
   if (!SIM.toasted.night && SIM.night > 0.5) { SIM.toasted.night = true; toast(t('toastNight'), 'info'); }
 }
 let lightning = 0;
-const calm = () => !!(window.Arena && Arena.settings && Arena.settings.reducedMotion);   // kit "reduce motion": read live, visuals only (the sim never sees it)
+const calm = () => !!(comfortSettings.reducedMotion || (window.Arena && Arena.settings && Arena.settings.reducedMotion));   // live reduced motion check
+function applyReducedMotion() {
+  const isC = calm();
+  if (isC) {
+    lightning = 0; lastSkyHour = -99; hurtA = 0;
+    if (el.hurt) el.hurt.style.opacity = 0;
+    if (typeof CAM !== 'undefined') { CAM.cine = 0; CAM.shake = 0; }
+  }
+  document.documentElement.toggleAttribute('data-arena-reduced-motion', isC);
+}
 function shiftScore() { return Math.round((SIM.dockBonus || 0) + SIM.delivered * SCORE_K.pax + SIM.punct.reduce((a, b) => a + b, 0) + SIM.comfort * SCORE_K.comfort + SIM.lost * SCORE_K.lost); }
 function starsFor(score, target) { const r = score / Math.max(1, target); return r >= SCORE_K.stars[2] ? 3 : r >= SCORE_K.stars[1] ? 2 : r >= SCORE_K.stars[0] ? 1 : 0; }
 function endShift(kind) {
   if (SIM.ended) return; SIM.ended = true;
+  if (typeof setWarp === 'function' && SIM.warp) setWarp(false, false);
   const score = kind === 'wreck' ? Math.round(shiftScore() * 0.5) : shiftScore();
   const stars = kind === 'wreck' ? 0 : starsFor(score, SIM.target);
   const punctAvg = SIM.punct.length ? SIM.punct.reduce((a, b) => a + b, 0) / SIM.punct.length : 0;
@@ -4605,13 +4667,13 @@ function updateSky(force) {
 
 // ---------------------------------------------------------------- per-frame render sync
 let camMode = 0;   // 0 chase, 1 bridge, 2 top, 3 docking
-const CAM = { yaw: 0, pitch: 0.42, dist: 72, distUser: 72, cine: 0, idle: 0, px: 0, py: 0, pz: 0, drag: false, lx: 0, ly: 0, lookYaw: 0, lookPitch: 0, autoDock: false, userDockOverride: false, lastStopIdx: -1 };
+const CAM = { yaw: 0, pitch: 0.42, dist: 72, distUser: 72, cine: 0, idle: 0, px: 0, py: 0, pz: 0, drag: false, lx: 0, ly: 0, lookYaw: 0, lookPitch: 0, autoDock: false, userDockOverride: false, lastStopIdx: -1, shake: 0 };
 const _mat = new THREE.Matrix4();
 function ferryMatrix(x, z, hd, heel, pitch, out) {
   _o.position.set(x, waveY(x, z) * 0.9, z); _e.set(pitch, hd, heel, 'YXZ'); _o.quaternion.setFromEuler(_e); _o.scale.set(1, 1, 1); _o.updateMatrix(); return out.copy(_o.matrix);
 }
 function syncRender(dt) {
-  waterU.uTime.value += dt; waterU.uAmp.value = 0.22 + 1.1 * SIM.swell * (SIM.storm ? 1 : 0.5); waterU.uCur.value = SIM.cur;
+  waterU.uTime.value += dt; waterU.uAmp.value = (0.22 + 1.1 * SIM.swell * (SIM.storm ? 1 : 0.5)) * (calm() ? 0.35 : 1.0); waterU.uCur.value = SIM.cur;
   updateSky(false);
   if (lightning > 0) { lightning = Math.max(0, lightning - dt * 4); lastSkyHour = -99; }
   // sun follows the ferry (shadow map covers the play area around it)
@@ -4933,7 +4995,9 @@ function syncMarkers(dt) {
 // ---------------------------------------------------------------- camera
 function updateCamera(dt) {
   const P = player, s = Math.sin(P.hd), c = Math.cos(P.hd);
+  const still = calm();
   const boatY = waveY(P.x, P.z) * 0.9;
+  const camBoatY = still ? boatY * 0.2 : boatY;
   if (G.state === 'title' || G.state === 'intro' || (G.state === 'settings' && settingsFrom !== 'pause')) {
     // slow sweep around the ferry at its first pier, always from the water side
     const a = Math.sin(waterU.uTime.value * 0.11) * 0.9, Pr = SIM.docked || (SIM.stops[0] && PIERS[SIM.stops[0].id]);
@@ -4965,13 +5029,13 @@ function updateCamera(dt) {
     const dPier = Pr ? hyp(Pr.bx - P.x, Pr.bz - P.z) : 30;
     const midX = Pr ? (P.x * 0.55 + Pr.bx * 0.45) : P.x;
     const midZ = Pr ? (P.z * 0.55 + Pr.bz * 0.45) : P.z;
-    const lookY = boatY + 2.5;
+    const lookY = camBoatY + 2.5;
     const camH = clamp(36 + dPier * 0.08, 38, 48);
     const nx = Pr ? Pr.nx : 1, nz = Pr ? Pr.nz : 0;
     const offsetDist = clamp(32 + dPier * 0.12, 34, 50);
     const tx = midX + nx * (offsetDist * 0.72) - s * (offsetDist * 0.42);
     const tz = midZ + nz * (offsetDist * 0.72) - c * (offsetDist * 0.42);
-    const ty = boatY + camH;
+    const ty = camBoatY + camH;
     const k = Math.min(1, dt * 3.5);
     CAM.px += (tx - CAM.px) * k;
     CAM.py += (ty - CAM.py) * k;
@@ -4983,7 +5047,7 @@ function updateCamera(dt) {
   } else if (camMode === 0) {
     // cinematic docking: near the target pier the chase camera drifts out over the water, drops low and frames the
     // ferry against the pier; moored, it keeps a slow orbit. A drag on the scene overrides it for a few seconds.
-    const still = calm(), cine = !still && !!Pr && (DOCK.near || !!SIM.docked) && !CAM.drag && CAM.idle > 2.5 && !CAM.cineOff;   // reduce motion: no cinematic docking drift/orbit
+    const cine = !still && !!Pr && (DOCK.near || !!SIM.docked) && !CAM.drag && CAM.idle > 2.5 && !CAM.cineOff;   // reduce motion: no cinematic docking drift/orbit
     CAM.cine = still ? 0 : CAM.cine + ((cine ? 1 : 0) - CAM.cine) * Math.min(1, dt * 0.8);
     if (!CAM.drag && CAM.idle > 3) {
       let yawT = 0, pitchT = 0.42, distT = CAM.distUser;
@@ -4995,11 +5059,11 @@ function updateCamera(dt) {
       CAM.yaw += wrapAng(yawT - CAM.yaw) * Math.min(1, dt * (cine ? 0.7 : 1.2)); CAM.pitch += (pitchT - CAM.pitch) * Math.min(1, dt * 1.0); CAM.dist += (distT - CAM.dist) * Math.min(1, dt * 0.8);
     }
     const yaw = P.hd + Math.PI + CAM.yaw, d = CAM.dist, pitch = CAM.pitch;
-    const tx = P.x + Math.sin(yaw) * Math.cos(pitch) * d, ty = boatY + 4 + Math.sin(pitch) * d, tz = P.z + Math.cos(yaw) * Math.cos(pitch) * d;
-    const k = Math.min(1, dt * 4);
+    const tx = P.x + Math.sin(yaw) * Math.cos(pitch) * d, ty = camBoatY + 4 + Math.sin(pitch) * d, tz = P.z + Math.cos(yaw) * Math.cos(pitch) * d;
+    const k = Math.min(1, dt * (SIM.warp ? 8 : 4));
     CAM.px += (tx - CAM.px) * k; CAM.py += (ty - CAM.py) * k; CAM.pz += (tz - CAM.pz) * k;
     camera.position.set(CAM.px, Math.max(CAM.py, 3), CAM.pz);
-    camera.lookAt(P.x + s * 8 * (1 - CAM.cine), boatY + 5, P.z + c * 8 * (1 - CAM.cine));
+    camera.lookAt(P.x + s * 8 * (1 - CAM.cine), camBoatY + 5, P.z + c * 8 * (1 - CAM.cine));
     camera.fov = 55 + (still ? 0 : 5 * Math.min(1, P.speed / 12) * (1 - CAM.cine));   // a touch wider at speed
   } else if (camMode === 1) {
     ferryLocalToWorld(FERRY.bridgeCamPos || [0, 7.9, 8.6], _p3);
@@ -5017,6 +5081,15 @@ function updateCamera(dt) {
     camera.lookAt(P.x + s * 20, 0, P.z + c * 20);
     camera.fov = 55;
   }
+  if (CAM.shake > 0) {
+    CAM.shake = Math.max(0, CAM.shake - dt * 2.5);
+    if (!still) {
+      const sh = CAM.shake * 0.6;
+      camera.position.x += (Math.random() - 0.5) * sh;
+      camera.position.y += (Math.random() - 0.5) * sh;
+      camera.position.z += (Math.random() - 0.5) * sh;
+    }
+  }
   if (el.camLbl && G.state === 'play') {
     el.camLbl.textContent = t(['camChase', 'camBridge', 'camTop', 'camDock'][isDockCam ? 3 : camMode]);
   }
@@ -5033,9 +5106,9 @@ function setCamMode(m) {
 
 // ---------------------------------------------------------------- UI: elements, toasts, HUD
 const el = {};
-for (const id of ['hud', 'topbar', 'stShift', 'stClock', 'stPlan', 'stPax', 'comfBar', 'hullBar', 'stStars', 'bPanel', 'bCamH', 'bPause', 'bSound', 'bLang', 'toasts', 'colregBadge', 'colregArrow', 'colregTxt', 'colregSub', 'nextCard', 'ncName', 'ncL2', 'ncL3', 'ncRope', 'ncRopeVal', 'ncRopeBar', 'camLbl', 'minimap', 'lvThr', 'lvThrS', 'lvRud', 'rpmP', 'rpmS', 'speedo', 'spArc', 'spVal', 'spUnit', 'dock', 'dkDist', 'dkSpd', 'dkAng', 'dkHint', 'bMoor', 'floaters', 'touch', 'tWheel', 'tWheelSvg', 'tThr', 'tRpmP', 'tRpmS', 'tHorn', 'tCam',
+for (const id of ['hud', 'topbar', 'stShift', 'stClock', 'stPlan', 'stPax', 'comfBar', 'hullBar', 'stStars', 'bWarp', 'warpBadge', 'warpBadgeTxt', 'bPanel', 'bCamH', 'bPause', 'bSound', 'bLang', 'toasts', 'colregBadge', 'colregArrow', 'colregTxt', 'colregSub', 'nextCard', 'ncName', 'ncL2', 'ncL3', 'ncRope', 'ncRopeVal', 'ncRopeBar', 'camLbl', 'minimap', 'lvThr', 'lvThrS', 'lvRud', 'rpmP', 'rpmS', 'speedo', 'spArc', 'spVal', 'spUnit', 'dock', 'dkDist', 'dkSpd', 'dkAng', 'dkHint', 'bMoor', 'floaters', 'touch', 'tWheel', 'tWheelSvg', 'tThr', 'tRpmP', 'tRpmS', 'tHorn', 'tCam',
   'sTitle', 'sIntro', 'sPause', 'sSettings', 'sEnd', 'bPlay', 'playTxt', 'bCont', 'bEndless', 'bSettingsT', 'bLangT', 'langTxt', 'bestLine', 'cmap', 'inTitle', 'inDesc', 'inCond', 'inTT', 'inTarget', 'bStart', 'bFog', 'fogTxt', 'bIntroBack',
-  'bResume', 'bRestart', 'bSettingsP', 'bMenuP', 'rMaster', 'rMusic', 'rSfx', 'oMaster', 'oMusic', 'oSfx', 'bTR', 'bEN', 'bQLow', 'bQHigh', 'bLPAuto', 'bLPOn', 'bLPOff', 'bFull', 'bSetBack', 'enTitle', 'enSub', 'enStars', 'enStats', 'enRec', 'bNext', 'nextTxt', 'bRetry', 'bMenuE', 'dbg', 'hurt', 'bDaily', 'dailyLine', 'bA11y', 'bShare', 'aOther', 'enDaily', 'rankName', 'rankXpTxt', 'rankBar', 'missionsDateTag', 'missionsList', 'vesselSelect', 'vesselRankInfo', 'vesselCards']) el[id] = document.getElementById(id);
+  'bResume', 'bRestart', 'bSettingsP', 'bMenuP', 'rMaster', 'rMusic', 'rSfx', 'oMaster', 'oMusic', 'oSfx', 'rSteer', 'oSteer', 'bMotOff', 'bMotOn', 'bTR', 'bEN', 'bQLow', 'bQHigh', 'bLPAuto', 'bLPOn', 'bLPOff', 'bFull', 'bSetBack', 'enTitle', 'enSub', 'enStars', 'enStats', 'enRec', 'bNext', 'nextTxt', 'bRetry', 'bMenuE', 'dbg', 'hurt', 'bDaily', 'dailyLine', 'bA11y', 'bShare', 'aOther', 'enDaily', 'rankName', 'rankXpTxt', 'rankBar', 'missionsDateTag', 'missionsList', 'vesselSelect', 'vesselRankInfo', 'vesselCards']) el[id] = document.getElementById(id);
 function toast(msg, kind = 'info', ms = 2600) {
   const d = document.createElement('div'); d.className = 'toast ' + kind; d.textContent = msg; el.toasts.appendChild(d);
   while (el.toasts.children.length > 4) el.toasts.firstChild.remove();
@@ -5054,6 +5127,7 @@ function applyLang() {
   if (window.Arena) Arena.lang(LANG);
   $$('[data-i]').forEach(e => { const k = e.getAttribute('data-i'); if (k === 'howto') e.innerHTML = tT('howto'); else if (k !== 'loading') e.textContent = k === 'keysHelp' ? tT(k) : t(k); });
   $$('[data-t]').forEach(e => { e.title = t(e.getAttribute('data-t')); e.setAttribute('aria-label', t(e.getAttribute('data-t'))); });
+  if (el.warpBadgeTxt) el.warpBadgeTxt.textContent = t('warpBadge');
   el.langTxt.textContent = LANG === 'tr' ? 'TR / EN' : 'EN / TR';
   el.bTR.classList.toggle('sel', LANG === 'tr'); el.bEN.classList.toggle('sel', LANG === 'en');
   updateBestLine(); if (G.state === 'intro') renderIntro(); if (G.state === 'end' && G.lastResult) renderEnd(G.lastResult);
@@ -5070,6 +5144,16 @@ function updateBestLine() {
 function syncSettingsUI() {
   el.rMaster.value = Math.round(settings.master * 100); el.rMusic.value = Math.round(settings.music * 100); el.rSfx.value = Math.round(settings.sfx * 100);
   el.oMaster.value = el.rMaster.value; el.oMusic.value = el.rMusic.value; el.oSfx.value = el.rSfx.value;
+  if (el.rSteer) {
+    const s = comfortSettings.steerSens || 1.0;
+    el.rSteer.value = s.toFixed(2);
+    if (el.oSteer) el.oSteer.value = s.toFixed(2) + 'x';
+  }
+  if (el.bMotOff && el.bMotOn) {
+    const isMot = !!comfortSettings.reducedMotion;
+    el.bMotOff.classList.toggle('sel', !isMot);
+    el.bMotOn.classList.toggle('sel', isMot);
+  }
   el.bQLow.classList.toggle('sel', settings.quality === 'low'); el.bQHigh.classList.toggle('sel', settings.quality === 'high');
   const lp = settings.lowPower || 'auto';
   if (el.bLPAuto) el.bLPAuto.classList.toggle('sel', lp === 'auto');
@@ -5166,6 +5250,14 @@ function updateHUD(dt) {
     } else {
       el.colregBadge.classList.remove('show');
     }
+  }
+  if (el.bWarp) {
+    el.bWarp.classList.toggle('on', !!SIM.warp);
+    el.bWarp.setAttribute('aria-pressed', String(!!SIM.warp));
+    el.bWarp.style.opacity = (SIM.warp || canWarp()) ? '1' : '0.45';
+  }
+  if (el.warpBadge) {
+    el.warpBadge.classList.toggle('show', !!SIM.warp);
   }
   if (hurtA > 0) { hurtA = Math.max(0, hurtA - dt * 2); el.hurt.style.opacity = hurtA.toFixed(2); }
   if (touchOn) el.tWheelSvg.style.transform = 'rotate(' + (-player.rud * 120) + 'deg)';
@@ -5285,8 +5377,9 @@ function readInput(dt) {
     input.thrP = clamp(input.thrP + (dA + dP) * 0.9 * dt, -1, 1);
     input.thrS = clamp(input.thrS + (dA + dS) * 0.9 * dt, -1, 1);
   }
+  const sens = comfortSettings.steerSens || 1.0;
   let rd = 0; if (keys.KeyA || keys.ArrowLeft) rd += 1; if (keys.KeyD || keys.ArrowRight) rd -= 1;   // + = port
-  if (!touchOn || TOUCH.wheelId === null) { if (rd !== 0) input.rudder = clamp(input.rudder + rd * 2.2 * dt, -1, 1); else if (!touchOn) input.rudder += (0 - input.rudder) * Math.min(1, dt * 3); }
+  if (!touchOn || TOUCH.wheelId === null) { if (rd !== 0) input.rudder = clamp(input.rudder + rd * 2.2 * sens * dt, -1, 1); else if (!touchOn) input.rudder += (0 - input.rudder) * Math.min(1, dt * 3 * sens); }
   input.horn = !!keys.Space || TOUCH.horn;
 }
 function onKey(e, down) {
@@ -5314,6 +5407,7 @@ function onKey(e, down) {
   else if (e.code === 'KeyC' && (G.state === 'play')) setCamMode(camMode + 1);
   else if (e.code === 'KeyV') setCompact(!document.body.classList.contains('compact'));
   else if (e.code === 'KeyF' && G.state === 'play') toggleFull();
+  else if (e.code === 'KeyZ' && G.state === 'play') toggleWarp();
   else if ((e.code === 'KeyE' || e.code === 'Enter') && G.state === 'play') throwMooringLines();
 }
 window.addEventListener('keydown', e => { AUD.init(); AUD.resume(); onKey(e, true); });
@@ -5351,7 +5445,7 @@ function setupTouch() {
   const wh = el.tWheel;
   const angAt = (x, y) => { const r = wh.getBoundingClientRect(); return Math.atan2(y - (r.top + r.height / 2), x - (r.left + r.width / 2)); };
   wh.addEventListener('pointerdown', e => { TOUCH.wheelId = e.pointerId; wh.setPointerCapture(e.pointerId); TOUCH.wheelA0 = angAt(e.clientX, e.clientY); TOUCH.rud0 = input.rudder; e.preventDefault(); AUD.init(); });
-  wh.addEventListener('pointermove', e => { if (TOUCH.wheelId !== e.pointerId) return; const a = wrapAng(angAt(e.clientX, e.clientY) - TOUCH.wheelA0); input.rudder = clamp(TOUCH.rud0 - a / 2.1, -1, 1); });
+  wh.addEventListener('pointermove', e => { if (TOUCH.wheelId !== e.pointerId) return; const a = wrapAng(angAt(e.clientX, e.clientY) - TOUCH.wheelA0); const sens = comfortSettings.steerSens || 1.0; input.rudder = clamp(TOUCH.rud0 - (a / 2.1) * sens, -1, 1); });
   const whUp = e => { if (TOUCH.wheelId === e.pointerId) { TOUCH.wheelId = null; input.rudder = 0; } };
   wh.addEventListener('pointerup', whUp); wh.addEventListener('pointercancel', whUp);
   const hold = (btn, on, off) => { btn.addEventListener('pointerdown', e => { e.preventDefault(); btn.classList.add('on'); on(); AUD.init(); }); const up = () => { btn.classList.remove('on'); off && off(); }; btn.addEventListener('pointerup', up); btn.addEventListener('pointercancel', up); btn.addEventListener('pointerleave', up); };
@@ -5486,7 +5580,7 @@ function beginShift() {
   toast(t('toastStart', pierName(SIM.stops[1] ? SIM.stops[1].id : SIM.stops[0].id)), 'info', 3200);
   AUD.init(); AUD.resume();
 }
-function pauseGame() { if (G.state !== 'play') return; G.state = 'paused'; show('sPause'); el.bResume.focus(); AUD.hornStop(); }
+function pauseGame() { if (G.state !== 'play') return; if (typeof setWarp === 'function' && SIM.warp) setWarp(false, false); G.state = 'paused'; show('sPause'); el.bResume.focus(); AUD.hornStop(); }
 function resumeGame() { if (G.state !== 'paused') return; G.state = 'play'; show(null); lastT = performance.now(); }
 function retryCurrent() { G.retries++; beginShift(); }
 function goMenu() { G.state = 'title'; SIM.shift = null; SIM.stops = []; show('sTitle'); showcase(); updateBestLine(); renderMissionsUI(); el.bPlay.focus(); }
@@ -5594,6 +5688,10 @@ click(el.bSetBack, closeSettings); click(el.bTR, () => { LANG = 'tr'; settings.l
 click(el.bQLow, () => { settings.quality = 'low'; saveSettings(); applyQuality(); syncSettingsUI(); }); click(el.bQHigh, () => { settings.quality = 'high'; saveSettings(); applyQuality(); syncSettingsUI(); });
 click(el.bLPAuto, () => { settings.lowPower = 'auto'; saveSettings(); applyQuality(); syncSettingsUI(); }); click(el.bLPOn, () => { settings.lowPower = 'on'; saveSettings(); applyQuality(); syncSettingsUI(); }); click(el.bLPOff, () => { settings.lowPower = 'off'; saveSettings(); applyQuality(); syncSettingsUI(); });
 click(el.bFull, toggleFull); click(el.bMoor, throwMooringLines);
+click(el.bWarp, toggleWarp);
+if (el.bMotOff) click(el.bMotOff, () => { comfortSettings.reducedMotion = false; saveComfort(); applyReducedMotion(); syncSettingsUI(); });
+if (el.bMotOn) click(el.bMotOn, () => { comfortSettings.reducedMotion = true; saveComfort(); applyReducedMotion(); syncSettingsUI(); });
+if (el.rSteer) el.rSteer.addEventListener('input', () => { comfortSettings.steerSens = clamp(parseFloat(el.rSteer.value) || 1.0, 0.6, 1.4); if (el.oSteer) el.oSteer.value = comfortSettings.steerSens.toFixed(2) + 'x'; saveComfort(); });
 click(el.bNext, nextAction); click(el.bRetry, retryCurrent); click(el.bMenuE, goMenu);
 click(el.bDaily, startDaily); click(el.bA11y, () => { if (window.Arena) Arena.openSettings(); }); click(el.bShare, shareResult);
 function shareResult() {
@@ -5606,9 +5704,9 @@ for (const [r, k, o] of [[el.rMaster, 'master', el.oMaster], [el.rMusic, 'music'
 window.addEventListener('resize', resize);
 document.addEventListener('visibilitychange', () => { if (document.hidden && G.state === 'play') pauseGame(); });
 // arena-kit: the game already pauses (and suspends audio) when the tab is hidden; the kit event does the same, and on
-// 'resume' the pause menu stays up so the captain resumes by hand. The game has no reduced-motion flag of its own to map.
+// 'resume' the pause menu stays up so the captain resumes by hand.
 if (window.Arena) Arena.on('pause', () => { if (G.state === 'play') pauseGame(); });
-if (window.Arena) Arena.on('settings', () => { if (calm()) { lightning = 0; lastSkyHour = -99; hurtA = 0; el.hurt.style.opacity = 0; CAM.cine = 0; } });   // "reduce motion" switched on mid-shift: stop a running flash now
+if (window.Arena) Arena.on('settings', () => { applyReducedMotion(); syncSettingsUI(); });
 
 // ---------------------------------------------------------------- assets: none are shipped (every sound is synthesised), the hook stays for ?noassets and window.vapur.assets
 const ASSETS = { loaded: [], failed: [], snd: 0, enabled: !FLAG.noassets, started: false };
@@ -5784,6 +5882,50 @@ function botTick(dt) {
   if (BOT.stuck > 8) { BOT.stuck = 0; BOT.rev = 3; BOT.wp = []; }
 }
 
+// ---------------------------------------------------------------- transit warp (3x speed in open water)
+function canWarp() {
+  if (G.state !== 'play' || SIM.docked || SIM.ended) return false;
+  const P = player;
+  if (depth(P.x, P.z) < 10) return false;
+  const ns = nextStop();
+  if (ns && PIERS[ns.id]) {
+    const pr = PIERS[ns.id];
+    if (hyp(pr.bx - P.x, pr.bz - P.z) <= 500) return false;
+  }
+  for (const id of Object.keys(PIERS)) {
+    const pr = PIERS[id];
+    if (hyp(pr.bx - P.x, pr.bz - P.z) < 120) return false;
+  }
+  for (const b of SIM.traffic) {
+    if (b.delay > 0) continue;
+    if (hyp(b.x - P.x, b.z - P.z) < 250) return false;
+  }
+  return true;
+}
+function setWarp(on, isAuto = false) {
+  if (on && !canWarp()) {
+    toast(t('warpUnavailable'), 'bad');
+    AUD.bump(0.2);
+    return;
+  }
+  if (SIM.warp === !!on) return;
+  SIM.warp = !!on;
+  if (el.bWarp) el.bWarp.classList.toggle('on', SIM.warp);
+  if (el.warpBadge) el.warpBadge.classList.toggle('show', SIM.warp);
+  if (SIM.warp) {
+    AUD.click();
+    toast(t('warpOn'), 'good', 1600);
+  } else {
+    AUD.click();
+    if (isAuto) toast(t('warpAutoOff'), 'info', 1800);
+    else toast(t('warpOff'), 'info', 1400);
+  }
+}
+function toggleWarp() {
+  if (SIM.warp) setWarp(false, false);
+  else setWarp(true, false);
+}
+
 // ---------------------------------------------------------------- main loop
 let lastT = performance.now(), lastRenderT = 0, acc = 0, fpsS = 60, frameN = 0, ambT = 8;
 const FIXED = 1 / 60;
@@ -5798,9 +5940,18 @@ function frame(now) {
   if (G.state === 'play') { if (FLAG.auto) botTick(dt); else readInput(dt); }
   else if (FLAG.auto) botTick(dt);
   if (G.state === 'play' || G.state === 'title') {
-    acc += dt; let n = 0;
-    while (acc >= FIXED && n < 4) { if (G.state === 'play') stepSim(FIXED); else stepTitle(FIXED); acc -= FIXED; n++; }
-    if (acc > FIXED * 4) acc = 0;
+    if (SIM.warp && !canWarp()) setWarp(false, true);
+    const warpMult = (G.state === 'play' && SIM.warp) ? 3 : 1;
+    acc += dt * warpMult; let n = 0;
+    const maxN = warpMult * 4;
+    while (acc >= FIXED && n < maxN) {
+      if (G.state === 'play') {
+        if (SIM.warp && !canWarp()) { setWarp(false, true); acc = Math.min(acc, FIXED * 4); }
+        stepSim(FIXED);
+      } else stepTitle(FIXED);
+      acc -= FIXED; n++;
+    }
+    if (acc > FIXED * maxN) acc = 0;
   }
   const active = G.state === 'play';
   if (active && input.horn && !player.horn) { player.horn = true; AUD.hornStart(); } else if ((!input.horn || !active) && player.horn) { player.horn = false; AUD.hornStop(); }
@@ -5861,6 +6012,10 @@ window.vapur = {
   get vessels() { return VESSEL_CLASSES; },
   get selectedVessel() { return selectedVesselId; },
   selectVessel(id) { selectVessel(id); },
+  get warp() { return !!SIM.warp; },
+  setWarp(on) { setWarp(on, false); },
+  canWarp() { return canWarp(); },
+  get comfortSettings() { return comfortSettings; },
 };
 
 // ---------------------------------------------------------------- boot
@@ -5868,7 +6023,7 @@ let loadN = 0, loadTotal = 8;
 async function boot() {
   const yieldUI = () => new Promise(r => setTimeout(r, 0));
   const step = async fn => { fn(); loadN++; el.playTxt.textContent = t('loading', loadN, loadTotal); await yieldUI(); };
-  setupTouch(); applyLang(); syncSettingsUI();
+  setupTouch(); applyLang(); syncSettingsUI(); applyReducedMotion();
   WR = mulberry(2024);
   await step(() => { buildPiers(); buildFairway(); });
   await step(() => buildMonuments());
