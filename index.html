@@ -151,6 +151,7 @@ a.btn { text-decoration: none; }
 }
 .btn[disabled] { opacity: 0.5; pointer-events: none; }
 .btn.icon { padding: 0; width: 48px; height: 48px; }
+.btn.icon-sm { padding: 2px 8px; min-height: 28px; min-width: 28px; font-size: 11px; }
 
 /* HUD */
 #hud { position: fixed; inset: 0; pointer-events: none; z-index: 10; }
@@ -1647,6 +1648,7 @@ input[type=range] { width: 100%; height: 44px; accent-color: var(--c-teal); back
         <label for="rSfx" data-i="effects"></label><input type="range" id="rSfx" min="0" max="100" data-t="effects" aria-label="Efektler"><output id="oSfx"></output>
         <label for="rSteer" data-i="steerSens"></label><input type="range" id="rSteer" min="0.6" max="1.4" step="0.05" value="1.0" data-t="steerSens" aria-label="Dümen hassasiyeti"><output id="oSteer">1.0x</output>
         <label data-i="reducedMotion"></label><div class="seg"><button class="btn" id="bMotOff" data-i="motionOff"></button><button class="btn" id="bMotOn" data-i="motionOn"></button></div>
+        <label data-i="ghostDocking"></label><div class="seg"><button class="btn" id="bGhostOff" data-i="ghostOff"></button><button class="btn" id="bGhostOn" data-i="ghostOn"></button></div>
         <label data-i="language"></label><div class="seg"><button class="btn" id="bTR">Türkçe</button><button class="btn" id="bEN">English</button></div>
         <label data-i="quality"></label><div class="seg"><button class="btn" id="bQLow" data-i="low"></button><button class="btn" id="bQHigh" data-i="high"></button></div>
         <label data-i="lowPower"></label><div class="seg"><button class="btn" id="bLPAuto" data-i="lpAuto"></button><button class="btn" id="bLPOn" data-i="lpOn"></button><button class="btn" id="bLPOff" data-i="lpOff"></button></div>
@@ -1775,8 +1777,13 @@ const STR = {
     hintSlow: 'Yavaşla', hintAlign: 'Paralel yanaş', hintCloser: 'Daha yakına', hintOk: 'Yanaşıyor…', hintStop: 'Dur ve bekle', hintFast: 'Çok hızlı!',
     dockDone: 'Yanaşma tamam', pierNames: { eminonu: 'Eminönü', karakoy: 'Karaköy', uskudar: 'Üsküdar', besiktas: 'Beşiktaş', kadikoy: 'Kadıköy', kanlica: 'Kanlıca' },
     hintLeave: '<b>W</b> ile kalk', hintLeaveTouch: '<b>Kolu yukarı it</b>, kalk', unitKn: 'kn',
-    daily: 'Günün Meydan Okuması', sD: 'Günün Meydan Okuması', dD: 'Bugünün seferi herkes için aynı: aynı rota, aynı hava, aynı trafik. Bitir, seriyi sürdür.',
-    dailyLine: 'Günlük seri: {0} gün · en iyi: {1}', dailyDone: 'Bugünkü sefer tamam', a11y: 'Erişilebilirlik', a11yOpen: 'Aç',
+    daily: 'Günün Seferi', sD: 'Günün Seferi', dD: 'Bugünün seferi herkes için aynı: aynı rota, aynı hava, aynı trafik. Bitir, seriyi sürdür.',
+    dailyTitle: 'Günün Seferi', dailyDescBrief: 'Bugünün rotası, havası ve akıntısı herkes için aynı.',
+    dailyLine: 'Günlük seri: {0} gün · en iyi: {1}', dailyDone: 'Bugünkü sefer tamam', dailyScore: 'Günün rekoru: {0} puan', dailyStreak: 'Seri: {0} gün', dailyAllTime: 'En iyi: {0} puan',
+    shareDailyHead: 'Günün Seferi · {0}', shareDailyScore: 'Puan: {0}', shareDailyStreak: 'Seri: {0} gün',
+    ghostDocking: 'Yanaşma hayaleti', ghostOn: 'Açık', ghostOff: 'Kapalı',
+    toastNewGhost: '{0}: Yeni yanaşma hayaleti kaydedildi!',
+    a11y: 'Erişilebilirlik', a11yOpen: 'Aç',
     share: 'Paylaş', another: 'Başka oyun', shareStars: '{0}/3 yıldız · {1} puan', sharePax: '{0} yolcu taşındı',
     awFirst: 'İlk sefer tamam', awCampaign: '8 seferin hepsi', awAllStars: '24 yıldızın hepsi',
     rankTitle: 'Kaptanlık Rütbesi', missionsHead: 'Vardiya Görevleri', dailyMission: 'Günlük', weeklyMission: 'Haftalık',
@@ -1851,8 +1858,13 @@ const STR = {
     hintSlow: 'Slow down', hintAlign: 'Come parallel', hintCloser: 'Closer', hintOk: 'Coming alongside…', hintStop: 'Stop and hold', hintFast: 'Too fast!',
     dockDone: 'Docked', pierNames: { eminonu: 'Eminönü', karakoy: 'Karaköy', uskudar: 'Üsküdar', besiktas: 'Beşiktaş', kadikoy: 'Kadıköy', kanlica: 'Kanlıca' },
     hintLeave: 'Cast off with <b>W</b>', hintLeaveTouch: '<b>Push the lever up</b> to cast off', unitKn: 'kn',
-    daily: 'Daily challenge', sD: 'Daily challenge', dD: 'Today\'s shift is the same for everyone: same route, same weather, same traffic. Finish it to keep your streak.',
-    dailyLine: 'Daily streak: {0} · best: {1}', dailyDone: 'Today\'s shift is done', a11y: 'Accessibility', a11yOpen: 'Open',
+    daily: 'Daily Run', sD: 'Daily Run', dD: 'Today\'s shift is the same for everyone: same route, same weather, same traffic. Finish it to keep your streak.',
+    dailyTitle: 'Daily Run', dailyDescBrief: 'Daily route, weather and current are the same for everyone.',
+    dailyLine: 'Daily streak: {0} · best: {1}', dailyDone: 'Today\'s shift is done', dailyScore: 'Today\'s best: {0} pts', dailyStreak: 'Streak: {0} days', dailyAllTime: 'Best: {0} pts',
+    shareDailyHead: 'Daily Run · {0}', shareDailyScore: 'Score: {0} pts', shareDailyStreak: 'Streak: {0} days',
+    ghostDocking: 'Ghost docking', ghostOn: 'On', ghostOff: 'Off',
+    toastNewGhost: '{0}: New docking ghost recorded!',
+    a11y: 'Accessibility', a11yOpen: 'Open',
     share: 'Share', another: 'Another game', shareStars: '{0}/3 stars · {1} points', sharePax: '{0} passengers carried',
     awFirst: 'First shift cleared', awCampaign: 'All 8 shifts', awAllStars: 'All 24 stars',
     rankTitle: 'Captain Rank', missionsHead: 'Shift Missions', dailyMission: 'Daily', weeklyMission: 'Weekly',
@@ -1997,7 +2009,7 @@ function endlessShift(n) {     // endless shift n (1-based): random route, growi
 // ---------------------------------------------------------------- settings / save (all in try/catch)
 const KEY_SET = 'arena.vapur.settings', KEY_SAVE = 'arena.vapur.save';
 const isPhone = /Android|iPhone|iPad|iPod|Mobi/i.test(navigator.userAgent) || (matchMedia && matchMedia('(pointer:coarse)').matches && Math.min(screen.width, screen.height) < 800);
-const settings = { master: 0.8, music: 0.6, sfx: 0.8, mute: false, lang: (navigator.language || 'tr').toLowerCase().startsWith('tr') ? 'tr' : 'en', quality: isPhone ? 'low' : 'high', lowPower: 'auto' };
+const settings = { master: 0.8, music: 0.6, sfx: 0.8, mute: false, lang: (navigator.language || 'tr').toLowerCase().startsWith('tr') ? 'tr' : 'en', quality: isPhone ? 'low' : 'high', lowPower: 'auto', ghostDocking: true };
 const batteryState = { low: false, charging: false };
 if (typeof navigator !== 'undefined' && navigator.getBattery) {
   navigator.getBattery().then(bat => {
@@ -2035,6 +2047,8 @@ function lsSet(k, v) { if (FLAG.nosave) return; try { localStorage.setItem(k, JS
   if (s && typeof s === 'object') for (const k of Object.keys(settings)) if (s[k] !== undefined) settings[k] = s[k];
   if (s && s.musicOn !== undefined) settings.musicOn = s.musicOn; if (s && s.sfxOn !== undefined) settings.sfxOn = s.sfxOn;
   if (s && s.mute !== undefined) settings.mute = s.mute; // restore saved mute state
+  if (s && s.ghostDocking !== undefined) settings.ghostDocking = s.ghostDocking;
+  else if (settings.ghostDocking === undefined) settings.ghostDocking = true;
   LANG = (Q.get('lang') === 'en' || Q.get('lang') === 'tr') ? Q.get('lang') : settings.lang;   // URL override is not saved
 })();
 const saveSettings = () => lsSet(KEY_SET, settings);
@@ -2061,6 +2075,196 @@ const comfortSettings = { reducedMotion: false, steerSens: 1.0 };
   }
 })();
 const saveComfort = () => lsSet(KEY_COMFORT, comfortSettings);
+
+// ---------------------------------------------------------------- Daily Run (bogaz-vapuru.daily)
+const KEY_DAILY = 'bogaz-vapuru.daily';
+function getDailyData() {
+  return lsGet(KEY_DAILY) || { history: {}, allTimeBest: 0 };
+}
+function recordDailyScore(day, score) {
+  if (FLAG.nosave) return null;
+  const data = getDailyData();
+  data.history = data.history || {};
+  const prev = data.history[day] || 0;
+  if (score > prev) data.history[day] = score;
+  if (score > (data.allTimeBest || 0)) data.allTimeBest = score;
+  lsSet(KEY_DAILY, data);
+  return data;
+}
+function getTodayDailyBest(day) {
+  const data = getDailyData();
+  return (data.history && data.history[day]) || 0;
+}
+function formatShareDate(dayKey) {
+  const y = Math.floor(dayKey / 10000);
+  const m = String(Math.floor(dayKey / 100) % 100).padStart(2, '0');
+  const d = String(dayKey % 100).padStart(2, '0');
+  return y + '-' + m + '-' + d;
+}
+function shareDaily(day, score, streak) {
+  const dateStr = formatShareDate(day);
+  const url = 'https://furkiozknn.github.io/bogaz-vapuru/?d=' + day;
+  const lines = [
+    t('shareDailyHead', dateStr),
+    t('shareDailyScore', score),
+    streak > 1 ? t('shareDailyStreak', streak) : '',
+  ].filter(Boolean);
+  if (window.Arena && Arena.share) {
+    Arena.share({
+      title: 'Boğaz Vapuru · ' + t('dailyTitle'),
+      lines,
+      url,
+    });
+  } else {
+    const fullText = ['Boğaz Vapuru · ' + t('dailyTitle'), ...lines, url].join('\n');
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(fullText).then(() => toast(t('copied') || 'Kopyalandı / Copied', 'good'));
+    }
+  }
+}
+
+// ---------------------------------------------------------------- Ghost Docking (bogaz-vapuru.ghosts)
+const KEY_GHOST = 'bogaz-vapuru.ghosts';
+let GHOSTS = lsGet(KEY_GHOST) || {};
+const saveGhosts = () => { if (!FLAG.nosave) lsSet(KEY_GHOST, GHOSTS); };
+const GHOST_SAMPLE_INTERVAL = 0.133;
+let ghostRecordTimer = 0;
+const approachRec = [];
+const GHOST_STATE = { active: false, time: 0, pierId: null };
+
+function getGhostSample(frames, t) {
+  if (!frames || !frames.length) return null;
+  if (t <= frames[0].dt) return frames[0];
+  if (t >= frames[frames.length - 1].dt) return frames[frames.length - 1];
+  let lo = 0, hi = frames.length - 1;
+  while (lo <= hi) {
+    const mid = (lo + hi) >> 1;
+    if (frames[mid].dt < t) lo = mid + 1;
+    else hi = mid - 1;
+  }
+  const i0 = Math.max(0, lo - 1);
+  const i1 = Math.min(frames.length - 1, lo);
+  if (i0 === i1) return frames[i0];
+  const f0 = frames[i0], f1 = frames[i1];
+  const span = f1.dt - f0.dt || 0.001;
+  const a = clamp((t - f0.dt) / span, 0, 1);
+  return {
+    x: lerp(f0.x, f1.x, a),
+    z: lerp(f0.z, f1.z, a),
+    hd: wrapAng(f0.hd + wrapAng(f1.hd - f0.hd) * a),
+    heel: lerp(f0.heel || 0, f1.heel || 0, a),
+  };
+}
+
+function recordGhostApproach(P, dq, db) {
+  if (FLAG.nosave || !P || approachRec.length < 15) return;
+  const score = Math.round(dq * 1000 + db * 10);
+  const cur = GHOSTS[P.id];
+  if (cur && cur.score >= score) return;
+
+  const tEnd = SIM.t;
+  const tStart = approachRec[0].t;
+  const dur = Math.max(1, +(tEnd - tStart).toFixed(2));
+  const frames = approachRec.map(f => ({
+    dt: +(f.t - tStart).toFixed(2),
+    x: +(f.x).toFixed(1),
+    z: +(f.z).toFixed(1),
+    hd: +(f.hd).toFixed(3),
+    heel: +(f.heel).toFixed(3),
+  }));
+
+  GHOSTS[P.id] = {
+    pierId: P.id,
+    score,
+    dq: +dq.toFixed(2),
+    db,
+    dur,
+    vessel: selectedVesselId,
+    frames: frames.slice(-300),
+  };
+  saveGhosts();
+  if (dq >= 0.7) {
+    toast(t('toastNewGhost', pierName(P.id)), 'good', 3000);
+  }
+}
+
+function stepGhost(dt) {
+  if (G.state !== 'play' || SIM.docked) {
+    if (SIM.docked) approachRec.length = 0;
+    return;
+  }
+  ghostRecordTimer += dt;
+  if (ghostRecordTimer >= GHOST_SAMPLE_INTERVAL) {
+    ghostRecordTimer = 0;
+    approachRec.push({
+      t: SIM.t,
+      x: +(player.x).toFixed(1),
+      z: +(player.z).toFixed(1),
+      hd: +(player.hd).toFixed(3),
+      heel: +(player.heel).toFixed(3),
+    });
+    while (approachRec.length > 300 || (approachRec.length && approachRec[0].t < SIM.t - 40)) {
+      approachRec.shift();
+    }
+  }
+}
+
+function syncGhostRender(dt) {
+  if (!OBJ.ghostBody) return;
+  if (G.state !== 'play' || SIM.docked || !settings.ghostDocking) {
+    OBJ.ghostBody.visible = false;
+    if (OBJ.ghostWin) OBJ.ghostWin.visible = false;
+    GHOST_STATE.active = false;
+    return;
+  }
+  const ns = nextStop();
+  if (!ns) {
+    OBJ.ghostBody.visible = false;
+    if (OBJ.ghostWin) OBJ.ghostWin.visible = false;
+    GHOST_STATE.active = false;
+    return;
+  }
+  const ghost = GHOSTS[ns.id];
+  if (!ghost || !ghost.frames || ghost.frames.length < 2) {
+    OBJ.ghostBody.visible = false;
+    if (OBJ.ghostWin) OBJ.ghostWin.visible = false;
+    GHOST_STATE.active = false;
+    return;
+  }
+  const P = PIERS[ns.id];
+  const dBerth = hyp(P.bx - player.x, P.bz - player.z);
+  const startF = ghost.frames[0];
+  const ghostStartDist = hyp(P.bx - startF.x, P.bz - startF.z);
+  const triggerDist = Math.max(80, Math.min(180, ghostStartDist + 15));
+
+  if (dBerth > triggerDist + 50) {
+    GHOST_STATE.active = false;
+    GHOST_STATE.time = 0;
+    OBJ.ghostBody.visible = false;
+    if (OBJ.ghostWin) OBJ.ghostWin.visible = false;
+    return;
+  }
+
+  if (dBerth <= triggerDist) {
+    if (!GHOST_STATE.active || GHOST_STATE.pierId !== ns.id) {
+      GHOST_STATE.active = true;
+      GHOST_STATE.time = 0;
+      GHOST_STATE.pierId = ns.id;
+    }
+  }
+
+  if (GHOST_STATE.active) {
+    GHOST_STATE.time += dt * (SIM.ff || 1);
+    const sample = getGhostSample(ghost.frames, GHOST_STATE.time);
+    if (sample) {
+      ferryMatrix(sample.x, sample.z, sample.hd, sample.heel, 0, _mat);
+      OBJ.ghostBody.matrix.copy(_mat);
+      if (OBJ.ghostWin) OBJ.ghostWin.matrix.copy(_mat);
+      OBJ.ghostBody.visible = true;
+      if (OBJ.ghostWin) OBJ.ghostWin.visible = true;
+    }
+  }
+}
 
 // ---------------------------------------------------------------- Vessel Storage & Star Rank Unlocks (bogaz-vapuru.vessel)
 const KEY_VESSEL = 'bogaz-vapuru.vessel';
@@ -2138,11 +2342,13 @@ function applyVessel(id) {
   // Update passenger deck slots
   updateDeckSlots(v.id);
 
-  // Update 3D player mesh geometries if created
+  // Update 3D player and ghost mesh geometries if created
   if (OBJ.playerBody && v.geo) {
     OBJ.playerBody.geometry = v.geo.body;
     OBJ.playerWin.geometry = v.geo.win;
     OBJ.playerNav.geometry = v.geo.nav;
+    if (OBJ.ghostBody) OBJ.ghostBody.geometry = v.geo.body;
+    if (OBJ.ghostWin) OBJ.ghostWin.geometry = v.geo.win;
   }
 }
 
@@ -3193,6 +3399,7 @@ function startShiftSim(sh) {
   SIM.wind.a = sh.wind; SIM.wind.dir = rr(0, TAU); SIM.wind.gust = 0;
   SIM.aboard = {}; SIM.aboardN = 0; SIM.delivered = 0; SIM.lost = 0; SIM.comfort = 100; SIM.punct = []; SIM.score = 0; SIM.stopIdx = 1;
   SIM.docked = null; SIM.dockT = 0; SIM.dockOk = 0; SIM.boardQ = []; SIM.boardDone = false; SIM.ropes = false; SIM.depAllowed = false; SIM.walkers = []; SIM.toasted = {}; SIM.ended = false; SIM.dockBonus = 0; SIM.fogRun = false; SIM.fogBonus = 0; SIM.ropeTension = 0; SIM.warp = false;
+  approachRec.length = 0; GHOST_STATE.active = false; GHOST_STATE.time = 0; GHOST_STATE.pierId = null;
   if (el.bWarp) el.bWarp.classList.remove('on'); if (el.warpBadge) el.warpBadge.classList.remove('show');
   SIM.deckLife = {
     simitActive: false, simitTimer: 18 + rr(6, 12), simitTime: 0, simitDur: 14, simitBonusAcc: 0, gullSfxT: 0,
@@ -3239,6 +3446,7 @@ function dockAt(P, idx, initial = false) {
     if (dq > 0.8) recordMissionProgress('master_docks', 1);
     recordMissionProgress('docks', 1);
     if (SIM.fogRun) { const fb = fogDockBonus(dq); SIM.dockBonus += fb; SIM.fogBonus += fb; FOG.docks++; toast(t('toastFogDock', fb), 'good'); }
+    recordGhostApproach(P, dq, db);
     s.late = Math.max(0, SIM.t - s.arr); s.punct = s.late <= 20 ? SCORE_K.punct : Math.max(0, SCORE_K.punct - (s.late - 20) * 1.0); s.done = true;
     SIM.punct.push(s.punct);
     AUD.bell(); AUD.rope();
@@ -3259,6 +3467,7 @@ function dockAt(P, idx, initial = false) {
 }
 function undock() {
   SIM.docked = null; SIM.ropes = false; SIM.dockOk = 0; SIM.ropeTension = 0;
+  approachRec.length = 0; GHOST_STATE.active = false; GHOST_STATE.time = 0; GHOST_STATE.pierId = null;
   const s = SIM.stops[SIM.stopIdx]; if (s) { s.left = true; }
   SIM.stopIdx++;
   CAM.userDockOverride = false;
@@ -3869,6 +4078,7 @@ function stepSim(dt) {
   SIM.ff = SIM.docked && SIM.boardDone && !SIM.depAllowed && SIM.stopIdx < SIM.stops.length - 1 ? 8 : 1;
   SIM.t += dt * SIM.ff; SIM.hour = SIM.shift.hour + SIM.t * TS / 3600;
   stepFerry(dt); stepTraffic(dt); stepNets(dt); stepColreg(dt); stepFog(dt); stepDocking(dt); stepBoarding(dt); stepPiers(dt * SIM.ff); stepWalkers(dt); stepDeckLife(dt);
+  stepGhost(dt);
   // weather drift: storm rain, thunder; fog that thickens a little over the shift
   if (SIM.storm) { SIM.rain += (1 - SIM.rain) * 0.1 * dt; SIM.thunderT -= dt; if (SIM.thunderT <= 0) { SIM.thunderT = rr(14, 40); AUD.thunder(); lightning = 1; } }
   SIM.swell += ((SIM.storm ? 1 : 0.15 + 0.25 * SIM.wind.a) - SIM.swell) * 0.05 * dt;
@@ -4420,6 +4630,13 @@ function buildScene() {
   OBJ.playerNav = new THREE.Mesh(fg.nav, new THREE.MeshBasicMaterial({ vertexColors: true }));
   OBJ.playerNav.matrixAutoUpdate = false; OBJ.playerNav.visible = false;
   scene.add(OBJ.playerBody); scene.add(OBJ.playerWin); scene.add(OBJ.playerNav);
+  // Ghost docking ferry meshes (translucent sea-foam silhouette)
+  const matGhost = new THREE.MeshLambertMaterial({ color: 0x60d0d8, emissive: 0x15454a, transparent: true, opacity: 0.42, depthWrite: false });
+  OBJ.ghostBody = new THREE.Mesh(fg.body, matGhost);
+  OBJ.ghostBody.castShadow = false; OBJ.ghostBody.receiveShadow = false; OBJ.ghostBody.matrixAutoUpdate = false; OBJ.ghostBody.frustumCulled = false; OBJ.ghostBody.visible = false; OBJ.ghostBody.renderOrder = 4;
+  OBJ.ghostWin = new THREE.Mesh(fg.win, matGhost);
+  OBJ.ghostWin.castShadow = false; OBJ.ghostWin.receiveShadow = false; OBJ.ghostWin.matrixAutoUpdate = false; OBJ.ghostWin.frustumCulled = false; OBJ.ghostWin.visible = false; OBJ.ghostWin.renderOrder = 4;
+  scene.add(OBJ.ghostBody); scene.add(OBJ.ghostWin);
   const tg = buildTankerGeo();
   OBJ.tankH = new THREE.InstancedMesh(tg.hull, matTint, 8); OBJ.tankT = new THREE.InstancedMesh(tg.top, matLam, 8);
   for (const m of [OBJ.tankH, OBJ.tankT]) { m.castShadow = true; m.receiveShadow = true; m.frustumCulled = false; m.count = 0; scene.add(m); }
@@ -4690,6 +4907,8 @@ function syncRender(dt) {
     OBJ.playerNav.matrix.copy(_mat);
     OBJ.playerNav.visible = Math.max(SIM.night, SIM.dusk, SIM.fog, SIM.storm) > 0.35;
   }
+  // Ghost docking ferry sync
+  syncGhostRender(dt);
   // traffic ferries
   let n = 0;
   let nt = 0, nf = 0;
@@ -5108,7 +5327,7 @@ function setCamMode(m) {
 const el = {};
 for (const id of ['hud', 'topbar', 'stShift', 'stClock', 'stPlan', 'stPax', 'comfBar', 'hullBar', 'stStars', 'bWarp', 'warpBadge', 'warpBadgeTxt', 'bPanel', 'bCamH', 'bPause', 'bSound', 'bLang', 'toasts', 'colregBadge', 'colregArrow', 'colregTxt', 'colregSub', 'nextCard', 'ncName', 'ncL2', 'ncL3', 'ncRope', 'ncRopeVal', 'ncRopeBar', 'camLbl', 'minimap', 'lvThr', 'lvThrS', 'lvRud', 'rpmP', 'rpmS', 'speedo', 'spArc', 'spVal', 'spUnit', 'dock', 'dkDist', 'dkSpd', 'dkAng', 'dkHint', 'bMoor', 'floaters', 'touch', 'tWheel', 'tWheelSvg', 'tThr', 'tRpmP', 'tRpmS', 'tHorn', 'tCam',
   'sTitle', 'sIntro', 'sPause', 'sSettings', 'sEnd', 'bPlay', 'playTxt', 'bCont', 'bEndless', 'bSettingsT', 'bLangT', 'langTxt', 'bestLine', 'cmap', 'inTitle', 'inDesc', 'inCond', 'inTT', 'inTarget', 'bStart', 'bFog', 'fogTxt', 'bIntroBack',
-  'bResume', 'bRestart', 'bSettingsP', 'bMenuP', 'rMaster', 'rMusic', 'rSfx', 'oMaster', 'oMusic', 'oSfx', 'rSteer', 'oSteer', 'bMotOff', 'bMotOn', 'bTR', 'bEN', 'bQLow', 'bQHigh', 'bLPAuto', 'bLPOn', 'bLPOff', 'bFull', 'bSetBack', 'enTitle', 'enSub', 'enStars', 'enStats', 'enRec', 'bNext', 'nextTxt', 'bRetry', 'bMenuE', 'dbg', 'hurt', 'bDaily', 'dailyLine', 'bA11y', 'bShare', 'aOther', 'enDaily', 'rankName', 'rankXpTxt', 'rankBar', 'missionsDateTag', 'missionsList', 'vesselSelect', 'vesselRankInfo', 'vesselCards']) el[id] = document.getElementById(id);
+  'bResume', 'bRestart', 'bSettingsP', 'bMenuP', 'rMaster', 'rMusic', 'rSfx', 'oMaster', 'oMusic', 'oSfx', 'rSteer', 'oSteer', 'bMotOff', 'bMotOn', 'bGhostOff', 'bGhostOn', 'bTR', 'bEN', 'bQLow', 'bQHigh', 'bLPAuto', 'bLPOn', 'bLPOff', 'bFull', 'bSetBack', 'enTitle', 'enSub', 'enStars', 'enStats', 'enRec', 'bNext', 'nextTxt', 'bRetry', 'bMenuE', 'dbg', 'hurt', 'bDaily', 'dailyLine', 'bA11y', 'bShare', 'aOther', 'enDaily', 'rankName', 'rankXpTxt', 'rankBar', 'missionsDateTag', 'missionsList', 'vesselSelect', 'vesselRankInfo', 'vesselCards']) el[id] = document.getElementById(id);
 function toast(msg, kind = 'info', ms = 2600) {
   const d = document.createElement('div'); d.className = 'toast ' + kind; d.textContent = msg; el.toasts.appendChild(d);
   while (el.toasts.children.length > 4) el.toasts.firstChild.remove();
@@ -5139,7 +5358,28 @@ function updateBestLine() {
   const st = best.stars.reduce((a, b) => a + b, 0);
   el.bestLine.textContent = (best.total > 0 || best.endless > 0) ? t('bestLine', best.total, st, best.endless) : t('bestNone');
   el.bCont.classList.toggle('hidden', !runSave);
-  if (window.Arena) { const d = Arena.daily(); el.dailyLine.textContent = (d.done ? t('dailyDone') + ' · ' : '') + t('dailyLine', d.streak, d.best); }
+  const day = getDayKey();
+  const d = window.Arena ? Arena.daily(null, { dayKey: day }) : { day, streak: 0, best: 0, done: false };
+  const todayScore = getTodayDailyBest(day);
+  const data = getDailyData();
+  const allTime = data.allTimeBest || 0;
+
+  if (todayScore > 0) {
+    const txt = t('dailyDone') + ' · ' + t('dailyScore', todayScore) + (d.streak > 0 ? ' · ' + t('dailyStreak', d.streak) : '');
+    el.dailyLine.innerHTML = '<span>' + txt + '</span> <button class="btn icon-sm" id="bDailyShare" data-t="share" aria-label="' + t('share') + '" title="' + t('share') + '"><svg class="ic" style="width:13px;height:13px;"><use href="#i-star"/></svg> <span>' + t('share') + '</span></button>';
+    const bSh = document.getElementById('bDailyShare');
+    if (bSh) {
+      bSh.addEventListener('click', e => {
+        e.stopPropagation();
+        AUD.click();
+        shareDaily(day, todayScore, d.streak);
+      });
+    }
+  } else if (d.streak > 0 || allTime > 0) {
+    el.dailyLine.textContent = t('dailyTitle') + ' · ' + t('dailyStreak', d.streak) + (allTime > 0 ? ' · ' + t('dailyAllTime', allTime) : '');
+  } else {
+    el.dailyLine.textContent = t('dailyTitle') + ' · ' + t('dailyDescBrief');
+  }
 }
 function syncSettingsUI() {
   el.rMaster.value = Math.round(settings.master * 100); el.rMusic.value = Math.round(settings.music * 100); el.rSfx.value = Math.round(settings.sfx * 100);
@@ -5153,6 +5393,13 @@ function syncSettingsUI() {
     const isMot = !!comfortSettings.reducedMotion;
     el.bMotOff.classList.toggle('sel', !isMot);
     el.bMotOn.classList.toggle('sel', isMot);
+  }
+  if (el.bGhostOff && el.bGhostOn) {
+    const isGhost = settings.ghostDocking !== false;
+    el.bGhostOff.classList.toggle('sel', !isGhost);
+    el.bGhostOn.classList.toggle('sel', isGhost);
+    el.bGhostOff.setAttribute('aria-pressed', String(!isGhost));
+    el.bGhostOn.setAttribute('aria-pressed', String(isGhost));
   }
   el.bQLow.classList.toggle('sel', settings.quality === 'low'); el.bQHigh.classList.toggle('sel', settings.quality === 'high');
   const lp = settings.lowPower || 'auto';
@@ -5339,6 +5586,20 @@ function drawMinimap() {
     if (b.kind === 'tanker') g.fillRect(-4, -14, 8, 28); else if (b.kind === 'ferry') g.fillRect(-3, -7, 6, 14); else { g.beginPath(); g.arc(0, 0, 3, 0, TAU); g.fill(); }
     g.restore();
   }
+  // ghost docking ferry on minimap
+  if (OBJ.ghostBody && OBJ.ghostBody.visible && GHOST_STATE.active) {
+    const ns2 = nextStop();
+    const ghost = ns2 ? GHOSTS[ns2.id] : null;
+    if (ghost) {
+      const smp = getGhostSample(ghost.frames, GHOST_STATE.time);
+      if (smp) {
+        g.save(); g.translate(mmX(smp.x), mmZ(smp.z)); g.rotate(-smp.hd);
+        g.fillStyle = 'rgba(96, 208, 216, 0.7)'; g.strokeStyle = '#0F2E33'; g.lineWidth = 1.4;
+        g.beginPath(); g.moveTo(0, -11); g.lineTo(6, 8); g.lineTo(0, 4); g.lineTo(-6, 8); g.closePath(); g.fill(); g.stroke();
+        g.restore();
+      }
+    }
+  }
   // the player ferry
   g.save(); g.translate(mmX(player.x), mmZ(player.z)); g.rotate(-player.hd);
   g.fillStyle = '#E8A13A'; g.strokeStyle = '#0F2E33'; g.lineWidth = 2; g.beginPath(); g.moveTo(0, -14); g.lineTo(8, 10); g.lineTo(0, 5); g.lineTo(-8, 10); g.closePath(); g.fill(); g.stroke();
@@ -5467,15 +5728,67 @@ function startCampaign(resume) {
   G.retries = 0; G.selIdx = G.shiftIdx; enterIntro();
 }
 function startEndless() { G.mode = 'endless'; G.endlessN = 0; G.totals = { score: 0, pax: 0, stars: [] }; G.curEndless = endlessShift(1); G.endlessN = 1; enterIntro(); }
-// Daily challenge: one endless-style shift built from the arena-kit day seed (same for everyone that UTC day, ?d=YYYYMMDD replays a day)
+// Daily challenge: one distinct shift built from date-seeded route, wind, current, fog, storm and traffic
 function dailyShift(d) {
-  const keep = R; R = d.rng;
-  const sh = endlessShift(3); R = keep;
-  return Object.assign(sh, { id: 'D', endless: 0, daily: d.day, seed: d.seed });
+  const rng = (d && d.rng) ? d.rng : mulberry((d && d.seed) || getDayKey());
+  const ids = Object.keys(PIER_DEF);
+  const stops = [];
+  let last = ids[Math.floor(rng() * ids.length)];
+  stops.push(last);
+  const nStops = 4 + (rng() < 0.45 ? 1 : 0);
+  for (let i = 0; i < nStops; i++) {
+    let p;
+    do { p = ids[Math.floor(rng() * ids.length)]; } while (p === last);
+    stops.push(p);
+    last = p;
+  }
+  const hour = +(6.5 + rng() * 14.5).toFixed(1);
+  const current = +(0.25 + rng() * 0.70).toFixed(2);
+  const wind = +(0.15 + rng() * 0.75).toFixed(2);
+  const fog = (rng() < 0.28) ? 1 : 0;
+  const storm = (!fog && rng() < 0.25) ? 1 : 0;
+  const tankers = 1 + Math.floor(rng() * 4);
+  const ferries = 1 + Math.floor(rng() * 3);
+  const fish = 3 + Math.floor(rng() * 4);
+  const convoy = !fog && (tankers >= 3 || rng() < 0.22);
+  const pax = +(0.7 + rng() * 0.4).toFixed(2);
+  return {
+    id: 'D',
+    endless: 0,
+    daily: d.day,
+    seed: d.seed,
+    hour,
+    stops,
+    pace: 9.0,
+    current,
+    wind,
+    fog,
+    storm,
+    tankers,
+    fish,
+    ferries,
+    pax,
+    convoy,
+  };
 }
 function startDaily() {
-  if (!window.Arena) return;
-  G.mode = 'daily'; G.daily = Arena.daily(); G.totals = { score: 0, pax: 0, stars: [] }; G.curEndless = dailyShift(G.daily); G.dailyRec = null; G.retries = 0; G.fogPick = false; enterIntro();
+  const day = getDayKey();
+  const d = (window.Arena && Arena.daily) ? Arena.daily(null, { dayKey: day }) : {
+    day,
+    seed: fnv1a('bv-daily:' + day),
+    rng: mulberry(fnv1a('bv-daily:' + day)),
+    streak: 0,
+    best: getTodayDailyBest(day),
+    complete: score => ({ streak: 1, best: score }),
+  };
+  G.mode = 'daily';
+  G.daily = d;
+  G.totals = { score: 0, pax: 0, stars: [] };
+  G.curEndless = dailyShift(G.daily);
+  G.dailyRec = null;
+  G.retries = 0;
+  G.fogPick = false;
+  enterIntro();
 }
 function enterIntro() { G.state = 'intro'; renderIntro(); show('sIntro'); el.bStart.focus(); }
 function condChips(sh) {
@@ -5583,7 +5896,19 @@ function beginShift() {
 function pauseGame() { if (G.state !== 'play') return; if (typeof setWarp === 'function' && SIM.warp) setWarp(false, false); G.state = 'paused'; show('sPause'); el.bResume.focus(); AUD.hornStop(); }
 function resumeGame() { if (G.state !== 'paused') return; G.state = 'play'; show(null); lastT = performance.now(); }
 function retryCurrent() { G.retries++; beginShift(); }
-function goMenu() { G.state = 'title'; SIM.shift = null; SIM.stops = []; show('sTitle'); showcase(); updateBestLine(); renderMissionsUI(); el.bPlay.focus(); }
+function goMenu() {
+  G.state = 'title';
+  SIM.shift = null;
+  SIM.stops = [];
+  if (OBJ.ghostBody) OBJ.ghostBody.visible = false;
+  if (OBJ.ghostWin) OBJ.ghostWin.visible = false;
+  GHOST_STATE.active = false;
+  show('sTitle');
+  showcase();
+  updateBestLine();
+  renderMissionsUI();
+  el.bPlay.focus();
+}
 function finishShiftUI(res) {
   G.state = 'end';
   const idx = G.shiftIdx;
@@ -5607,7 +5932,15 @@ function finishShiftUI(res) {
     if (res.stars > 0 && idx < 7) runSave = { shift: idx + 1, total: G.totals.score, pax: G.totals.pax, stars: G.totals.stars }; else if (idx >= 7 && res.stars > 0) runSave = null;
     if (G.totals.score > best.total) { best.total = G.totals.score; }
   } else if (G.mode === 'daily') {
-    if (res.stars > 0) { G.totals.score += res.score; G.totals.pax += res.pax; if (G.daily) G.dailyRec = G.daily.complete(res.score); }
+    if (res.stars > 0) {
+      G.totals.score += res.score;
+      G.totals.pax += res.pax;
+      if (G.daily) G.dailyRec = G.daily.complete(res.score);
+      const day = (G.daily && G.daily.day) || getDayKey();
+      const prevBest = getTodayDailyBest(day);
+      if (res.score > prevBest) rec = true;
+      recordDailyScore(day, res.score);
+    }
   } else {
     if (res.stars > 0) { G.totals.score += res.score; G.totals.pax += res.pax; }
     if (res.stars > 0 && G.endlessN > best.endless) { best.endless = G.endlessN; best.endlessPax = G.totals.pax; rec = true; }
@@ -5641,7 +5974,7 @@ function renderEnd(res) {
   el.enStats.innerHTML = kv.map(([k, v, c]) => '<span>' + k + '</span><span class="' + (c || '') + '">' + v + '</span>').join('');
   el.enRec.classList.toggle('hidden', !res.rec); el.enRec.textContent = t('newRecord');
   el.nextTxt.textContent = !won ? t('retry') : G.mode === 'daily' ? t('menu') : campaignDone ? t('playAgain') : t('nextShift');
-  el.enDaily.textContent = G.mode === 'daily' && G.dailyRec && won ? t('dailyLine', G.dailyRec.streak, G.dailyRec.best) : '';
+  el.enDaily.textContent = G.mode === 'daily' && G.dailyRec && won ? t('dailyLine', G.dailyRec.streak, (G.dailyRec.best || G.dailyRec.score || res.score)) : '';
   if (window.Arena) { const others = Arena.games.filter(g => g !== Arena.game); el.aOther.href = 'https://furkiozknn.github.io/' + others[(G.log.length * 7 + res.score) % others.length] + '/'; }
   el.bRetry.classList.toggle('hidden', !won);
   const stamp = document.getElementById('stampOutcome');
@@ -5691,14 +6024,22 @@ click(el.bFull, toggleFull); click(el.bMoor, throwMooringLines);
 click(el.bWarp, toggleWarp);
 if (el.bMotOff) click(el.bMotOff, () => { comfortSettings.reducedMotion = false; saveComfort(); applyReducedMotion(); syncSettingsUI(); });
 if (el.bMotOn) click(el.bMotOn, () => { comfortSettings.reducedMotion = true; saveComfort(); applyReducedMotion(); syncSettingsUI(); });
+if (el.bGhostOff) click(el.bGhostOff, () => { settings.ghostDocking = false; saveSettings(); syncSettingsUI(); if (OBJ.ghostBody) OBJ.ghostBody.visible = false; if (OBJ.ghostWin) OBJ.ghostWin.visible = false; GHOST_STATE.active = false; });
+if (el.bGhostOn) click(el.bGhostOn, () => { settings.ghostDocking = true; saveSettings(); syncSettingsUI(); });
 if (el.rSteer) el.rSteer.addEventListener('input', () => { comfortSettings.steerSens = clamp(parseFloat(el.rSteer.value) || 1.0, 0.6, 1.4); if (el.oSteer) el.oSteer.value = comfortSettings.steerSens.toFixed(2) + 'x'; saveComfort(); });
 click(el.bNext, nextAction); click(el.bRetry, retryCurrent); click(el.bMenuE, goMenu);
 click(el.bDaily, startDaily); click(el.bA11y, () => { if (window.Arena) Arena.openSettings(); }); click(el.bShare, shareResult);
 function shareResult() {
-  const r = G.lastResult; if (!r || !window.Arena) return;
+  const r = G.lastResult; if (!r) return;
   const sh = SIM.shift || currentShiftDef();
-  const name = sh && sh.daily ? t('sD') + ' ' + sh.daily : sh && sh.endless ? t('sE', sh.endless) : t('s' + r.shift);
-  return Arena.share({ title: 'Boğaz Vapuru', lines: [name, t('shareStars', r.stars, r.score), t('sharePax', r.pax)], url: 'https://furkiozknn.github.io/bogaz-vapuru/' + (sh && sh.daily ? '?d=' + sh.daily : '') });
+  if (G.mode === 'daily' || (sh && sh.daily)) {
+    const day = (sh && sh.daily) || getDayKey();
+    const streak = (G.dailyRec && G.dailyRec.streak) || (G.daily && G.daily.streak) || 1;
+    return shareDaily(day, r.score, streak);
+  }
+  if (!window.Arena) return;
+  const name = sh && sh.endless ? t('sE', sh.endless) : t('s' + r.shift);
+  return Arena.share({ title: 'Boğaz Vapuru', lines: [name, t('shareStars', r.stars, r.score), t('sharePax', r.pax)], url: 'https://furkiozknn.github.io/bogaz-vapuru/' });
 }
 for (const [r, k, o] of [[el.rMaster, 'master', el.oMaster], [el.rMusic, 'music', el.oMusic], [el.rSfx, 'sfx', el.oSfx]]) r.addEventListener('input', () => { settings[k] = r.value / 100; o.value = r.value; AUD.init(); AUD.applyGains(); saveSettings(); });
 window.addEventListener('resize', resize);
@@ -5722,7 +6063,7 @@ function botTick(dt) {
   BOT.uiT += dt;
   const act = (th, fn) => { if (BOT.uiT > th) { BOT.uiT = 0; fn(); } };
   if (G.done) return;
-  if (G.state === 'title') { act(0.6, () => { if (Q.get('mode') === 'endless') startEndless(); else if (Q.get('mode') === 'daily' && window.Arena) startDaily(); else startCampaign(false); }); return; }
+  if (G.state === 'title') { act(0.6, () => { if (Q.get('mode') === 'endless') startEndless(); else if (Q.get('mode') === 'daily') startDaily(); else startCampaign(false); }); return; }
   if (G.state === 'intro') { act(0.6, beginShift); return; }
   if (G.state === 'paused') { resumeGame(); return; }
   if (G.state === 'end') {
@@ -6016,6 +6357,13 @@ window.vapur = {
   setWarp(on) { setWarp(on, false); },
   canWarp() { return canWarp(); },
   get comfortSettings() { return comfortSettings; },
+  get ghostDocking() { return settings.ghostDocking !== false; },
+  setGhostDocking(on) { settings.ghostDocking = !!on; saveSettings(); syncSettingsUI(); },
+  get ghosts() { return GHOSTS; },
+  get ghostState() { return GHOST_STATE; },
+  get dailyData() { return getDailyData(); },
+  startDaily: startDaily,
+  shareDaily: shareDaily,
 };
 
 // ---------------------------------------------------------------- boot
@@ -6036,7 +6384,7 @@ async function boot() {
   G.state = 'title'; el.bPlay.disabled = false; el.playTxt.setAttribute('data-i', 'play'); el.playTxt.textContent = t('play'); window.__vapurReady = true; if (!lsGet(KEY_SET)) saveSettings();
   showcase(); applyLang(); updateBestLine(); renderMissionsUI(); renderVesselSelect();
   if (FLAG.auto || SIM_PRE > 0) {
-    if (Q.get('mode') === 'endless') startEndless(); else if (Q.get('mode') === 'daily' && window.Arena) startDaily(); else startCampaign(false);
+    if (Q.get('mode') === 'endless') startEndless(); else if (Q.get('mode') === 'daily') startDaily(); else startCampaign(false);
     beginShift();
     if (SIM_PRE > 0) window.vapurSim(SIM_PRE);
     lastSkyHour = -99;
