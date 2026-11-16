@@ -771,7 +771,7 @@ input[type=range] { width: 100%; height: 44px; accent-color: var(--c-teal); back
   *, *::before, *::after { animation-duration: .01s !important; transition-duration: 0s !important; }
 }
 </style>
-<script>/*ARENA-KIT:BEGIN v1.1.0 sha256:3bea83137e26*/
+<script>/*ARENA-KIT:BEGIN v1.2.0 sha256:a6ce1d1f8227*/
 /* ARENA-KIT v1 — shared layer for the 21 Claude Game Arena games.
  *
  * Injected inline into each game's index.html (between begin/end marker comments) by
@@ -791,6 +791,9 @@ input[type=range] { width: 100%; height: 44px; accent-color: var(--c-teal); back
  *   Arena.track(name)                  v1.1: one GoatCounter event "<game>/<name>" per page load; automatic:
  *                                      "start" (first real input) and "return" (played this game on an earlier day)
  *                                      Nothing is sent or shown on quiet runs; no cookies, no ids, no new service.
+ *                                      v1.2: also "play1m", "play5m", "play10m" (visible play time after the first input)
+ *   Daily streak freeze (v1.2)         every 7 streak days earn a freeze (max 2); one missed day spends it instead of
+ *                                      resetting the streak. daily().freeze, complete() -> {saved:true} + toast
  *
  * Storage: every key starts with "arena." and is versioned; every access is wrapped in try/catch
  * (private mode, quota, portals). Pure logic lives in Arena._core so it can be tested in Node.
@@ -798,7 +801,7 @@ input[type=range] { width: 100%; height: 44px; accent-color: var(--c-teal); back
 (function (root) {
   'use strict';
   if (root.Arena && root.Arena.version) return; // injected twice (e.g. iframe) -> keep the first
-  var VERSION = '1.1.0';
+  var VERSION = '1.2.0';
   var hasDOM = typeof document !== 'undefined';
 
   /* ---------- core (pure, Node-testable) ---------- */
@@ -840,13 +843,30 @@ input[type=range] { width: 100%; height: 44px; accent-color: var(--c-teal); back
     };
   };
   // Streak after finishing the daily run on `today`: same day keeps it, yesterday +1, gap resets to 1.
+  // v1.2 freeze: a gap of exactly one missed day spends a freeze and the streak continues (+1).
+  // A freeze is earned each time the streak reaches a multiple of 7 (kept at most FREEZE_MAX).
+  core.FREEZE_MAX = 2;
   core.nextStreak = function (rec, today) {
     rec = rec || { last: 0, streak: 0, best: 0 };
-    var out = { last: today, streak: 1, best: rec.best || 0 };
+    var freeze = rec.freeze || 0;
+    var out = { last: today, streak: 1, best: rec.best || 0, freeze: freeze };
+    var yesterday = core.prevDayKey(today);
     if (rec.last === today) out.streak = rec.streak || 1;
-    else if (rec.last && rec.last === core.prevDayKey(today)) out.streak = (rec.streak || 0) + 1;
+    else if (rec.last && rec.last === yesterday) out.streak = (rec.streak || 0) + 1;
+    else if (rec.last && freeze > 0 && rec.streak > 0 && rec.last === core.prevDayKey(yesterday)) {
+      out.streak = rec.streak + 1; out.freeze = freeze - 1; out.saved = true;
+    }
+    if (rec.last !== today && out.streak % 7 === 0) out.freeze = Math.min(core.FREEZE_MAX, out.freeze + 1);
     out.best = Math.max(out.best, out.streak);
     return out;
+  };
+  // Streak to show before today's run: alive if played today or yesterday, or the day before with a freeze left.
+  core.liveStreak = function (rec, today) {
+    if (!rec || !rec.last) return 0;
+    var y = core.prevDayKey(today);
+    if (rec.last === today || rec.last === y) return rec.streak || 0;
+    if ((rec.freeze || 0) > 0 && rec.last === core.prevDayKey(y)) return rec.streak || 0;
+    return 0;
   };
   // Dynamic-resolution controller. Feed frame times (ms); returns the pixel ratio to use.
   core.perfController = function (opts) {
@@ -893,11 +913,13 @@ input[type=range] { width: 100%; height: 44px; accent-color: var(--c-teal); back
     tr: { again: 'Bir daha', another: 'Başka bir oyun dene', close: 'Kapat', settings: 'Erişilebilirlik',
       textSize: 'Yazı boyutu', contrast: 'Yüksek karşıtlık', motion: 'Hareketi azalt', vibration: 'Titreşim',
       autoPause: 'Sekme değişince duraklat', copied: 'Panoya kopyalandı', streak: 'Seri', days: 'gün', share: 'Paylaş',
-      fbAsk: 'Beğendin mi?', like: 'Beğendim', dislike: 'Beğenmedim', thanks: 'Teşekkürler!' },
+      fbAsk: 'Beğendin mi?', like: 'Beğendim', dislike: 'Beğenmedim', thanks: 'Teşekkürler!',
+      freezeUsed: '❄️ Seri dondurucu kaçırdığın günü kurtardı', freezeEarned: '❄️ Seri dondurucu kazandın: bir günü kaçırsan da serin sürer' },
     en: { again: 'Play again', another: 'Try another game', close: 'Close', settings: 'Accessibility',
       textSize: 'Text size', contrast: 'High contrast', motion: 'Reduce motion', vibration: 'Vibration',
       autoPause: 'Pause when the tab is hidden', copied: 'Copied to clipboard', streak: 'Streak', days: 'days', share: 'Share',
-      fbAsk: 'Did you enjoy it?', like: 'I liked it', dislike: 'I did not like it', thanks: 'Thanks!' },
+      fbAsk: 'Did you enjoy it?', like: 'I liked it', dislike: 'I did not like it', thanks: 'Thanks!',
+      freezeUsed: '❄️ A streak freeze saved the day you missed', freezeEarned: '❄️ Streak freeze earned: miss a day and your streak survives' },
   };
   var lang = 'en';
   try { lang = /^tr/i.test((hasDOM && document.documentElement.lang) || (root.navigator && navigator.language) || '') ? 'tr' : 'en'; } catch (e) {}
@@ -1109,13 +1131,16 @@ input[type=range] { width: 100%; height: 44px; accent-color: var(--c-teal); back
     var recs = get('daily.v1', {});
     var rec = recs[game] || { last: 0, streak: 0, best: 0 };
     return {
-      day: day, seed: seed, rng: core.mulberry32(seed), streak: rec.last === day || rec.last === core.prevDayKey(day) ? rec.streak : 0,
-      done: rec.last === day, best: rec.best || 0,
+      day: day, seed: seed, rng: core.mulberry32(seed), streak: core.liveStreak(rec, day),
+      done: rec.last === day, best: rec.best || 0, freeze: rec.freeze || 0,
       complete: function (score) {
         var all = get('daily.v1', {});
         var next = core.nextStreak(all[game], day);
         next.score = Math.max(score || 0, (all[game] && all[game].last === day && all[game].score) || 0);
+        var had = (all[game] && all[game].freeze) || 0;
         all[game] = next; set('daily.v1', all);
+        if (!quiet && next.saved) toast(t('freezeUsed'), 4000);
+        else if (!quiet && next.freeze > had) toast(t('freezeEarned'), 4000);
         if (next.streak >= 3) award('streak3-' + game, game + ' 3');
         if (next.streak >= 7) award('streak7', '7');
         return next;
@@ -1202,6 +1227,14 @@ input[type=range] { width: 100%; height: 44px; accent-color: var(--c-teal); back
         if (e && e.isTrusted === false) return;
         ['pointerdown', 'keydown', 'touchstart'].forEach(function (n) { document.removeEventListener(n, first, true); });
         track('start'); if (returning) track('return');
+        // v1.2 funnel: visible play time since the first input (a hidden tab does not count)
+        var played = 0, marks = [[60, 'play1m'], [300, 'play5m'], [600, 'play10m']];
+        var tick = setInterval(function () {
+          if (document.hidden) return;
+          played += 5;
+          while (marks.length && played >= marks[0][0]) track(marks.shift()[1]);
+          if (!marks.length) clearInterval(tick);
+        }, 5000);
       };
       ['pointerdown', 'keydown', 'touchstart'].forEach(function (n) { document.addEventListener(n, first, true); });
     };
