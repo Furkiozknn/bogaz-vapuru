@@ -772,7 +772,7 @@ input[type=range] { width: 100%; height: 44px; accent-color: var(--c-teal); back
   *, *::before, *::after { animation-duration: .01s !important; transition-duration: 0s !important; }
 }
 </style>
-<script>/*ARENA-KIT:BEGIN v1.2.0 sha256:a6ce1d1f8227*/
+<script>/*ARENA-KIT:BEGIN v1.3.1 sha256:2e245eb26d20*/
 /* ARENA-KIT v1 — shared layer for the 21 Claude Game Arena games.
  *
  * Injected inline into each game's index.html (between begin/end marker comments) by
@@ -796,13 +796,24 @@ input[type=range] { width: 100%; height: 44px; accent-color: var(--c-teal); back
  *   Daily streak freeze (v1.2)         every 7 streak days earn a freeze (max 2); one missed day spends it instead of
  *                                      resetting the streak. daily().freeze, complete() -> {saved:true} + toast
  *
+ *   Arena.portal (v1.3)               portal SDK adapter (CrazyGames v3, Poki, Playgama Bridge). On the game's own site
+ *                                      (no SDK on the page, no ?portal=) every call is a no-op and nothing changes.
+ *                                      The kit still loads no script: a portal build adds the SDK <script> itself.
+ *                                      portal.gameplay(true|false), portal.loading(true|false),
+ *                                      portal.midgame() -> Promise<shown>  (between rounds only; paced, first after 60 s,
+ *                                      then at most one per 3 min), portal.rewarded() -> Promise<granted> (opt-in;
+ *                                      portal.canReward tells whether to show the button). During an ad every
+ *                                      AudioContext of the page is suspended and 'pause' / 'resume' are emitted.
+ *                                      gameplay(true) is sent automatically on the first real input.
+ *                                      v1.3.1: on a portal the end card has no "another game" link (cross-promotion).
+ *
  * Storage: every key starts with "arena." and is versioned; every access is wrapped in try/catch
  * (private mode, quota, portals). Pure logic lives in Arena._core so it can be tested in Node.
  */
 (function (root) {
   'use strict';
   if (root.Arena && root.Arena.version) return; // injected twice (e.g. iframe) -> keep the first
-  var VERSION = '1.2.0';
+  var VERSION = '1.3.1';
   var hasDOM = typeof document !== 'undefined';
 
   /* ---------- core (pure, Node-testable) ---------- */
@@ -885,6 +896,31 @@ input[type=range] { width: 100%; height: 44px; accent-color: var(--c-teal); back
       return s.ratio;
     };
     return s;
+  };
+  // v1.3 portal: ?portal= wins, then the host name, then which SDK object the portal build put on the page.
+  core.PORTALS = ['crazygames', 'poki', 'playgama'];
+  core.portalName = function (search, host, sdk) {
+    var m = /[?&]portal=([a-z]+)/i.exec(search || '');
+    if (m) { var q = m[1].toLowerCase(); return core.PORTALS.indexOf(q) >= 0 ? q : 'none'; }
+    host = String(host || '').toLowerCase();
+    for (var i = 0; i < core.PORTALS.length; i++) if (host.indexOf(core.PORTALS[i]) >= 0) return core.PORTALS[i];
+    sdk = sdk || {};
+    if (sdk.crazygames) return 'crazygames';
+    if (sdk.poki) return 'poki';
+    if (sdk.playgama) return 'playgama';
+    return 'none';
+  };
+  // Interstitial pacing: never in the first `first` ms of play, then at least `gap` ms apart (CrazyGames: 3 min).
+  core.adPacer = function (opts) {
+    opts = opts || {};
+    var p = { first: opts.first == null ? 60000 : opts.first, gap: opts.gap == null ? 180000 : opts.gap, start: null, last: null };
+    p.begin = function (now) { if (p.start == null) p.start = now; };
+    p.can = function (now) {
+      if (p.start == null || now - p.start < p.first) return false;
+      return p.last == null || now - p.last >= p.gap;
+    };
+    p.mark = function (now) { p.last = now; };
+    return p;
   };
   core.shareText = function (o) {
     var lines = [o.title || o.game || 'Claude Game Arena'];
@@ -1065,7 +1101,7 @@ input[type=range] { width: 100%; height: 44px; accent-color: var(--c-teal); back
       sh.addEventListener('click', function () { share(o.share); });
       kids.push(sh);
     }
-    if (o.another !== false) {
+    if (o.another !== false && portal.name === 'none') { // portals forbid cross-promotion of other games
       kids.push(el('a', { class: 'arena-btn arena-secondary', href: 'https://furkiozknn.github.io/' + pick + '/', target: '_blank', rel: 'noopener', text: t('another') }));
     }
     var close = modal(el('div', { class: 'arena-card' }, kids));
@@ -1228,6 +1264,7 @@ input[type=range] { width: 100%; height: 44px; accent-color: var(--c-teal); back
         if (e && e.isTrusted === false) return;
         ['pointerdown', 'keydown', 'touchstart'].forEach(function (n) { document.removeEventListener(n, first, true); });
         track('start'); if (returning) track('return');
+        portal.gameplay(true);
         // v1.2 funnel: visible play time since the first input (a hidden tab does not count)
         var played = 0, marks = [[60, 'play1m'], [300, 'play5m'], [600, 'play10m']];
         var tick = setInterval(function () {
@@ -1242,11 +1279,107 @@ input[type=range] { width: 100%; height: 44px; accent-color: var(--c-teal); back
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot); else boot();
   }
 
+  /* ---------- portal (v1.3) ---------- */
+  var portal = (function () {
+    var sdk = {};
+    try { sdk = { crazygames: !!(root.CrazyGames && root.CrazyGames.SDK), poki: !!root.PokiSDK, playgama: !!root.bridge }; } catch (e) {}
+    var name = 'none';
+    try { name = quiet ? 'none' : core.portalName(hasDOM ? location.search : '', hasDOM ? location.hostname : '', sdk); } catch (e) {}
+    var api = { name: name, canReward: false, ready: Promise.resolve(false), _pacer: core.adPacer() };
+    var now = function () { return Date.now(); };
+    var CG = function () { return root.CrazyGames && root.CrazyGames.SDK; };
+    // During an ad: suspend every AudioContext the page made (wrapped below, portal builds only) and pause the game.
+    var contexts = [], adOn = false;
+    if (name !== 'none') {
+      ['AudioContext', 'webkitAudioContext'].forEach(function (k) {
+        var C = root[k]; if (typeof C !== 'function') return;
+        var W = function (a, b) { var c = new C(a, b); contexts.push(c); return c; };
+        W.prototype = C.prototype; try { Object.setPrototypeOf(W, C); } catch (e) {}
+        root[k] = W;
+      });
+    }
+    function adStart() { if (adOn) return; adOn = true; contexts.forEach(function (c) { try { c.suspend(); } catch (e) {} }); emit('pause', 'ad'); }
+    function adEnd() { if (!adOn) return; adOn = false; contexts.forEach(function (c) { try { c.resume(); } catch (e) {} }); emit('resume', 'ad'); }
+    var playing = false;
+    api.gameplay = function (on) {
+      on = !!on; if (on === playing || name === 'none') { playing = on; return; }
+      playing = on;
+      if (on) api._pacer.begin(now());
+      try {
+        if (name === 'crazygames' && CG()) CG().game[on ? 'gameplayStart' : 'gameplayStop']();
+        else if (name === 'poki' && root.PokiSDK) root.PokiSDK[on ? 'gameplayStart' : 'gameplayStop']();
+        else if (name === 'playgama' && root.bridge && root.bridge.platform) root.bridge.platform.sendMessage(on ? 'gameplay_started' : 'gameplay_stopped');
+      } catch (e) {}
+    };
+    api.loading = function (on) {
+      if (name === 'none') return;
+      try {
+        if (name === 'crazygames' && CG()) CG().game[on ? 'loadingStart' : 'loadingStop']();
+        else if (name === 'poki' && root.PokiSDK && !on) root.PokiSDK.gameLoadingFinished();
+        else if (name === 'playgama' && root.bridge && root.bridge.platform && !on) root.bridge.platform.sendMessage('game_ready');
+      } catch (e) {}
+    };
+    // One ad call at a time; resolves when the ad is over (or failed / not available).
+    var busy = false;
+    function show(kind) {
+      return new Promise(function (done) {
+        var finished = false;
+        var end = function (ok) { if (finished) return; finished = true; busy = false; adEnd(); done(!!ok); };
+        try {
+          if (name === 'crazygames' && CG()) {
+            CG().ad.requestAd(kind === 'rewarded' ? 'rewarded' : 'midgame', {
+              adStarted: adStart, adFinished: function () { end(true); }, adError: function () { end(false); },
+            });
+          } else if (name === 'poki' && root.PokiSDK) {
+            var call = kind === 'rewarded' ? root.PokiSDK.rewardedBreak(adStart) : root.PokiSDK.commercialBreak(adStart);
+            Promise.resolve(call).then(function (r) { end(kind === 'rewarded' ? !!r : true); }, function () { end(false); });
+          } else if (name === 'playgama' && root.bridge && root.bridge.advertisement) {
+            var ad = root.bridge.advertisement, EV = root.bridge.EVENT_NAME || {};
+            var ev = kind === 'rewarded' ? (EV.REWARDED_STATE_CHANGED || 'rewarded_state_changed') : (EV.INTERSTITIAL_STATE_CHANGED || 'interstitial_state_changed');
+            var granted = false;
+            var on = function (st) {
+              if (st === 'opened') adStart();
+              else if (st === 'rewarded') granted = true;
+              else if (st === 'closed' || st === 'failed') { try { ad.off(ev, on); } catch (e) {} end(kind === 'rewarded' ? granted : st === 'closed'); }
+            };
+            ad.on(ev, on);
+            if (kind === 'rewarded') ad.showRewarded(); else ad.showInterstitial();
+          } else { end(false); return; }
+        } catch (e) { end(false); return; }
+        setTimeout(function () { end(false); }, 90000); // an SDK that never calls back must not freeze the game
+      });
+    }
+    api.midgame = function () {
+      if (name === 'none' || busy || !api._pacer.can(now())) return Promise.resolve(false);
+      busy = true; api._pacer.mark(now());
+      return show('midgame');
+    };
+    api.rewarded = function () {
+      if (name === 'none' || busy || !api.canReward) return Promise.resolve(false);
+      busy = true;
+      return show('rewarded');
+    };
+    if (name !== 'none') {
+      api.canReward = true;
+      api.ready = new Promise(function (ok) {
+        var t = setTimeout(function () { ok(false); }, 4000);
+        var fin = function (v) { clearTimeout(t); ok(v); };
+        try {
+          if (name === 'crazygames' && CG()) Promise.resolve(CG().init()).then(function () { fin(true); }, function () { fin(false); });
+          else if (name === 'poki' && root.PokiSDK) Promise.resolve(root.PokiSDK.init()).then(function () { fin(true); }, function () { fin(false); });
+          else if (name === 'playgama' && root.bridge) Promise.resolve(root.bridge.initialize()).then(function () { fin(true); }, function () { fin(false); });
+          else fin(false);
+        } catch (e) { fin(false); }
+      });
+    }
+    return api;
+  })();
+
   root.Arena = {
     version: VERSION, quiet: quiet, game: gameId, games: GAMES.slice(), lang: function (l) { if (l) lang = l === 'tr' ? 'tr' : 'en'; return lang; },
     perf: perf, hint: hint, toast: toast, endCard: endCard, daily: daily, share: share, shareCard: shareCard,
     profile: profile, award: award, settings: settings, openSettings: openSettings, mountSettingsButton: mountSettingsButton,
-    track: track, complete: complete,
+    track: track, complete: complete, portal: portal,
     on: function (name, fn) { (listeners[name] = listeners[name] || []).push(fn); },
     _core: core, _store: { get: get, set: set },
   };
