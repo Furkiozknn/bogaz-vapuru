@@ -772,7 +772,7 @@ input[type=range] { width: 100%; height: 44px; accent-color: var(--c-teal); back
   *, *::before, *::after { animation-duration: .01s !important; transition-duration: 0s !important; }
 }
 </style>
-<script>/*ARENA-KIT:BEGIN v1.3.1 sha256:2e245eb26d20*/
+<script>/*ARENA-KIT:BEGIN v1.3.2 sha256:ce77e23fab7c*/
 /* ARENA-KIT v1 — shared layer for the 21 Claude Game Arena games.
  *
  * Injected inline into each game's index.html (between begin/end marker comments) by
@@ -803,7 +803,8 @@ input[type=range] { width: 100%; height: 44px; accent-color: var(--c-teal); back
  *                                      portal.midgame() -> Promise<shown>  (between rounds only; paced, first after 60 s,
  *                                      then at most one per 3 min), portal.rewarded() -> Promise<granted> (opt-in;
  *                                      portal.canReward tells whether to show the button). During an ad every
- *                                      AudioContext of the page is suspended and 'pause' / 'resume' are emitted.
+ *                                      AudioContext of the page is suspended and 'adstart' / 'adend' are emitted
+ *                                      (v1.3.2; not 'pause', which games use to auto-pause until the player resumes).
  *                                      gameplay(true) is sent automatically on the first real input.
  *                                      v1.3.1: on a portal the end card has no "another game" link (cross-promotion).
  *
@@ -813,7 +814,7 @@ input[type=range] { width: 100%; height: 44px; accent-color: var(--c-teal); back
 (function (root) {
   'use strict';
   if (root.Arena && root.Arena.version) return; // injected twice (e.g. iframe) -> keep the first
-  var VERSION = '1.3.1';
+  var VERSION = '1.3.2';
   var hasDOM = typeof document !== 'undefined';
 
   /* ---------- core (pure, Node-testable) ---------- */
@@ -993,7 +994,7 @@ input[type=range] { width: 100%; height: 44px; accent-color: var(--c-teal); back
   if (settings.reducedMotion === null) {
     try { settings.reducedMotion = !!(root.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches); } catch (e) { settings.reducedMotion = false; }
   }
-  var listeners = { pause: [], resume: [], settings: [] };
+  var listeners = { pause: [], resume: [], settings: [], adstart: [], adend: [] };
   function emit(name, arg) { (listeners[name] || []).forEach(function (f) { try { f(arg); } catch (e) {} }); }
   function applySettings() {
     if (!hasDOM) return;
@@ -1298,8 +1299,10 @@ input[type=range] { width: 100%; height: 44px; accent-color: var(--c-teal); back
         root[k] = W;
       });
     }
-    function adStart() { if (adOn) return; adOn = true; contexts.forEach(function (c) { try { c.suspend(); } catch (e) {} }); emit('pause', 'ad'); }
-    function adEnd() { if (!adOn) return; adOn = false; contexts.forEach(function (c) { try { c.resume(); } catch (e) {} }); emit('resume', 'ad'); }
+    // v1.3.2: 'adstart' / 'adend', not 'pause' / 'resume': 17 games auto-pause on 'pause' (hidden tab) and wait for the
+    // player to resume, so after a between-rounds ad they sat on a pause screen. Ads run where the game already waits.
+    function adStart() { if (adOn) return; adOn = true; contexts.forEach(function (c) { try { c.suspend(); } catch (e) {} }); emit('adstart'); }
+    function adEnd() { if (!adOn) return; adOn = false; contexts.forEach(function (c) { try { c.resume(); } catch (e) {} }); emit('adend'); }
     var playing = false;
     api.gameplay = function (on) {
       on = !!on; if (on === playing || name === 'none') { playing = on; return; }
