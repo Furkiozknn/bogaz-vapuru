@@ -2110,7 +2110,7 @@ function endlessShift(n) {     // endless shift n (1-based): random route, growi
 // ---------------------------------------------------------------- settings / save (all in try/catch)
 const KEY_SET = 'arena.vapur.settings', KEY_SAVE = 'arena.vapur.save';
 const isPhone = /Android|iPhone|iPad|iPod|Mobi/i.test(navigator.userAgent) || (matchMedia && matchMedia('(pointer:coarse)').matches && Math.min(screen.width, screen.height) < 800);
-const settings = { master: 0.8, music: 0.6, sfx: 0.8, mute: false, lang: (navigator.language || 'tr').toLowerCase().startsWith('tr') ? 'tr' : 'en', quality: isPhone ? 'low' : 'high' };
+const settings = { master: 0.8, music: 0.6, sfx: 0.8, mute: false, lang: (/^tr/i.test(navigator.language || '') ? 'tr' : 'en'), quality: isPhone ? 'low' : 'high' };
 function setCompact(on) {
   document.body.classList.toggle('compact', on);
   const b = document.getElementById('bPanel'); if (b) b.classList.toggle('on', on);
@@ -2124,6 +2124,7 @@ function lsSet(k, v) { if (FLAG.nosave) return; try { localStorage.setItem(k, JS
   if (s && typeof s === 'object') for (const k of Object.keys(settings)) if (s[k] !== undefined) settings[k] = s[k];
   if (s && s.musicOn !== undefined) settings.musicOn = s.musicOn; if (s && s.sfxOn !== undefined) settings.sfxOn = s.sfxOn;
   if (s && s.mute !== undefined) settings.mute = s.mute; // restore saved mute state
+  if (settings.lang !== 'tr' && settings.lang !== 'en') settings.lang = (/^tr/i.test(navigator.language || '') ? 'tr' : 'en'); // a stored unknown language falls back to the browser's
   LANG = (Q.get('lang') === 'en' || Q.get('lang') === 'tr') ? Q.get('lang') : settings.lang;   // URL override is not saved
 })();
 const saveSettings = () => lsSet(KEY_SET, settings);
