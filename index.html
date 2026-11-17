@@ -631,10 +631,11 @@ body.compact #colregBadge svg.arrow { width: 14px; height: 14px; }
 .mission-tag.daily { color: var(--c-teal); border-color: var(--c-teal); }
 .mission-tag.weekly { color: var(--c-violet); border-color: var(--c-violet); }
 .mission-body { min-width: 0; display: flex; flex-direction: column; gap: 3px; }
-.mission-title-row { display: flex; align-items: baseline; justify-content: space-between; gap: 6px; }
+.mission-title-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 6px; }
+/* Yazı denetimi: görev adı telefonda '…' ile kesiliyordu; artık alt satıra kayar */
 .mission-title {
-  font-family: var(--font-mono); font-size: 11.5px; font-weight: 700;
-  color: var(--c-deep); line-height: 1.25; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  font-family: var(--font-mono); font-size: 11.5px; font-weight: 700; min-width: 0;
+  color: var(--c-deep); line-height: 1.25; white-space: normal; overflow-wrap: anywhere;
 }
 .mission-count {
   font-family: var(--font-mono); font-size: 10.5px; font-weight: 700;
@@ -1252,7 +1253,7 @@ input[type=range] { width: 100%; height: 44px; accent-color: var(--c-teal); back
 })(typeof window !== 'undefined' ? window : globalThis);
 /*ARENA-KIT:END*/</script>
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"},"integrity":{"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js":"sha384-GY5FqjttLCFRt/McQbyaVdCk2O1IQtOeX8Py6NfD89BIAsIyJFRl4UgSXrk2vXAk"}}</script>
-<script type="module">/*ARENA-CORE:BEGIN v2.0.0 sha256:06ce9d584cae*/
+<script type="module">/*ARENA-CORE:BEGIN v2.0.1 sha256:cfe1449bc854*/
 /* ARENA-CORE v2 — shared visual / feel / test layer for the Claude Game Arena games (Furki Ozkan).
  *
  * Injected inline as <script type="module"> right after each game's importmap by tools/inject.mjs,
@@ -1266,7 +1267,7 @@ input[type=range] { width: 100%; height: 44px; accent-color: var(--c-teal); back
  *               renk: {doygunluk, kontrast}, tonlama 'koru' keeps the game's own tone mapping,
  *               vinyet (0..1), grain (0..1), saydam (true when the canvas is transparent over a CSS background) }
  *   ArenaCore.kabuk.yukleme({ baslik, alt, renk }) -> { ilerle(0..1), bitir() }   loading overlay
- *   ArenaCore.kabuk.onceDerle(renderer, scene, camera) -> Promise   shader warm-up (compileAsync)
+ *   ArenaCore.kabuk.onceDerle(renderer, scene, camera) -> Promise   shader warm-up (renderer.compile, never throws)
  *   ArenaCore.his.{ tween, hitstop, zamanOlcegi, sarsinti, ucanYazi }   game feel (Sumiro-tuned defaults)
  *   ArenaCore.kamera.yay(cur, target, omega, dt, vel)                    critically damped spring (numbers or Vector3)
  *   ArenaCore.test.kur({ read, step })     exposes window.__game for bots / gates
@@ -1274,7 +1275,7 @@ input[type=range] { width: 100%; height: 44px; accent-color: var(--c-teal); back
  */
 import * as THREE from 'three';
 
-const VERSION = '2.0.0';
+const VERSION = '2.0.1';
 const Q = new URLSearchParams(location.search);
 const store = {
   get(k, d) { try { const v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } },
@@ -1343,6 +1344,14 @@ function cssKatman(vinyet, grain) {
   return el;
 }
 
+const NAN_SHADER = {
+  uniforms: { tDiffuse: { value: null } },
+  vertexShader: 'varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }',
+  fragmentShader: `uniform sampler2D tDiffuse; varying vec2 vUv;
+    void main(){ vec4 c = texture2D(tDiffuse, vUv); bvec4 bad = bvec4(c.r != c.r || c.r > 65000.0, c.g != c.g || c.g > 65000.0, c.b != c.b || c.b > 65000.0, c.a != c.a);
+      if (any(bad)) c = vec4(0.0, 0.0, 0.0, 1.0); gl_FragColor = c; }`,
+};
+
 const VINYET_SHADER = {
   uniforms: { tDiffuse: { value: null }, guc: { value: 0.35 }, grain: { value: 0.0 }, zaman: { value: 0 }, doygunluk: { value: 1 }, kontrast: { value: 1 } },
   vertexShader: 'varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }',
@@ -1370,23 +1379,28 @@ const render = {
       renderer.toneMappingExposure = o.pozlama;
     }
     let pmrem = null, envRT = null;
+    let ortamBizim = null;
+    // a game that loads its own environment map later must not inherit our low intensity
+    const ortamDenetle = () => { if (ortamBizim && scene.environment !== ortamBizim && scene.environmentIntensity === o.ortam) { scene.environmentIntensity = 1; ortamBizim = null; } };
     if (o.ortam > 0) {
       import('three/addons/environments/RoomEnvironment.js').then(({ RoomEnvironment }) => {
         pmrem = new THREE.PMREMGenerator(renderer);
         envRT = pmrem.fromScene(new RoomEnvironment(), 0.04);
         if (!scene.environment) { scene.environment = envRT.texture; scene.environmentIntensity = o.ortam; }
+        ortamBizim = envRT.texture;
       }).catch(() => { });
     }
     const info = { mod: 'dogrudan', kalite, tonlama: o.tonlama };
     const fx = { info, composer: null };
-    const css = (o.saydam || kalite === 'dusuk' || !o.bloom) && (o.vinyet > 0 || o.grain > 0) ? cssKatman(o.vinyet, kalite === 'dusuk' ? 0 : o.grain) : null;
-    if (css) { const c = renderer.domElement; (c.parentNode || document.body).insertBefore(css, c.nextSibling); info.mod = 'dogrudan+css'; }
+    let css = null;
+    const cssKur = () => { if (css || !(o.vinyet > 0 || o.grain > 0)) return; css = cssKatman(o.vinyet, kalite === 'dusuk' ? 0 : o.grain); const c = renderer.domElement; (c.parentNode || document.body).insertBefore(css, c.nextSibling); info.mod = 'dogrudan+css'; };
+    if (o.saydam || kalite === 'dusuk' || !o.bloom) cssKur();
     // colour grade: saturation / contrast. Direct mode uses a compositor-side CSS filter (no extra GPU pass);
     // composer mode does it in the vignette shader instead (see below).
     const renk = Object.assign({ doygunluk: 1, kontrast: 1 }, o.renk);
     const cssFiltre = (renk.doygunluk !== 1 || renk.kontrast !== 1) ? `saturate(${renk.doygunluk}) contrast(${renk.kontrast})` : '';
     if (cssFiltre) renderer.domElement.style.filter = cssFiltre;
-    fx.render = () => renderer.render(scene, camera);
+    fx.render = () => { ortamDenetle(); renderer.render(scene, camera); };
     fx.setSize = () => { };
     if (!o.saydam && o.bloom && kalite !== 'dusuk') {
       // composer is created asynchronously; until it is ready, frames render directly
@@ -1396,6 +1410,7 @@ const render = {
         const rt = new THREE.WebGLRenderTarget(size.x * pr, size.y * pr, { type: THREE.HalfFloatType, samples: kalite === 'yuksek' ? 4 : 2 });
         const composer = new A.EffectComposer(renderer, rt);
         composer.addPass(new A.RenderPass(scene, camera));
+        composer.addPass(new A.ShaderPass(NAN_SHADER));
         const bloom = new A.UnrealBloomPass(new THREE.Vector2(size.x, size.y), o.bloom.guc, o.bloom.yaricap, o.bloom.esik);
         if (kalite === 'orta') bloom.resolution.set(size.x / 2, size.y / 2);
         composer.addPass(bloom);
@@ -1407,9 +1422,9 @@ const render = {
           renderer.domElement.style.filter = ''; // the shader grades now
         }
         fx.composer = composer; info.mod = 'composer';
-        fx.render = () => { if (vin) vin.uniforms.zaman.value = (performance.now() / 1000) % 100; composer.render(); };
+        fx.render = () => { ortamDenetle(); if (vin) vin.uniforms.zaman.value = (performance.now() / 1000) % 100; composer.render(); };
         fx.setSize = (w, h) => { composer.setPixelRatio(renderer.getPixelRatio()); composer.setSize(w, h); };
-      }).catch(e => { info.hata = String(e); });
+      }).catch(e => { info.hata = String(e); cssKur(); }); // e.g. no three/addons/ in the import map: keep the CSS look
     }
     fx.dispose = () => { if (css) css.remove(); if (envRT) envRT.dispose(); if (pmrem) pmrem.dispose(); if (fx.composer) fx.composer.dispose(); };
     return fx;
@@ -1438,7 +1453,8 @@ const kabuk = {
     return api;
   },
   async onceDerle(renderer, scene, camera) {
-    try { if (renderer.compileAsync) await renderer.compileAsync(scene, camera); else renderer.compile(scene, camera); } catch (e) { }
+    // synchronous compile: compileAsync threw an uncatchable TypeError ('isReady') in one game; compile() is safe and still warms the programs
+    try { renderer.compile(scene, camera); } catch (e) { }
   },
 };
 
