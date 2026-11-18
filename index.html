@@ -5179,6 +5179,17 @@ function nextAction() {
   if (G.shiftIdx >= 7) { goMenu(); return; }
   G.shiftIdx++; G.selIdx = G.shiftIdx; G.retries = 0; enterIntro();
 }
+// Portal ad hooks (G-050). Ads only at the natural break: after a shift, when the captain leaves the shift report
+// (next shift / retry / menu). On the game's own site (no portal SDK) afterBreak() runs the action synchronously, exactly
+// as before; the ?auto captain calls nextAction() / retryCurrent() directly and is not affected. One tap = one action.
+// No rewarded hook: "wipe the delay penalty" would rewrite a finished shift's score after stars, records, missions,
+// the campaign save and the daily streak were already written.
+let breakBusy = false;
+function afterBreak(f) {
+  if (!(window.Arena && Arena.portal && Arena.portal.name !== 'none')) return f(); // own site: synchronous, as before
+  if (breakBusy) return; breakBusy = true;
+  Arena.portal.midgame().catch(() => false).then(() => { breakBusy = false; if (G.state === 'end') f(); });
+}
 /** title showcase: the ferry docked at Eminönü in the late afternoon with some traffic */
 function showcase() {
   const sh = Object.assign({}, SHIFTS[2], { hour: 18.55, storm: 0, fog: 0 });   // golden hour over the Golden Horn
@@ -5197,7 +5208,7 @@ click(el.bResume, resumeGame); click(el.bRestart, () => { G.retries++; beginShif
 click(el.bSetBack, closeSettings); click(el.bTR, () => { LANG = 'tr'; settings.lang = 'tr'; saveSettings(); applyLang(); }); click(el.bEN, () => { LANG = 'en'; settings.lang = 'en'; saveSettings(); applyLang(); });
 click(el.bQLow, () => { settings.quality = 'low'; saveSettings(); applyQuality(); syncSettingsUI(); }); click(el.bQHigh, () => { settings.quality = 'high'; saveSettings(); applyQuality(); syncSettingsUI(); });
 click(el.bFull, toggleFull);
-click(el.bNext, nextAction); click(el.bRetry, retryCurrent); click(el.bMenuE, goMenu);
+click(el.bNext, () => afterBreak(nextAction)); click(el.bRetry, () => afterBreak(retryCurrent)); click(el.bMenuE, () => afterBreak(goMenu));
 click(el.bDaily, startDaily); click(el.bA11y, () => { if (window.Arena) Arena.openSettings(); }); click(el.bShare, shareResult);
 function shareResult() {
   const r = G.lastResult; if (!r || !window.Arena) return;
