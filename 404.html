@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#0F2E33">
+<meta name="robots" content="noindex">
+<title>Sayfa bulunamadı · Boğaz Vapuru</title>
+<style>
+  :root { --cream: #F4EBD9; --deep: #0F2E33; --teal: #1E5F63; --gold: #E8A13A; --red: #C1442E; }
+  * { box-sizing: border-box; }
+  body { margin: 0; min-height: 100vh; min-height: 100dvh; display: grid; place-items: center; padding: 16px; background: var(--deep); color: var(--deep); font: 16px/1.5 Georgia, 'Times New Roman', serif; }
+  main { width: min(100%, 440px); background: var(--cream); border: 2px solid var(--deep); box-shadow: 5px 5px 0 var(--gold); border-radius: 4px; padding: 22px 24px 24px; text-align: center; }
+  .strip { font: 700 10px/1 ui-monospace, Consolas, monospace; letter-spacing: 1px; color: #8a6a43; border-bottom: 1.5px dashed #B98A5A; padding-bottom: 8px; margin-bottom: 14px; display: flex; justify-content: space-between; }
+  h1 { margin: 0 0 4px; font-size: 56px; line-height: 1; color: var(--red); }
+  h2 { margin: 0 0 10px; font-size: 22px; }
+  p { margin: 0 0 18px; }
+  .btns { display: grid; gap: 10px; }
+  a { display: flex; align-items: center; justify-content: center; min-height: 48px; padding: 8px 14px; border: 2px solid var(--deep); border-radius: 4px; background: var(--cream); color: var(--deep); font-weight: 700; text-decoration: none; box-shadow: 3px 3px 0 var(--deep); }
+  a.primary { background: var(--teal); color: #fff; }
+  a:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
+  [lang="en"] { display: none; }
+  html[data-l="en"] [lang="tr"] { display: none; }
+  html[data-l="en"] [lang="en"] { display: block; }
+  html[data-l="en"] a[lang="en"] { display: flex; }
+</style>
+</head>
+<body>
+<main>
+  <div class="strip"><span>BOĞAZ VAPURU</span><span>HAT: 404</span></div>
+  <h1>404</h1>
+  <h2 lang="tr">Bu iskele haritada yok</h2><h2 lang="en">This pier is not on the chart</h2>
+  <p lang="tr">Aradığın sayfa bulunamadı. Vapur başka bir limana gitmiş olabilir; oyuna ya da diğer oyunlara dönebilirsin.</p>
+  <p lang="en">The page you wanted was not found. The ferry may have sailed to another port; head back to the game or to the other games.</p>
+  <div class="btns">
+    <a class="primary" href="/bogaz-vapuru/" lang="tr">Oyuna dön</a><a class="primary" href="/bogaz-vapuru/" lang="en">Back to the game</a>
+    <a href="https://furkiozknn.github.io/" lang="tr">Diğer oyunlar</a><a href="https://furkiozknn.github.io/" lang="en">More games</a>
+  </div>
+</main>
+<script>try { if (!/^tr/i.test(navigator.language || 'tr')) document.documentElement.setAttribute('data-l', 'en'); } catch (e) {}</script>
+</body>
+</html>

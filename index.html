@@ -5,16 +5,24 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
 <meta name="theme-color" content="#0F2E33">
 <meta name="arena-game" content="bogaz-vapuru">
-<title>Boğaz Vapuru</title>
-<meta name="description" content="A 3D ferry-captain game on a stylized low-poly Bosphorus, redesigned with golden-hour light and a vintage 1960s ferry ticket UI: dock at Eminönü, Karaköy and Üsküdar on time through currents, fog and night. Plays in the browser.">
+<title>Boğaz Vapuru · Boğaz'da vapur kaptanlığı</title>
+<meta name="description" content="Boğaz Vapuru: Boğaz'da beyaz Şehir Hatları vapurunu kaptanlığını yap. Eminönü, Karaköy ve Üsküdar iskelelerine tarifeye uygun, akıntı, sis ve fırtınaya rağmen yanaş. Tarayıcıda ücretsiz, kurulum yok; telefonda da oynanır.">
 <meta property="og:type" content="website">
-<meta property="og:title" content="Boğaz Vapuru · Bosphorus Ferry Captain">
-<meta property="og:description" content="A 3D ferry-captain game on a stylized low-poly Bosphorus, redesigned with golden-hour light and a vintage 1960s ferry ticket UI: dock at Eminönü, Karaköy and Üsküdar on time through currents, fog and night. Plays in the browser.">
+<meta property="og:title" content="Boğaz Vapuru · Boğaz'da vapur kaptanlığı">
+<meta property="og:locale" content="tr_TR">
+<meta property="og:site_name" content="Claude Game Arena">
+<meta property="og:image:alt" content="Boğaz Vapuru: beyaz vapur, sarı baca, Boğaz'da altın saat ışığı">
+<link rel="canonical" href="https://furkiozknn.github.io/bogaz-vapuru/">
+<meta property="og:description" content="Boğaz Vapuru: Boğaz'da beyaz Şehir Hatları vapurunu kaptanlığını yap. Eminönü, Karaköy ve Üsküdar iskelelerine tarifeye uygun, akıntı, sis ve fırtınaya rağmen yanaş. Tarayıcıda ücretsiz, kurulum yok; telefonda da oynanır.">
 <meta property="og:url" content="https://furkiozknn.github.io/bogaz-vapuru/">
 <meta property="og:image" content="https://furkiozknn.github.io/bogaz-vapuru/docs/card.jpg">
 <meta property="og:image:width" content="960">
 <meta property="og:image:height" content="540">
 <meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Boğaz Vapuru · Boğaz'da vapur kaptanlığı">
+<meta name="twitter:description" content="Boğaz Vapuru: Boğaz'da beyaz Şehir Hatları vapurunu kaptanlığını yap. Eminönü, Karaköy ve Üsküdar iskelelerine tarifeye uygun, akıntı, sis ve fırtınaya rağmen yanaş. Tarayıcıda ücretsiz, kurulum yok; telefonda da oynanır.">
+<meta name="twitter:image" content="https://furkiozknn.github.io/bogaz-vapuru/docs/card.jpg">
+<meta name="twitter:image:alt" content="Boğaz Vapuru: beyaz vapur, sarı baca, Boğaz'da altın saat ışığı">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 rx=%277%27 fill=%27%230F2E33%27/%3E%3Cpath d=%27M4 20h24l-3 6H7z%27 fill=%27%23F4EBD9%27/%3E%3Crect x=%279%27 y=%2713%27 width=%2714%27 height=%277%27 rx=%271%27 fill=%27%23F4EBD9%27/%3E%3Crect x=%2714%27 y=%277%27 width=%274%27 height=%277%27 fill=%27%23E8A13A%27/%3E%3Crect x=%2714%27 y=%277%27 width=%274%27 height=%272%27 fill=%27%230F2E33%27/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -552,6 +560,28 @@ body.compact #colregBadge svg.arrow { width: 14px; height: 14px; }
 #logoBig { width: 140px; height: 105px; margin: 0 auto 6px; display: block; filter: drop-shadow(2px 2px 0 var(--c-deep-faint)); }
 .best { font-size: 13px; color: var(--c-deep-mid); margin-top: 10px; font-weight: 600; font-family: var(--font-mono); }
 .foot { margin-top: 12px; font-size: 11px; color: var(--c-deep-mid); }
+.foot .links { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 2px 4px; margin-bottom: 4px; }
+.linkbtn { font: inherit; font-size: 12px; font-weight: 700; color: var(--c-teal); background: none; border: 0; border-bottom: 1.5px dotted var(--c-teak); border-radius: 0; cursor: pointer; padding: 0 2px; margin: 0 6px; min-height: 40px; display: inline-flex; align-items: center; text-decoration: none; }
+.foot .links a.linkbtn { border-bottom: 1.5px dotted var(--c-teak); }
+.linkbtn:hover { color: var(--c-teal-d); }
+.linkbtn .dot[hidden] { display: none; }
+.linkbtn .dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: var(--c-red); margin-left: 6px; }
+.ver-tag { font-family: var(--font-mono); font-size: 11px; color: var(--c-deep-mid); }
+.news-tabs { display: flex; gap: 8px; margin: 6px 0 10px; }
+.news-tabs .btn { flex: 1; min-height: 44px; padding: 6px 8px; font-size: 13px; }
+.news-tabs .btn.sel { background: var(--c-deep); color: var(--c-cream); }
+#newsList, #logList { text-align: left; margin: 0; padding: 0; list-style: none; font-size: 13px; line-height: 1.45; }
+#newsList li { padding: 7px 0 7px 18px; border-bottom: 1px dashed var(--c-teak); position: relative; }
+#newsList li::before { content: "\2693"; position: absolute; left: 0; color: var(--c-teal); }
+#newsList li b { color: var(--c-deep); }
+#logList li { display: grid; grid-template-columns: 22px 1fr auto; gap: 2px 8px; align-items: baseline; padding: 7px 0; border-bottom: 1px dashed var(--c-teak); font-family: var(--font-mono); font-size: 12.5px; }
+#logList .rk { font-weight: 800; color: var(--c-teal); }
+#logList .sc { font-weight: 800; }
+#logList .sub { grid-column: 2 / 4; font-size: 11px; color: var(--c-deep-mid); }
+#newsPane, #logPane { max-height: 52vh; overflow-y: auto; }
+#confetti { position: absolute; inset: 0; pointer-events: none; overflow: hidden; border-radius: var(--r); }
+#confetti i { position: absolute; top: -14px; width: 7px; height: 12px; opacity: 0; animation: confFall 2.6s ease-in forwards; }
+@keyframes confFall { 0% { opacity: 1; transform: translateY(0) rotate(0); } 100% { opacity: 0; transform: translateY(var(--cy, 420px)) translateX(var(--cx, 0)) rotate(var(--cr, 540deg)); } }
 .foot a { color: var(--c-teal); text-decoration: none; border-bottom: 1.5px dotted var(--c-teak); }
 
 /* Campaign ticket nodes */
@@ -1830,7 +1860,10 @@ window.ArenaCore = { version: VERSION, kalite, render, kabuk, his, kamera, test 
       <div class="best" id="bestLine"></div>
       <div class="best" id="dailyLine"></div>
       <div class="rope" aria-hidden="true" style="width:min(100%,200px);margin:12px auto 0"></div>
-      <div class="foot"><a href="https://github.com/Furkiozknn" target="_blank" rel="noopener">Claude Game Arena</a> · built by Claude Fable 5.1</div>
+      <div class="foot">
+        <div class="links"><a class="linkbtn" id="aHub" href="https://furkiozknn.github.io/" target="_blank" rel="noopener" data-i="hub"></a><button class="linkbtn" id="bNews" type="button"><span data-i="news"></span><i class="dot" id="newsDot" hidden></i></button></div>
+        <a href="https://github.com/Furkiozknn" target="_blank" rel="noopener">Claude Game Arena</a> · built by Claude Fable 5.1 · <span class="ver-tag" id="verTag"></span>
+      </div>
     </div>
   </section>
 
@@ -1862,6 +1895,21 @@ window.ArenaCore = { version: VERSION, kalite, render, kabuk, his, kamera, test 
         <button class="btn" id="bSettingsP"><svg class="ic"><use href="#i-gear"/></svg><span data-i="settings"></span></button>
         <button class="btn" id="bMenuP"><svg class="ic"><use href="#i-home"/></svg><span data-i="menu"></span></button>
       </div>
+    </div>
+  </section>
+
+  <section class="screen dim" id="sNews" role="dialog" aria-modal="true" aria-labelledby="newsTitle">
+    <div class="card glass">
+      <div class="ticket-header-strip"><span class="t-badge" id="newsVer"></span><span class="t-sn" id="newsDate"></span></div>
+      <h2 id="newsTitle" data-i="news"></h2>
+      <div class="rope" aria-hidden="true" style="margin:4px auto 4px"></div>
+      <div class="news-tabs" role="tablist">
+        <button class="btn sel" id="bTabNews" role="tab" aria-selected="true" data-i="news"></button>
+        <button class="btn" id="bTabLog" role="tab" aria-selected="false" data-i="logTab"></button>
+      </div>
+      <div id="newsPane" role="tabpanel"><ul id="newsList"></ul></div>
+      <div id="logPane" role="tabpanel" hidden><ol id="logList"></ol><p class="how" id="logEmpty" data-i="logEmpty"></p></div>
+      <div class="col"><button class="btn primary" id="bNewsBack"><span data-i="back"></span></button></div>
     </div>
   </section>
 
@@ -1991,6 +2039,13 @@ const STR = {
     endClear: 'Sefer tamamlandı', endFail: 'Sefer başarısız', endWreck: 'Vapur yara aldı', endWin: 'Tebrikler, kaptan!', endEndless: 'Sonsuz sefer bitti',
     subClear: 'İyi seyirler kaptan!', subFail: 'Bir yıldız bile yok: daha nazik yanaş, tarifeye uy.', subWreck: 'Gövde hasarı yüzde 100: sefer iptal.', subWin: '8 seferi bitirdin. Boğaz senin.', subEndless: 'Toplam {0} sefer, {1} yolcu',
     sPax: 'Taşınan yolcu', sPunct: 'Dakiklik', sComfort: 'Konfor', sLost: 'Kaybedilen yolcu', sHull: 'Gövde hasarı', sScore: 'Puan', sTotal: 'Toplam puan', sShifts: 'Sefer',
+    hub: 'Diğer oyunlar', news: 'Yenilikler', logTab: 'Kaptan defteri', logEmpty: 'Defter boş. Bir seferi yıldızla bitirince en iyi 5 sefer burada görünür.', logSub: '{0} yolcu', logMode_c: 'Sefer {0}', logMode_e: 'Sonsuz sefer {0}',
+    newsVer: 'Sürüm {0}', newsDate: 'Kasım 2026', verTag: 'v{0} · Kasım 2026',
+    news1: '<b>Kaptan defteri:</b> yıldızla bitirdiğin en iyi 5 sefer artık bu cihazda tutuluyor (rekorun, tarihi ve yolcu sayısıyla). Veri yalnız tarayıcında kalır.',
+    news2: '<b>3 yıldızlı seferde kutlama:</b> sonuç ekranında konfeti yağıyor. Hareketi azalt ayarı açıksa gösterilmez.',
+    news3: '<b>Sayfa güncellendi:</b> Türkçe açıklama ve paylaşım kartı (WhatsApp, X), kaybolunca açılan 404 sayfası, ana menüde "Diğer oyunlar" bağlantısı.',
+    news4: '<b>Sürüm etiketi ve bu pencere:</b> ana menüde sürümü görürsün, yeni bir güncelleme gelince Yenilikler düğmesinde kırmızı nokta çıkar.',
+    news5: '<b>Dokunulmadı:</b> vardiyalar, puanlama, rütbe ve görevler, günlük meydan okuma ve eski kayıtların hepsi olduğu gibi çalışıyor.',
     newRecord: 'Yeni rekor!', camChase: 'Takip kamerası', camBridge: 'Köprüüstü', camTop: 'Kuş bakışı', camDock: 'Yanaşma kamerası', badgeGiveWay: 'YOL VER', toastGiveWay: 'Yol ver! Tehlike bölgesinde hızını 2 kn altına düşür', c_tanker: 'TANKER', c_ferry: 'VAPUR',
     hintSlow: 'Yavaşla', hintAlign: 'Paralel yanaş', hintCloser: 'Daha yakına', hintOk: 'Yanaşıyor…', hintStop: 'Dur ve bekle', hintFast: 'Çok hızlı!',
     dockDone: 'Yanaşma tamam', pierNames: { eminonu: 'Eminönü', karakoy: 'Karaköy', uskudar: 'Üsküdar', besiktas: 'Beşiktaş', kadikoy: 'Kadıköy', kanlica: 'Kanlıca' },
@@ -2049,6 +2104,13 @@ const STR = {
     endClear: 'Shift complete', endFail: 'Shift failed', endWreck: 'Ferry damaged', endWin: 'Congratulations, captain!', endEndless: 'Endless shift over',
     subClear: 'Fair winds, captain!', subFail: 'Not even one star: dock gentler, keep the timetable.', subWreck: 'Hull damage reached 100%: shift cancelled.', subWin: 'You finished all 8 shifts. The Bosphorus is yours.', subEndless: '{0} shifts, {1} passengers in total',
     sPax: 'Passengers carried', sPunct: 'Punctuality', sComfort: 'Comfort', sLost: 'Passengers lost', sHull: 'Hull damage', sScore: 'Score', sTotal: 'Total score', sShifts: 'Shifts',
+    hub: 'More games', news: 'What\'s new', logTab: 'Captain\'s log', logEmpty: 'The log is empty. Finish a shift with a star and your best 5 shifts show up here.', logSub: '{0} passengers', logMode_c: 'Shift {0}', logMode_e: 'Endless shift {0}',
+    newsVer: 'Version {0}', newsDate: 'November 2026', verTag: 'v{0} · November 2026',
+    news1: '<b>Captain\'s log:</b> your best 5 starred shifts are now kept on this device (score, date and passengers). The data never leaves your browser.',
+    news2: '<b>Celebration on a 3-star shift:</b> confetti falls on the result screen. It stays off when Reduce motion is on.',
+    news3: '<b>Page update:</b> a Turkish description and share card (WhatsApp, X), a 404 page, and a "More games" link on the main menu.',
+    news4: '<b>Version tag and this window:</b> the menu shows the version, and a red dot appears on What\'s new when an update arrives.',
+    news5: '<b>Untouched:</b> shifts, scoring, rank and missions, the daily challenge and every old save work exactly as before.',
     newRecord: 'New record!', camChase: 'Chase camera', camBridge: 'Bridge', camTop: 'Top view', camDock: 'Docking camera', badgeGiveWay: 'GIVE WAY', toastGiveWay: 'Give way! Keep speed under 2 kn in the danger zone', c_tanker: 'TANKER', c_ferry: 'FERRY',
     hintSlow: 'Slow down', hintAlign: 'Come parallel', hintCloser: 'Closer', hintOk: 'Coming alongside…', hintStop: 'Stop and hold', hintFast: 'Too fast!',
     dockDone: 'Docked', pierNames: { eminonu: 'Eminönü', karakoy: 'Karaköy', uskudar: 'Üsküdar', besiktas: 'Beşiktaş', kadikoy: 'Kadıköy', kanlica: 'Kanlıca' },
@@ -2133,6 +2195,40 @@ const SAVED = lsGet(KEY_SAVE) || {};
 const best = Object.assign({ total: 0, stars: [0, 0, 0, 0, 0, 0, 0, 0], score: [0, 0, 0, 0, 0, 0, 0, 0], endless: 0, endlessPax: 0 }, SAVED.best || {});
 let runSave = SAVED.run || null;
 const writeSave = () => lsSet(KEY_SAVE, { best, run: runSave });
+
+// ---------------------------------------------------------------- v2.1: version tag, "what's new", captain's log (best 5 starred shifts, local only)
+const VERSION = '2.1', KEY_LOG = 'arena.vapur.log', KEY_SEEN = 'arena.vapur.seenver';
+const readLog = () => { const l = lsGet(KEY_LOG); return Array.isArray(l) ? l.filter(r => r && typeof r.sc === 'number') : []; };
+function addLog(res) {
+  if (FLAG.auto || Q.has('capture') || !(res.stars > 0)) return;
+  const sh = SIM.shift || currentShiftDef();
+  const rec = { d: new Date().toISOString().slice(0, 10), m: sh && sh.daily ? 'd' : sh && sh.endless ? 'e' : 'c', i: sh && sh.daily ? sh.daily : sh && sh.endless ? sh.endless : (sh ? sh.id : res.shift), st: res.stars, sc: res.score, px: res.pax };
+  const log = readLog(); log.push(rec); log.sort((a, b) => b.sc - a.sc); lsSet(KEY_LOG, log.slice(0, 5));
+}
+function renderLog() {
+  const log = readLog().sort((a, b) => b.sc - a.sc).slice(0, 5);
+  el.logEmpty.hidden = log.length > 0;
+  el.logList.innerHTML = log.map((r, k) => '<li><span class="rk">' + (k + 1) + '</span><span class="sc">' + r.sc + ' · ' + '\u2605'.repeat(r.st) + '</span><span>' + r.d + '</span><span class="sub">' + (r.m === 'd' ? t('sD') + ' ' + r.i : r.m === 'e' ? t('logMode_e', r.i) : t('logMode_c', r.i)) + ' · ' + t('logSub', r.px) + '</span></li>').join('');
+}
+function renderNews() {
+  el.newsList.innerHTML = [1, 2, 3, 4, 5].map(i => '<li>' + t('news' + i) + '</li>').join('');
+  el.newsVer.textContent = t('newsVer', VERSION); el.newsDate.textContent = t('newsDate');
+  el.verTag.textContent = t('verTag', VERSION);
+  renderLog();
+}
+function newsTab(tab) {
+  const isLog = tab === 'log';
+  el.newsPane.hidden = isLog; el.logPane.hidden = !isLog;
+  el.bTabNews.classList.toggle('sel', !isLog); el.bTabLog.classList.toggle('sel', isLog);
+  el.bTabNews.setAttribute('aria-selected', String(!isLog)); el.bTabLog.setAttribute('aria-selected', String(isLog));
+}
+function openNews() {
+  if (G.state !== 'title') return;
+  G.state = 'news'; renderNews(); newsTab('news'); show('sNews'); el.bNewsBack.focus();
+  try { localStorage.setItem(KEY_SEEN, VERSION); } catch (e) { /* ignore */ }
+  el.newsDot.hidden = true;
+}
+function closeNews() { if (G.state !== 'news') return; G.state = 'title'; show('sTitle'); el.bNews.focus(); }
 
 // ---------------------------------------------------------------- Captain Rank & Date-Seeded Missions (bogaz-vapuru.missions)
 const KEY_MISSIONS = 'bogaz-vapuru.missions';
@@ -4742,7 +4838,7 @@ function setCamMode(m) {
 const el = {};
 for (const id of ['hud', 'topbar', 'stShift', 'stClock', 'stPlan', 'stPax', 'comfBar', 'hullBar', 'stStars', 'bPanel', 'bCamH', 'bPause', 'bSound', 'bLang', 'toasts', 'colregBadge', 'colregArrow', 'colregTxt', 'colregSub', 'nextCard', 'ncName', 'ncL2', 'ncL3', 'camLbl', 'minimap', 'lvThr', 'lvThrS', 'lvRud', 'speedo', 'spArc', 'spVal', 'spUnit', 'dock', 'dkDist', 'dkSpd', 'dkAng', 'dkHint', 'floaters', 'touch', 'tWheel', 'tWheelSvg', 'tThr', 'tHorn', 'tCam',
   'sTitle', 'sIntro', 'sPause', 'sSettings', 'sEnd', 'bPlay', 'playTxt', 'bCont', 'bEndless', 'bSettingsT', 'bLangT', 'langTxt', 'bestLine', 'cmap', 'inTitle', 'inDesc', 'inCond', 'inTT', 'inTarget', 'bStart', 'bFog', 'fogTxt', 'bIntroBack',
-  'bResume', 'bRestart', 'bSettingsP', 'bMenuP', 'rMaster', 'rMusic', 'rSfx', 'oMaster', 'oMusic', 'oSfx', 'bTR', 'bEN', 'bQLow', 'bQHigh', 'bFull', 'bSetBack', 'enTitle', 'enSub', 'enStars', 'enStats', 'enRec', 'bNext', 'nextTxt', 'bRetry', 'bMenuE', 'dbg', 'hurt', 'bDaily', 'dailyLine', 'bA11y', 'bShare', 'aOther', 'enDaily', 'rankName', 'rankXpTxt', 'rankBar', 'missionsDateTag', 'missionsList']) el[id] = document.getElementById(id);
+  'bResume', 'bRestart', 'bSettingsP', 'bMenuP', 'rMaster', 'rMusic', 'rSfx', 'oMaster', 'oMusic', 'oSfx', 'bTR', 'bEN', 'bQLow', 'bQHigh', 'bFull', 'bSetBack', 'enTitle', 'enSub', 'enStars', 'enStats', 'enRec', 'bNext', 'nextTxt', 'bRetry', 'bMenuE', 'dbg', 'hurt', 'bDaily', 'dailyLine', 'bA11y', 'bShare', 'aOther', 'enDaily', 'rankName', 'rankXpTxt', 'rankBar', 'missionsDateTag', 'missionsList', 'sNews', 'bNews', 'newsDot', 'newsList', 'logList', 'logEmpty', 'bNewsBack', 'bTabNews', 'bTabLog', 'newsPane', 'logPane', 'verTag', 'newsVer', 'newsDate']) el[id] = document.getElementById(id);
 function toast(msg, kind = 'info', ms = 2600) {
   const d = document.createElement('div'); d.className = 'toast ' + kind; d.textContent = msg; el.toasts.appendChild(d);
   while (el.toasts.children.length > 4) el.toasts.firstChild.remove();
@@ -4765,7 +4861,7 @@ function applyLang() {
   el.bTR.classList.toggle('sel', LANG === 'tr'); el.bEN.classList.toggle('sel', LANG === 'en');
   updateBestLine(); if (G.state === 'intro') renderIntro(); if (G.state === 'end' && G.lastResult) renderEnd(G.lastResult);
   el.camLbl.textContent = t(['camChase', 'camBridge', 'camTop', 'camDock'][camMode]);
-  renderMissionsUI();
+  renderMissionsUI(); renderNews();
   setTimeout(updateBarH, 0);
 }
 function updateBestLine() {
@@ -4977,7 +5073,7 @@ function onKey(e, down) {
   keys[e.code] = down;
   if (!down) return;
   if (['Space', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.code) && G.state === 'play') e.preventDefault();
-  if (e.code === 'KeyP' || e.code === 'Escape') { if (G.state === 'play') pauseGame(); else if (G.state === 'paused') resumeGame(); else if (G.state === 'settings') closeSettings(); }
+  if (e.code === 'KeyP' || e.code === 'Escape') { if (G.state === 'play') pauseGame(); else if (G.state === 'paused') resumeGame(); else if (G.state === 'settings') closeSettings(); else if (G.state === 'news') closeNews(); }
   else if (e.code === 'KeyM') { settings.musicOn = !settings.musicOn; AUD.applyGains(); saveSettings(); toast(t('music') + (settings.musicOn ? ' ✓' : ' ✕'), 'info', 1200); }
   else if (e.code === 'KeyX') { settings.sfxOn = !settings.sfxOn; AUD.applyGains(); saveSettings(); syncSettingsUI(); toast(t('effects') + (settings.sfxOn ? ' ✓' : ' ✕'), 'info', 1200); }
   else if (e.code === 'KeyL') toggleLang();
@@ -5030,7 +5126,7 @@ function setupTouch() {
 function toggleFull() { try { if (!document.fullscreenElement) document.documentElement.requestFullscreen(); else document.exitFullscreen(); } catch (e) { /* ignore */ } }
 function toggleLang() { LANG = LANG === 'tr' ? 'en' : 'tr'; settings.lang = LANG; saveSettings(); applyLang(); }
 // ---------------------------------------------------------------- screens and game flow
-function show(id) { for (const s of ['sTitle', 'sIntro', 'sPause', 'sSettings', 'sEnd']) el[s].classList.toggle('show', s === id); el.hud.classList.toggle('hidden', !(G.state === 'play' || G.state === 'paused')); updateBarH(); }
+function show(id) { for (const s of ['sTitle', 'sIntro', 'sPause', 'sSettings', 'sEnd', 'sNews']) el[s].classList.toggle('show', s === id); el.hud.classList.toggle('hidden', !(G.state === 'play' || G.state === 'paused')); updateBarH(); }
 let settingsFrom = 'title';
 function openSettings(from) { settingsFrom = from; G.prevState = G.state; G.state = 'settings'; syncSettingsUI(); show('sSettings'); el.bSetBack.focus(); }
 function closeSettings() { G.state = settingsFrom === 'pause' ? 'paused' : settingsFrom === 'intro' ? 'intro' : 'title'; show(settingsFrom === 'pause' ? 'sPause' : settingsFrom === 'intro' ? 'sIntro' : 'sTitle'); (settingsFrom === 'pause' ? el.bSettingsP : settingsFrom === 'intro' ? el.bStart : el.bSettingsT).focus(); }
@@ -5135,11 +5231,21 @@ function finishShiftUI(res) {
     if (G.mode === 'campaign' && idx >= 7) Arena.award('bogaz-vapuru:campaign', t('awCampaign'));
     if (best.stars.every(v => v >= 3)) Arena.award('bogaz-vapuru:all-stars', t('awAllStars'));
   }
-  res.rec = rec;
-  renderEnd(res); show('sEnd');
+  res.rec = rec; addLog(res);
+  renderEnd(res); show('sEnd'); celebrate(res.stars);
   if (window.Arena && Arena.complete) Arena.complete({ mount: $('#sEnd .col') });   // arena-kit v1.1: bogaz-vapuru/complete + one-tap 👍/👎 (nothing on ?auto)
   if (res.stars >= 2) AUD.star(); else if (res.stars === 1) AUD.good(); else AUD.bad();
   el.bNext.focus();
+}
+/** 3 stars: a short confetti shower on the result card; skipped when "reduce motion" is on */
+function celebrate(stars) {
+  const card = $('#sEnd .card'); if (!card) return;
+  const old = card.querySelector('#confetti'); if (old) old.remove();
+  if (stars < 3 || calm()) return;
+  const c = document.createElement('div'); c.id = 'confetti'; c.setAttribute('aria-hidden', 'true');
+  const cols = ['#E8A13A', '#1E5F63', '#C1442E', '#F4EBD9', '#7A4A8B', '#3FA892'];
+  for (let k = 0; k < 28; k++) { const i = document.createElement('i'); i.style.left = (Math.random() * 100) + '%'; i.style.background = cols[k % cols.length]; i.style.animationDelay = (Math.random() * 0.7) + 's'; i.style.setProperty('--cx', ((Math.random() - 0.5) * 80) + 'px'); i.style.setProperty('--cr', ((Math.random() - 0.5) * 900) + 'deg'); i.style.setProperty('--cy', (300 + Math.random() * 260) + 'px'); c.appendChild(i); }
+  card.appendChild(c); setTimeout(() => c.remove(), 3600);
 }
 function renderEnd(res) {
   const won = res.stars > 0, campaignDone = G.mode === 'campaign' && G.shiftIdx >= 7 && won;
@@ -5209,7 +5315,7 @@ click(el.bSetBack, closeSettings); click(el.bTR, () => { LANG = 'tr'; settings.l
 click(el.bQLow, () => { settings.quality = 'low'; saveSettings(); applyQuality(); syncSettingsUI(); }); click(el.bQHigh, () => { settings.quality = 'high'; saveSettings(); applyQuality(); syncSettingsUI(); });
 click(el.bFull, toggleFull);
 click(el.bNext, () => afterBreak(nextAction)); click(el.bRetry, () => afterBreak(retryCurrent)); click(el.bMenuE, () => afterBreak(goMenu));
-click(el.bDaily, startDaily); click(el.bA11y, () => { if (window.Arena) Arena.openSettings(); }); click(el.bShare, shareResult);
+click(el.bDaily, startDaily); click(el.bNews, openNews); click(el.bNewsBack, closeNews); click(el.bTabNews, () => newsTab('news')); click(el.bTabLog, () => newsTab('log')); click(el.bA11y, () => { if (window.Arena) Arena.openSettings(); }); click(el.bShare, shareResult);
 function shareResult() {
   const r = G.lastResult; if (!r || !window.Arena) return;
   const sh = SIM.shift || currentShiftDef();
@@ -5532,6 +5638,7 @@ async function boot() {
   await step(() => { buildMinimapBase(); });
   G.state = 'title'; el.bPlay.disabled = false; el.playTxt.setAttribute('data-i', 'play'); el.playTxt.textContent = t('play'); window.__vapurReady = true; if (!lsGet(KEY_SET)) saveSettings();
   showcase(); applyLang(); updateBestLine(); renderMissionsUI();
+  try { el.newsDot.hidden = localStorage.getItem(KEY_SEEN) === VERSION || FLAG.auto; } catch (e) { /* ignore */ }
   if (FLAG.auto || SIM_PRE > 0) {
     if (Q.get('mode') === 'endless') startEndless(); else if (Q.get('mode') === 'daily' && window.Arena) startDaily(); else startCampaign(false);
     beginShift();
