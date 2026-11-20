@@ -15,7 +15,7 @@
     "Three.js r170",
     "Web Audio API"
   ],
-  "version": "2.0.0",
+  "version": "2.1.0",
   "license": "MIT",
   "topics": [
     "browser-game",
@@ -52,14 +52,14 @@
       "docs/gameplay.mp4"
     ]
   },
-  "tests": null,
+  "tests": ["test/duman.mjs", "tools/smoke.mjs", "tools/gate.mjs"],
   "ci": {
     "workflows": [],
     "badge": null
   },
   "docs": {
     "readme": "README.md",
-    "changelog": null,
+    "changelog": "CHANGELOG.md",
     "version_history": null,
     "roadmap": null,
     "security": null,

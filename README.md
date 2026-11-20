@@ -27,6 +27,8 @@
 
 <!-- gameplay gif -->
 
+**Latest: v2.1 (November 2026)** adds a local *captain's log* of your best 5 starred shifts, a confetti finish on 3 stars, a version tag with a *What's new* window and a *More games* link on the main menu. See [CHANGELOG.md](CHANGELOG.md).
+
 ## Features
 
 - **Six piers across the strait:** Moor at Eminönü, Karaköy, Üsküdar, Beşiktaş, Kadıköy and Kanlıca on tight scheduled departure times where arriving more than 15 s late costs points and passengers give up after 40 s.
@@ -94,7 +96,7 @@ A foggy-day mode where you navigate by sound and light instead of the radar.
 | Fullscreen | Settings button | `F` |
 
 - **Touch:** Wheel on the left, throttle lever on the right, and dedicated HUD buttons for horn, camera, pause, and settings.
-- **Persistence:** Settings are saved in `localStorage` under `arena.vapur.settings`; best stars and scores and the campaign you can continue under `arena.vapur.save`.
+- **Persistence:** Settings are saved in `localStorage` under `arena.vapur.settings`; best stars and scores and the campaign you can continue under `arena.vapur.save`; the captain's log (best 5 starred shifts) under `arena.vapur.log`. Nothing leaves your browser.
 - **Language & performance:** Language follows the browser (Turkish or English); phones start automatically on the Low tier.
 
 <details>
@@ -163,6 +165,8 @@ python -m http.server 8000
 ```
 
 Then open <http://localhost:8000/>.
+
+Smoke test (page opens, no console errors, a shift starts and moves, old save loads, no overflow at 390x844): `node test/duman.mjs`. It needs `playwright-core` and a Chromium-based browser (`PW_MODULE=<folder containing node_modules>`, `CHROMIUM=<browser exe>`); nothing is added to the repository.
 
 ## Made with Claude Code
 
