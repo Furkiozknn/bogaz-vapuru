@@ -33,22 +33,9 @@
 
 **Latest: v2.1 (November 2026)** adds a local *captain's log* of your best 5 starred shifts, a confetti finish on 3 stars, a version tag with a *What's new* window and a *More games* link on the main menu. See [CHANGELOG.md](CHANGELOG.md).
 
-## Şarkı videosundan / From the song video
+## Şarkı videosu / Song video
 
-<p align="center">
-  <img src="docs/banner.svg" width="100%" alt="Boğaz Vapuru: İskeleye yanaş, düdüğü çal. Lacivert zemin, altın başlık, mavi Boğaz'da beyaz vapur.">
-</p>
-
-<table>
-  <tr>
-    <td width="33%"><img src="docs/sarki-01.jpg" alt="Şarkı videosundan: vapurda kaptan ve simitli çocuk, arkada Boğaz ve köprü"><br><sub>Başlık: "Turkish is easy… on a ferry?"</sub></td>
-    <td width="33%"><img src="docs/sarki-02.jpg" alt="Şarkı videosundan: simit tutan çocuğun yakın planı, 'Luck?' yazısı"><br><sub>"Luck?"</sub></td>
-    <td width="33%"><img src="docs/sarki-03.jpg" alt="Şarkı videosundan: oyun görüntüsü, mavi Boğaz'da vapur, 'Vapur, vapur, düdüğü çal'"><br><sub>Oyundan: "Vapur, vapur, düdüğü çal"</sub></td>
-  </tr>
-</table>
-
-**Boğaz Vapuru · Oyun Şarkısı** (42 sn, dikey video): oyunun tanıtım şarkısı; kelime sorusu ve Türkçe cevaplarla (otur, huzur, vapur) iskele ve tarife sözleri. Video bu depoda değil; paylaşım videoları deposunda: [social-videos / 2026-11 / Boğaz Vapuru oyun şarkısı](https://github.com/Furkiozknn/social-videos/blob/master/2026-11/2026-11-19-sarki-bogaz-vapuru.mp4).
-*The song video (42 s, vertical) is a playful word-quiz tune about piers and timetables; it lives in the public social-videos repository, linked above.* Görsel stil notları: [docs/STIL.md](docs/STIL.md).
+**Boğaz Vapuru · Oyun Şarkısı**: oyunun tanıtım şarkısı videosu, paylaşım videoları deposunda: [social-videos / 2026-11](https://github.com/Furkiozknn/social-videos/blob/master/2026-11/2026-11-19-sarki-bogaz-vapuru.mp4). Videonun görsel stil notları: [docs/STIL.md](docs/STIL.md).
 
 ## Features
 
