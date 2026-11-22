@@ -1,6 +1,6 @@
 <p align="center">
   <a href="https://furkiozknn.github.io/bogaz-vapuru/">
-    <img src="docs/card.jpg" width="100%" alt="Boğaz Vapuru: captain an Istanbul city ferry between six piers on the Bosphorus. Click to play in your browser.">
+    <img src="docs/card-3d.jpg" width="100%" alt="Boğaz Vapuru: captain an Istanbul city ferry between six piers on the Bosphorus. Click to play in your browser.">
   </a>
 </p>
 
@@ -31,13 +31,29 @@
 
 ## Features
 
+<p align="center">
+  <img src="docs/features.jpg" width="100%" alt="Boğaz Vapuru feature overview: a white Bosphorus ferry with a cheerful captain and tourist sails past a suspension bridge, with five numbered route markers on the water for six piers, precision docking, an eight-shift campaign, three-star scoring and a single-file Three.js build.">
+</p>
+
+<details>
+<summary><b>Feature details</b></summary>
+
 - **Six piers across the strait:** Moor at Eminönü, Karaköy, Üsküdar, Beşiktaş, Kadıköy and Kanlıca on tight scheduled departure times where arriving more than 15 s late costs points and passengers give up after 40 s.
 - **Precision maritime docking:** Slide alongside the berth under 1 m/s, parallel within 20 degrees and close for 0.5 s to secure the ropes; hard bumps over 0.7 m/s damage the hull, while 100% hull damage cancels the shift.
 - **Dynamic Bosphorus campaign:** Master 8 varied shifts—including fog, night, current 1.0, a thunderous storm, and a convoy of 5 tankers—plus an endless mode with procedural route generation.
 - **Three-star scoring & passenger comfort:** Earn up to 3 stars per shift (1 at 40%, 2 at 65%, 3 at 85% of target) balancing delivered passengers (&times;10), punctuality (up to 100 per stop), and passenger comfort (&times;3).
 - **Ultra-lean procedural world:** A single `index.html` running Three.js r170 rendering 1100 buildings, 1500 trees, and dynamic water at 25–32 draw calls and 60 fps on Intel UHD 620, verified by an automated bot with 0 JS errors.
 
+</details>
+
 ## How to play
+
+<p align="center">
+  <img src="docs/how-to-play.jpg" width="100%" alt="How to play Boğaz Vapuru: at dusk the ferry is moored at a wooden pier while the captain waves and the tourist holds a simit; text lists the three steps (cast off on schedule, navigate the channel, come alongside and dock) and the keyboard controls.">
+</p>
+
+<details>
+<summary><b>Goal and steps</b></summary>
 
 > [!TIP]
 > **Goal:** Sail each shift's route on time, dock cleanly at every pier and reach the shift target for 1 to 3 stars. No star means the shift must be repeated.
@@ -45,6 +61,8 @@
 1. **Cast off on schedule:** Wait for passenger boarding to finish and departure time to arrive, then push the throttle lever forward (`W` or `Up`).
 2. **Navigate the channel:** Steer with the wheel (`A` / `D`), compensate for the Marmara current and wind drift, and sound the horn (`Space`) to warn fishing boats and cross-traffic.
 3. **Come alongside and dock:** Approach the teal berth box under 1 m/s, parallel within 20 degrees, and hold position for half a second until the ropes are thrown and the bell rings.
+
+</details>
 
 <details>
 <summary><b>Rules and shift roster</b></summary>
