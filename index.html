@@ -531,15 +531,6 @@ body.compact #colregBadge svg.arrow { width: 14px; height: 14px; }
   position: relative; display: flex; align-items: center; justify-content: center;
   margin-bottom: 6px;
 }
-.mascot-badge {
-  position: absolute; right: calc(50% - 110px); top: 0;
-  width: 52px; height: 52px; border-radius: 50%;
-  background: var(--c-cream-l); border: 2px solid var(--c-deep);
-  box-shadow: 2px 2px 0 var(--c-deep);
-  display: flex; align-items: center; justify-content: center;
-  overflow: hidden;
-}
-.mascot-badge svg { width: 44px; height: 44px; }
 
 .card h1 {
   margin: 4px 0 0; font: 800 clamp(32px, 6vw, 46px)/1.05 var(--font-display);
@@ -557,7 +548,6 @@ body.compact #colregBadge svg.arrow { width: 14px; height: 14px; }
 .col { display: flex; flex-direction: column; gap: 10px; margin-top: 14px; align-items: stretch; }
 .row { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
 
-#logoBig { width: 140px; height: 105px; margin: 0 auto 6px; display: block; filter: drop-shadow(2px 2px 0 var(--c-deep-faint)); }
 .best { font-size: 13px; color: var(--c-deep-mid); margin-top: 10px; font-weight: 600; font-family: var(--font-mono); }
 .foot { margin-top: 12px; font-size: 11px; color: var(--c-deep-mid); }
 .foot .links { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 2px 4px; margin-bottom: 4px; }
@@ -784,7 +774,6 @@ input[type=range] { width: 100%; height: 44px; accent-color: var(--c-teal); back
   #topbar .btns { gap: 4px; }
   .btn.icon { width: 44px; min-width: 44px; min-height: 44px; }
   .card { padding: 18px 14px 16px; }
-  #logoBig { width: 110px; height: 85px; }
   .missions-ledger { padding: 8px; margin: 10px 0 6px; }
   .rank-name { font-size: 16px; }
   .rank-bar { width: 70px; }
@@ -793,7 +782,7 @@ input[type=range] { width: 100%; height: 44px; accent-color: var(--c-teal); back
   .mission-tag { font-size: 8.5px; padding: 1px 4px; }
 }
 @media (max-height: 520px) {
-  .card { padding: 12px 16px; } .card h1 { font-size: 26px; } #logoBig { width: 100px; height: 75px; }
+  .card { padding: 12px 16px; } .card h1 { font-size: 26px; }
   #minimap { width: 100px; height: 150px; }
   .missions-ledger { margin: 8px 0 4px; padding: 6px 8px; }
   .missions-list { gap: 4px; }
@@ -889,9 +878,17 @@ html, body { font-weight: 700; }
   .hero-pair img { height: 100px; } .hero-pair .hp-t { height: 94px; }
   .card-char { height: 78px; } .card-char.turist { height: 84px; }
 }
+/* short screens (laptops 1280x720 / 1366x768, landscape phones): the character steps aside into the card's top
+   corner instead of taking a row, and the title pair shrinks, so every button fits without scrolling */
+@media (max-height: 800px) {
+  .card-char, .card-char.turist { position: absolute; top: 36px; right: 14px; height: 74px; margin: 0; z-index: 1; }
+  .hero-pair { margin: -6px 0 0; }
+  .hero-pair img { height: 78px; } .hero-pair .hp-t { height: 73px; margin-left: -12px; }
+  .card h1 { font-size: clamp(30px, 5vw, 40px); }
+}
 @media (max-height: 520px) {
-  .hero-pair img, .hero-pair .hp-t { height: 70px; }
-  .card-char, .card-char.turist { height: 60px; }
+  .hero-pair img, .hero-pair .hp-t { height: 56px; }
+  .card-char, .card-char.turist { height: 52px; top: 30px; }
 }
 </style>
 <script>/*ARENA-KIT:BEGIN v1.3.2 sha256:ce77e23fab7c*/
