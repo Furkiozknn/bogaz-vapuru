@@ -1530,6 +1530,10 @@ html, body { font-weight: 700; }
     b.querySelector('.gg-r').textContent = T.rt; b.querySelector('.gg-s').textContent = T.sw;
     document.documentElement.setAttribute('data-glguard', G.kind);
     try { if (C.play && G.pd === undefined) { var pb = document.querySelector(C.play); if (pb) { G.pd = pb.disabled; pb.disabled = true; } } } catch (e) {}
+    /* the module never loaded: its buttons stay empty, so hide them */
+    try { if (G.kind === 'load') [].forEach.call(document.querySelectorAll('button,.btn'), function (e) { if (b.contains(e) || e.__ggh || e.tagName === 'A' || (e.textContent || '').trim() || e.querySelector('img,svg,canvas') || e.getAttribute('aria-label')) return; e.__ggh = 1; (G.hid = G.hid || []).push([e, e.style.getPropertyValue('display'), e.style.getPropertyPriority('display')]); e.style.setProperty('display', 'none', 'important'); }); } catch (e) {}
+    /* a half-loaded menu must not keep saying "Loading" behind the notice */
+    try { var q = document.querySelectorAll('body *'), i, e, t; for (i = 0; i < q.length; i++) { e = q[i]; if (e.children.length || b.contains(e) || e.__ggh) continue; t = (e.textContent || '').trim(); if (/^(Yükleniyor|Loading)[….]*(\s*\/\s*(Yükleniyor|Loading)[….]*)?\s*\d*(\/\d+)?$/.test(t)) { e.__ggh = 1; (G.hid = G.hid || []).push([e, e.style.getPropertyValue('display'), e.style.getPropertyPriority('display')]); e.style.setProperty('display', 'none', 'important'); } } } catch (e) {}
   }
   function show(kind, lang) {
     if (G.kind === 'gl' && kind !== 'gl') return;
@@ -1546,7 +1550,7 @@ html, body { font-weight: 700; }
     paint();
   }
   G.fail = function (kind, lang) { show(kind, lang); };
-  G.started = function () { G.up = true; if (G.box && G.kind === 'load') { G.box.remove(); G.box = null; G.kind = null; document.documentElement.removeAttribute('data-glguard'); try { var pb = C.play && document.querySelector(C.play); if (pb && G.pd !== undefined) pb.disabled = G.pd; } catch (e) {} G.pd = undefined; } };
+  G.started = function () { G.up = true; if (G.box && G.kind === 'load') { (G.hid || []).forEach(function (h) { h[0].__ggh = 0; h[0].style.setProperty('display', h[1], h[2]); }); G.hid = []; G.box.remove(); G.box = null; G.kind = null; document.documentElement.removeAttribute('data-glguard'); try { var pb = C.play && document.querySelector(C.play); if (pb && G.pd !== undefined) pb.disabled = G.pd; } catch (e) {} G.pd = undefined; } };
   /* a Proxy that swallows every call/property so top-level code can finish without a real renderer; boot() then stops at glFail */
   G.stub = function (canvas) {
     var f = function () {}, p = new Proxy(f, {
