@@ -1507,6 +1507,58 @@ html, body { font-weight: 700; }
   };
 })(typeof window !== 'undefined' ? window : globalThis);
 /*ARENA-KIT:END*/</script>
+<script>
+/* saglamlik: shown when WebGL cannot start or the three.js module never loads (CDN blocked / offline). Classic script, runs before the module. */
+(function () {
+  var C = {"play":"#bPlay","key":"arena.vapur.settings","wrap":"screen dim show","card":"card glass","btn":"btn primary","btn2":"btn","cardStyle":"text-align:center"};
+  var S = {
+    tr: { gt: 'WebGL kullanılamıyor', gb: 'Bu oyun WebGL ister ama tarayıcın başlatamadı. Tarayıcı ayarlarından donanım hızlandırmayı aç ya da başka bir tarayıcı dene (Chrome, Edge, Firefox).',
+          lt: '3D motoru yüklenemedi', lb: 'three.js internetten (jsDelivr) indirilemedi. Bağlantını kontrol edip sayfayı yenile; bir reklam veya içerik engelleyici cdn.jsdelivr.net adresini engelliyor olabilir.', rt: 'Yeniden dene', sw: 'English' },
+    en: { gt: 'WebGL is not available', gb: 'This game needs WebGL, but your browser could not start it. Turn on hardware acceleration in the browser settings or try another browser (Chrome, Edge, Firefox).',
+          lt: 'The 3D engine could not load', lb: 'three.js could not be downloaded (jsDelivr). Check your connection and reload; an ad or content blocker may be blocking cdn.jsdelivr.net.', rt: 'Try again', sw: 'Türkçe' }
+  };
+  var G = window.__glGuard = { up: false, kind: null, lang: null, box: null };
+  function pick() {
+    try { var q = new URLSearchParams(location.search).get('lang'); if (q === 'tr' || q === 'en') return q; } catch (e) {}
+    try { var s = JSON.parse(localStorage.getItem(C.key)); if (s && (s.lang === 'tr' || s.lang === 'en')) return s.lang; } catch (e) {}
+    return /^tr/i.test(navigator.language || '') ? 'tr' : 'en';
+  }
+  function paint() {
+    var T = S[G.lang], b = G.box; if (!b) return;
+    b.querySelector('h2').textContent = T[G.kind === 'gl' ? 'gt' : 'lt'];
+    b.querySelector('p').textContent = T[G.kind === 'gl' ? 'gb' : 'lb'];
+    b.querySelector('.gg-r').textContent = T.rt; b.querySelector('.gg-s').textContent = T.sw;
+    document.documentElement.setAttribute('data-glguard', G.kind);
+    try { if (C.play && G.pd === undefined) { var pb = document.querySelector(C.play); if (pb) { G.pd = pb.disabled; pb.disabled = true; } } } catch (e) {}
+  }
+  function show(kind, lang) {
+    if (G.kind === 'gl' && kind !== 'gl') return;
+    G.kind = kind; G.lang = G.lang || lang || pick();
+    if (!G.box) {
+      var w = document.createElement('div'); w.id = 'glGuard'; w.className = C.wrap; w.setAttribute('role', 'alert');
+      w.style.cssText = 'display:flex;position:fixed;top:0;left:0;right:0;bottom:0;z-index:2147483000;align-items:center;justify-content:center;padding:14px;overflow:auto;' + (C.bg || '');
+      w.innerHTML = '<div class="' + C.card + '" style="' + (C.cardStyle || '') + '"><h2 style="' + (C.h2 || '') + '"></h2><p style="margin:10px 0 16px;line-height:1.45;' + (C.p || '') + '"></p>' +
+        '<div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap"><button type="button" class="' + C.btn + ' gg-r"></button><button type="button" class="' + C.btn2 + ' gg-s"></button></div></div>';
+      w.querySelector('.gg-r').onclick = function () { location.reload(); };
+      w.querySelector('.gg-s').onclick = function () { G.lang = G.lang === 'tr' ? 'en' : 'tr'; paint(); };
+      (document.body || document.documentElement).appendChild(w); G.box = w;
+    }
+    paint();
+  }
+  G.fail = function (kind, lang) { show(kind, lang); };
+  G.started = function () { G.up = true; if (G.box && G.kind === 'load') { G.box.remove(); G.box = null; G.kind = null; document.documentElement.removeAttribute('data-glguard'); try { var pb = C.play && document.querySelector(C.play); if (pb && G.pd !== undefined) pb.disabled = G.pd; } catch (e) {} G.pd = undefined; } };
+  /* a Proxy that swallows every call/property so top-level code can finish without a real renderer; boot() then stops at glFail */
+  G.stub = function (canvas) {
+    var f = function () {}, p = new Proxy(f, {
+      get: function (t, k) { if (k === 'domElement') return canvas; if (k === Symbol.toPrimitive) return function () { return 0; }; if (k === 'then') return undefined; return p; },
+      set: function () { return true; }, apply: function () { return p; }, construct: function () { return p; }
+    });
+    return p;
+  };
+  window.addEventListener('error', function (e) { var t = e.target; if (!G.up && t && t.tagName === 'SCRIPT' && t.type === 'module') show('load'); }, true);
+  setTimeout(function () { if (!G.up) show('load'); }, 20000);
+})();
+</script>
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"},"integrity":{"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js":"sha384-GY5FqjttLCFRt/McQbyaVdCk2O1IQtOeX8Py6NfD89BIAsIyJFRl4UgSXrk2vXAk"}}</script>
 <script type="module">/*ARENA-CORE:BEGIN v2.0.1 sha256:cfe1449bc854*/
 /* ARENA-CORE v2 — shared visual / feel / test layer for the Claude Game Arena games (Furki Ozkan).
@@ -2029,10 +2081,10 @@ window.ArenaCore = { version: VERSION, kalite, render, kabuk, his, kamera, test 
   </section>
 </main>
 <div id="dbg"></div>
-<script>setTimeout(function(){if(!window.__vapurReady){var e=document.getElementById("playTxt");if(e)e.textContent="Three.js could not load (check the connection)";}},25000);</script>
 <script type="module">
 
 import * as THREE from 'three';
+window.__glGuard && __glGuard.started(); // three.js loaded: the load-failure watchdog stands down
 
 /* =====================================================================================================
    BOĞAZ VAPURU  -  single file Three.js Bosphorus ferry captain game
@@ -3911,7 +3963,9 @@ function endShift(kind) {
 
 // ---------------------------------------------------------------- rendering: renderer, scene, lights
 const canvas = $('#gl');
-const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: 'high-performance', alpha: false });
+let renderer, glFail = false;
+try { renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: 'high-performance', alpha: false }); }
+catch (e) { glFail = true; renderer = __glGuard.stub(canvas); } // no WebGL: boot() shows the notice and stops
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(55, 1, 0.8, 3200);
 const lowQ = () => settings.quality === 'low' || FLAG.low;
@@ -3953,7 +4007,7 @@ scene.add(sun); scene.add(sun.target);
 scene.fog = new THREE.Fog(0xcbe6f7, 300, 2400);
 // arena-core v2 render preset: neutral tone mapping, a little room light, CSS vignette + grain, grade (no composer: on Intel UHD
 // the bloom composer cost ~20% fps at 1280x720, so the frame renders directly)
-const FX = window.ArenaCore ? ArenaCore.render.setup(renderer, scene, camera, { tonlama: 'neutral', pozlama: 1.05, ortam: 0.12, bloom: false, vinyet: 0.25, grain: 0.03, renk: { doygunluk: 1.1, kontrast: 1.06 } }) : null;
+const FX = window.ArenaCore && !glFail ? ArenaCore.render.setup(renderer, scene, camera, { tonlama: 'neutral', pozlama: 1.05, ortam: 0.12, bloom: false, vinyet: 0.25, grain: 0.03, renk: { doygunluk: 1.1, kontrast: 1.06 } }) : null;
 
 // ---------------- particles (Points with a soft round sprite)
 const FXU = { uScale: { value: 700 }, uPix: { value: 1 } };
@@ -5717,6 +5771,7 @@ async function boot() {
   const yieldUI = () => new Promise(r => setTimeout(r, 0));
   const step = async fn => { fn(); loadN++; el.playTxt.textContent = t('loading', loadN, loadTotal); await yieldUI(); };
   setupTouch(); applyLang(); syncSettingsUI();
+  if (glFail) { el.playTxt.textContent = t('play'); el.bPlay.disabled = true; G.errors.push('WebGL unavailable'); __glGuard.fail('gl', LANG); return; }
   WR = mulberry(2024);
   await step(() => { buildPiers(); buildFairway(); });
   await step(() => buildMonuments());
